@@ -1,0 +1,221 @@
+@media screen and (min-width: 1299px) {
+
+    table {
+        border-collapse: inherit;
+        border-spacing: 0 22px;
+        color: white;
+        width: 100%;
+    }
+
+    p.cimClass{
+        font-size: 27px;
+        padding-bottom: 0px;
+        margin-bottom: 0px;
+    }
+
+    p.eloadoClass{
+        font-size: 20px;
+        padding-top: 0px;
+        margin-top: 0px;
+        color: #969393;
+        border-radius: 20px;
+    }
+
+    p.listaCim{
+        font-size: 40px;
+        margin-top: 20px;
+        margin-bottom: 0px;
+    }
+
+    p.letrehozo{
+        color: #cacaca;
+        font-size: 30px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    p.mufajok{
+        font-size: 35px;
+        margin-top: 10px;
+    }
+
+    span.lowerMufajok{
+        font-size: 30px;
+        color: #dfdfdf;
+    }
+
+    p{
+        font-size: 20px;
+    }
+
+    tr.tableHeader{
+        background-color: transparent;
+        box-shadow: none;
+        font-size: 20px;
+        text-align: left;
+        margin-left: 40px;
+
+    }
+
+    tr.zeneSor{
+        box-shadow: -10px 10px 10px #0000004d;
+        background-color: #11005E;
+        border-radius: 11px;
+    }
+
+    td{
+        padding: 10px;
+        vertical-align: middle;
+    }
+
+    td:first-child, th:first-child{
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+    td:last-child, th:last-child{
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    td.albumCover{
+        margin-left: 20px;
+        margin-right: 20px;
+        width: 90px;
+    }
+
+    td.cimEloado{
+        width: auto;
+    }
+
+    td.gombok{
+        text-align: right;
+        padding-right: 20px;
+        width: 380px;
+    }
+
+    td.mainAlbumCover{
+        margin-bottom: 60px;
+        margin-right: 30px;
+        width: 200px;
+    }
+
+    td.listaDataTd{
+        vertical-align: top;
+    }
+
+    img.zeneGombokImg{
+        width: 50px;
+        height: 50px;
+        padding: 7px;
+        border-radius: 10px;
+    }
+
+    img.zeneGombokImgk{
+        width: 50px;
+        height: 50px;
+        padding: 7px;
+        border-radius: 10px;
+    }
+
+    img.zeneAlbumCover{
+        width: 100px;   
+        height: 100px;
+        border-radius: 20px;
+    }
+
+    img.albumCover{
+        width: 300px;   
+        height: 300px;
+        border-radius: 20px;
+
+
+    }
+
+    button.zeneGombok :hover{
+        transform: scale(1.1);
+        background-color: #3300AA;
+    }
+
+    button {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .lenyilo{
+        border-radius: 7px;
+        background-color: #3300aa7e;
+        position: absolute;
+        right: 47px;
+    }
+}
+
+@media screen and (max-width: 1300px){
+    td.gombok{
+        width: 210px;
+        padding-right: 10px;
+        margin: 10px;
+    }
+    td.albumCover{
+        width: 50px;
+    }
+    img.zeneGombokImg{
+        width: 25px;
+        height: 25px;
+        margin-left: -5px;
+        margin-right: -5px;
+    }
+    img.zeneAlbumCover{
+        width: 60px;   
+        height: 60px;
+        border-radius: 10px;
+        padding: 5px;
+    }
+    img.albumCover{
+        width: 200px;
+        height: 200px;
+        margin-bottom: 30px;
+    }
+    p{
+        font-size: 12px;
+    }
+    p.cimClass{
+        font-size: 15px;
+    }
+    p.eloadoClass{
+        font-size: 12px;
+    }
+    tr.tableHeader{
+        font-size: 15px;
+    }
+    p.listaCim{
+        font-size: 30px;
+    }
+    p.letrehozo{
+        font-size: 20px;
+    }
+    p.mufajok{
+        font-size: 25px;
+    }
+    span.lowerMufajok{
+        font-size: 20px;
+    }
+}
+@media screen and (max-width: 800px){
+    td.gombok{
+        width: 90px;
+        padding-right: 10px;
+        margin: 10px;
+    }
+    .lenyilo{
+        right: 32px;
+    }
+    img.zeneGombokImgk{
+        width: 25px;
+        height: 25px;
+        margin-left: -5px;
+        margin-right: -5px;
+        padding: 4px;
+    }
+}
