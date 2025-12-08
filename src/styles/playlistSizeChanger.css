@@ -1,12 +1,5 @@
 @media screen and (min-width: 1299px) {
 
-    table {
-        border-collapse: inherit;
-        border-spacing: 0 22px;
-        color: white;
-        width: 100%;
-    }
-
     p.cimClass{
         font-size: 27px;
         padding-bottom: 0px;
@@ -57,51 +50,16 @@
 
     }
 
-    tr.zeneSor{
-        box-shadow: -10px 10px 10px #0000004d;
-        background-color: #11005E;
-        border-radius: 11px;
-    }
-
-    td{
-        padding: 10px;
-        vertical-align: middle;
-    }
-
-    td:first-child, th:first-child{
-        border-top-left-radius: 10px;
-        border-bottom-left-radius: 10px;
-    }
-
-    td:last-child, th:last-child{
-        border-top-right-radius: 10px;
-        border-bottom-right-radius: 10px;
-    }
-
     td.albumCover{
         margin-left: 20px;
         margin-right: 20px;
         width: 90px;
     }
 
-    td.cimEloado{
-        width: auto;
-    }
-
     td.gombok{
         text-align: right;
         padding-right: 20px;
         width: 380px;
-    }
-
-    td.mainAlbumCover{
-        margin-bottom: 60px;
-        margin-right: 30px;
-        width: 200px;
-    }
-
-    td.listaDataTd{
-        vertical-align: top;
     }
 
     img.zeneGombokImg{
@@ -128,19 +86,6 @@
         width: 300px;   
         height: 300px;
         border-radius: 20px;
-
-
-    }
-
-    button.zeneGombok :hover{
-        transform: scale(1.1);
-        background-color: #3300AA;
-    }
-
-    button {
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
     }
 
     .lenyilo{
@@ -149,22 +94,49 @@
         position: absolute;
         right: 47px;
     }
+
+    p.listaGombtartó{
+        background-color: #3300AA;
+        width: 440px;
+        text-align: center;
+        border-radius: 20px;
+    }
+
+    button.listaGombok{
+        border-radius: 20px;
+        padding: 10px;
+    }
+
+    button.listaGombok :hover{
+        background-color: #11005E;
+        border-radius: 20px;
+    }
+
+    img.listaGombokImg{
+        width: 90px;
+        height: 90px;
+    }
 }
 
 @media screen and (max-width: 1300px){
     td.gombok{
+        text-align: right;
         width: 210px;
         padding-right: 10px;
         margin: 10px;
     }
     td.albumCover{
+        margin-left: 10px;
+        margin-right: 10px;
         width: 50px;
     }
     img.zeneGombokImg{
         width: 25px;
         height: 25px;
+        padding: 6px;
         margin-left: -5px;
         margin-right: -5px;
+        border-radius: 8px;
     }
     img.zeneAlbumCover{
         width: 60px;   
@@ -176,30 +148,81 @@
         width: 200px;
         height: 200px;
         margin-bottom: 30px;
+        border-radius: 20px;
     }
     p{
         font-size: 12px;
+        padding-bottom: 0px;
+        margin-bottom: 0px;
     }
     p.cimClass{
         font-size: 15px;
     }
     p.eloadoClass{
         font-size: 12px;
+        padding-top: 0px;
+        margin-top: 0px;
+        color: #969393;
+        border-radius: 20px;
     }
     tr.tableHeader{
         font-size: 15px;
+        background-color: transparent;
+        box-shadow: none;
+        text-align: left;
+        margin-left: 40px;
     }
     p.listaCim{
         font-size: 30px;
+        margin-top: 20px;
+        margin-bottom: 0px;
     }
     p.letrehozo{
         font-size: 20px;
+        color: #cacaca;
+        margin-top: 0px;
+        margin-bottom: 0px;
     }
     p.mufajok{
         font-size: 25px;
+        margin-top: 10px;
     }
     span.lowerMufajok{
         font-size: 20px;
+        color: #dfdfdf;
+    }
+    img.zeneGombokImgk{
+        width: 50px;
+        height: 50px;
+        padding: 7px;
+        border-radius: 10px;
+    }
+    .lenyilo{
+        border-radius: 7px;
+        background-color: #3300aa7e;
+        position: absolute;
+        right: 47px;
+    }
+    p.listaGombtartó{
+        background-color: #3300AA;
+        width: 240px;
+        text-align: center;
+        border-radius: 14px;
+    }
+
+    button.listaGombok{
+        border-radius: 10px;
+        padding: 5px;
+    }
+
+    button.listaGombok :hover{
+        background-color: #11005E;
+        border-radius: 10px;
+    }
+
+    img.listaGombokImg{
+        width: 50px;
+        height: 50px;
     }
 }
 @media screen and (max-width: 800px){
@@ -207,8 +230,12 @@
         width: 90px;
         padding-right: 10px;
         margin: 10px;
+        text-align: right;
     }
     .lenyilo{
+        border-radius: 7px;
+        background-color: #3300aa7e;
+        position: absolute;
         right: 32px;
     }
     img.zeneGombokImgk{
@@ -217,5 +244,13 @@
         margin-left: -5px;
         margin-right: -5px;
         padding: 4px;
+        border-radius: 10px;
+    }
+    p.listaGombtartó{
+        background-color: #3300AA;
+        width: 240px;
+        text-align: center;
+        border-radius: 14px;
+        margin-top: -60px;
     }
 }

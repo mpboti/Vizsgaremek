@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
+import "../styles/playlistStyle.css"
 
 
 export default function Playlist({data, userData}) {
@@ -22,11 +23,27 @@ export default function Playlist({data, userData}) {
               <img src={userData.listaPic} alt="album kép" className="albumCover"/>
             </td>
             <td className="listaDataTd">
-              <p className="listaCim">Cím: {userData.listaCim}</p>
+              <p className="listaCim">{userData.listaCim}</p>
               <p className="letrehozo">Létrehozó: {userData.name}</p>
               <p className="mufajok">mufajok: <span className="lowerMufajok">{userData.mufajok}</span></p>
+              {phone?undefined:<p className="listaGombtartó">
+                <button className="listaGombok"><img src="../../public/pencil.png" alt="szerkeszt" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src="../../public/repeat.png" alt="ismétlés" className="listaGombokImg"/></button>
+                <button className="listaGombok" id="play"><img src="../../public/randomizer empty.png" alt="random" className="listaGombokImg"/></button>
+                <button className="listaGombok" id="play"><img src="../../public/play.png" alt="lejátszás" className="listaGombokImg"/></button>
+              </p>}
             </td>
           </tr>
+          {phone?<tr>
+            <td colSpan={2}>
+              <p className="listaGombtartó">
+                <button className="listaGombok"><img src="../../public/pencil.png" alt="szerkeszt" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src="../../public/repeat.png" alt="ismétlés" className="listaGombokImg"/></button>
+                <button className="listaGombok" id="play"><img src="../../public/randomizer empty.png" alt="random" className="listaGombokImg"/></button>
+                <button className="listaGombok" id="play"><img src="../../public/play.png" alt="lejátszás" className="listaGombokImg"/></button>
+              </p>
+            </td>
+          </tr>:undefined}
         </tbody>
       </table>
       <table>
