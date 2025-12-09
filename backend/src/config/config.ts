@@ -1,5 +1,4 @@
 import dotenv from 'dotenv'
-import { connect } from 'http2'
 import mysql from 'mysql2/promise'
 dotenv.config()
 
