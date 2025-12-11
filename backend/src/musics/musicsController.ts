@@ -85,7 +85,7 @@ export async function putMusicsById(req: Request, res: Response){
         return;
     }
     
-    let reqMusics: Musics = new Musics(req.body as unknown as IMusics)
+    let reqMusics: any = new Musics(req.body as unknown as IMusics)
     const allowedFields = ['name', 'album_id', 'mufaj_id']
     const keys = Object.keys(reqMusics).filter(key => allowedFields.includes(key))
     if (keys.length === 0){
