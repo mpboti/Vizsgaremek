@@ -1,5 +1,11 @@
 :root {
     font-family: Arial, sans-serif;
     margin: 20px;
-    background-color: #4917BC;
+    background-color: #0b0072;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
 }

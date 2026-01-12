@@ -6,8 +6,8 @@ table {
 }
 
 tr.zeneSor{
-    box-shadow: -10px 10px 10px #0000004d;
-    background-color: #11005E;
+    box-shadow: -10px 10px 10px #00000091;
+    background-color: #010042;
     border-radius: 11px;
 }
 
@@ -42,11 +42,5 @@ td.listaDataTd{
 
 button.zeneGombok :hover{
     transform: scale(1.1);
-    background-color: #3300AA;
-}
-
-button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
+    background-color: #000288b7;
 }

@@ -2,9 +2,15 @@ import { useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
+import { userDataListaz, dataListaz } from '../data.js'
+import pencil from "../assets/pencil.png"
+import repeat from "../assets/repeat.png"
+import randomizer from "../assets/randomizer_empty.png"
+import play from "../assets/play.png"
 
-
-export default function Playlist({data, userData}) {
+export default function Playlist() {
+  const data = dataListaz();
+  const userData = userDataListaz()[0];
   const [phone, setPhone] = useState(false)
   sizer()
   function sizer(){
@@ -27,26 +33,26 @@ export default function Playlist({data, userData}) {
               <p className="letrehozo">Létrehozó: {userData.name}</p>
               <p className="mufajok">mufajok: <span className="lowerMufajok">{userData.mufajok}</span></p>
               {phone?undefined:<p className="listaGombtartó">
-                <button className="listaGombok"><img src="../../public/pencil.png" alt="szerkeszt" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src="../../public/repeat.png" alt="ismétlés" className="listaGombokImg"/></button>
-                <button className="listaGombok" id="play"><img src="../../public/randomizer empty.png" alt="random" className="listaGombokImg"/></button>
-                <button className="listaGombok" id="play"><img src="../../public/play.png" alt="lejátszás" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
               </p>}
             </td>
           </tr>
           {phone?<tr>
             <td colSpan={2}>
               <p className="listaGombtartó">
-                <button className="listaGombok"><img src="../../public/pencil.png" alt="szerkeszt" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src="../../public/repeat.png" alt="ismétlés" className="listaGombokImg"/></button>
-                <button className="listaGombok" id="play"><img src="../../public/randomizer empty.png" alt="random" className="listaGombokImg"/></button>
-                <button className="listaGombok" id="play"><img src="../../public/play.png" alt="lejátszás" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
+                <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
               </p>
             </td>
           </tr>:undefined}
         </tbody>
       </table>
-      <table>
+      <table className="zeneTabla">
         <thead>
           <tr className="tableHeader">
             <th></th>

@@ -1,4 +1,4 @@
-@media screen and (min-width: 1299px) {
+@media screen and (min-width: 1299px){
 
     p.cimClass{
         font-size: 27px;
@@ -96,8 +96,9 @@
     }
 
     p.listaGombtartó{
-        background-color: #3300AA;
-        width: 440px;
+        background-color: #000291;
+        box-shadow: -10px 10px 10px #00000033;
+        width: 365px;
         text-align: center;
         border-radius: 20px;
     }
@@ -108,13 +109,17 @@
     }
 
     button.listaGombok :hover{
-        background-color: #11005E;
+        background-color: #020077;
         border-radius: 20px;
     }
 
     img.listaGombokImg{
-        width: 90px;
-        height: 90px;
+        width: 70px;
+        height: 70px;
+    }
+
+    th{
+        font-size: 20px;
     }
 }
 
@@ -204,7 +209,8 @@
         right: 47px;
     }
     p.listaGombtartó{
-        background-color: #3300AA;
+        background-color: #000291;
+        box-shadow: -10px 10px 10px #00000033;
         width: 240px;
         text-align: center;
         border-radius: 14px;
@@ -216,7 +222,7 @@
     }
 
     button.listaGombok :hover{
-        background-color: #11005E;
+        background-color: #020077;
         border-radius: 10px;
     }
 
@@ -224,13 +230,14 @@
         width: 50px;
         height: 50px;
     }
+
+    th{
+        font-size: 15px;
+    }
 }
 @media screen and (max-width: 800px){
     td.gombok{
         width: 90px;
-        padding-right: 10px;
-        margin: 10px;
-        text-align: right;
     }
     .lenyilo{
         border-radius: 7px;
@@ -247,7 +254,8 @@
         border-radius: 10px;
     }
     p.listaGombtartó{
-        background-color: #3300AA;
+        background-color: #000291;
+        box-shadow: -10px 10px 10px #00000033;
         width: 240px;
         text-align: center;
         border-radius: 14px;

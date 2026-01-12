@@ -1,19 +1,25 @@
-import { useState } from 'react'
-//import reactLogo from './assets/react.svg'
-//import viteLogo from '/vite.svg'
-import './App.css'
-import { dataListaz, userDataListaz } from './data'
-import Playlist from './coponents/playlist'
-
+import { RouterProvider } from "react-router-dom";
+import './App.css';
+import TopContent from "./components/top-content";
+import MainPage from "./components/MainPage";
+import Playlist from "./components/Playlist";
+import Kereses from "./components/Kereses";
+import ErrorNotFound from "./components/ErrorNotFound";
+import { createBrowserRouter } from "react-router-dom";
 
 function App() {
-  const [data, setData] = useState(dataListaz())
-  const [userData, setUserData] = useState(userDataListaz)
-  const [content, setContent] = useState(<Playlist data={data} userData={userData}/>)
+
+  const router = createBrowserRouter([
+    {path: "/", element: <TopContent />, errorElement:<ErrorNotFound/>,
+    children:[
+      {path: "/", element: <MainPage />},
+      {path: "/playlist/:id", element: <Playlist />},
+      {path: "/search", element: <Kereses />}
+    ]}
+  ]);
+
   return (
-    <>
-      {content}
-    </> 
+    <RouterProvider router={router} />
   )
 }
 

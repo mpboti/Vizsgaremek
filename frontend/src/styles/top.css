@@ -1,0 +1,145 @@
+img.topGombokImg{
+    width: 50px;
+}
+
+img.userPic{
+    border-radius: 40px;
+    width: 70px;
+}
+
+.topGombok{
+    border-radius: 10px;
+    padding: 5px 9px 5px 4px;
+}
+
+.topGombok :hover{
+    background-color: #000291;
+}
+
+div.keresokeret{
+    background-color: #00c3ff50;
+    border-radius: 10px;
+    padding: 5px 0 0 0;
+}
+
+input.searchText{
+    background-color: transparent;
+    font-size: 25px;
+    width: 375px;
+    border: none;
+    outline: none;
+    vertical-align: top;
+    padding: 10px 6px 10px 0;
+    color: white;
+}
+
+td.keresomezo{
+    border-radius: 10px;
+    padding: 0 15px 0 5px;
+    margin-top: -5px;
+    margin-bottom: -7px;
+    text-align: center;
+    width: 445px;
+}
+
+td.userNameTd, td.home{
+    text-align: right;
+    vertical-align: middle;
+}
+
+p.userName{
+    text-align: right;
+    position: absolute;
+    top: 25px;
+    right: 130px;
+}
+
+p.toltelek{
+    background-color: transparent;
+    color: transparent;
+    border-color: transparent;
+    width: 50px;
+}
+
+td.userPicTd, td.backTd{
+    width: 50px;
+}
+
+table{
+    margin-top: -40px;
+}
+
+@media screen and (max-width: 1300px){
+    td.userPicTd, td.backTd{
+        width: 30px;
+    }
+    td.userNameTd{
+        padding-bottom: 25px;
+        margin-right: -200px;
+    }
+    img.topGombokImg{
+        width: 30px;
+        vertical-align: middle;
+    }
+    .keres{
+        margin-top: 300px;
+    }
+    img.userPic{
+        width: 50px;
+    }
+    input.searchText{
+        font-size: 20px;
+        width: 250px;
+        padding-top: 7px;
+        padding-bottom: 12px;
+    }
+    div.keresokeret{
+        border-radius: 10px;
+        padding: 5px 0 0 0;
+    }
+    td.keresomezo{
+        border-radius: 10px;
+        padding: 0 15px 0 5px;
+        margin-top: -5px;
+        margin-bottom: -7px;
+        width: 300px;
+    }
+    p.toltelek{
+        width: 30px;
+    }
+    p.userName{
+        top: 28px;
+        right: 105px;
+    }
+}
+@media screen and (max-width: 650px){
+    td.keresomezo{
+        border-radius: 10px;
+        padding: 0 10px 0 5px;
+        margin-top: -5px;
+        margin-bottom: -7px;
+        width: 200px;
+    }
+    input.searchText{
+        font-size: 20px;
+        width: 150px;
+        padding-top: 7px;
+        padding-bottom: 12px;
+    }
+    p.toltelek{
+        width: 0px;
+    }
+    
+}
+@media screen and (max-width: 510px){
+    td.userNameTd{
+        padding: 0;
+    }
+    td.keresomezo{
+        border-radius: 10px;
+        padding: 0 10px 0 5px;
+        margin-top: -5px;
+        margin-bottom: -7px;
+        min-width: 200px;
+    }
+}
