@@ -1,7 +1,8 @@
 import express, {Router} from "express";
+import root from "./rootController"
 
 const router: Router = express.Router();
 
-router.get('/');
+router.get('/', root);
 
 export default router;
