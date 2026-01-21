@@ -26,14 +26,17 @@
   "dependencies": {
     "@types/body-parser": "^1.19.6",
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
     "body-parser": "^2.2.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "multer": "^2.0.2",
     "mysql2": "^3.16.1",
     "nodemon": "^3.1.11",
     "tslint": "^5.20.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "util": "^0.12.5"
   },
   "files": [
     "./bin/*",

@@ -76,7 +76,7 @@ RETURNS INTEGER DETERMINISTIC
 BEGIN
 DECLARE ok INTEGER;
 SET ok = 0;
-SELECT userId INTO ok FROM users WHERE users.email = email AND users.password = pwd_encrypt(pwd);
+SELECT id INTO ok FROM users WHERE users.email = email AND users.pwd = pwd_encrypt(pwd);
 RETURN ok;
 
 DELIMITER ;
