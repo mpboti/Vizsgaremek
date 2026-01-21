@@ -4,7 +4,7 @@ USE slicetune;
 CREATE TABLE profile_pictures (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
-    uploadTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     mimeType VARCHAR(100),
     filePath VARCHAR(500) NOT NULL
 );
@@ -12,7 +12,7 @@ CREATE TABLE profile_pictures (
 CREATE TABLE music_files (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
-    uploadTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     mimeType VARCHAR(100),
     filePath VARCHAR(500) NOT NULL
 );
@@ -24,7 +24,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
     avatarId INT NULL,
-    creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (avatarId) REFERENCES profile_pictures(id) ON DELETE SET NULL
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE musics (
     name VARCHAR(255) NOT NULL,
     musicFileId INT NOT NULL,
     uploaderId INT NOT NULL,
-    creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (musicFileId) REFERENCES music_files(id) ON DELETE CASCADE,
     FOREIGN KEY (uploaderId) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -44,7 +44,7 @@ CREATE TABLE playlists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     ownerId INT NOT NULL,
-    creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -78,6 +78,5 @@ DECLARE ok INTEGER;
 SET ok = 0;
 SELECT userId INTO ok FROM users WHERE users.email = email AND users.password = pwd_encrypt(pwd);
 RETURN ok;
-END$$
 
 DELIMITER ;
