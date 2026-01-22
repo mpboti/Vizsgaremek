@@ -1,6 +1,31 @@
 import { Request, Response } from "express";
 import config from "../config/config";
 import Users, { IUsers } from "./users";
+import jwt from 'jsonwebtoken';
+
+export async function logIn(req: Request, res: Response) {
+    const { username, pwd } = req.body;
+
+    if (!username || !pwd) {
+        return res.status(400).json({ message: "Username and password are required." });
+    }
+
+    const conn = await config.connection;
+    try {
+        const [results] = await conn.query("SELECT login (?, ?) AS id", [username, pwd]);
+        if (results.length === 0 || results[0].id === null || results[0].id <= 0) {
+            return res.status(401).json({ message: "Invalid username or password." });
+        }
+        if(!config.jwtSecret) {
+            throw new Error("JWT secret is not defined in the configuration.");
+        }
+        const token = jwt.sign({ id: results[0].id, username }, config.jwtSecret, { expiresIn: '1d' });
+        res.status(200).json({ message: "Login successful.", token });
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+}
 
 export async function getAllUsers(_req: Request, res: Response) {
     const conn = await config.connection;

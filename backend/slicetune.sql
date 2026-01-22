@@ -17,7 +17,7 @@ CREATE TABLE music_files (
     filePath VARCHAR(500) NOT NULL
 );
 
---If profile picture gets deleted avatarId is set to null
+/*If profile picture gets deleted avatarId is set to null*/
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE users (
     FOREIGN KEY (avatarId) REFERENCES profile_pictures(id) ON DELETE SET NULL
 );
 
---if the user or the music file gets deleted, the music deletes itself too
+/*if the user or the music file gets deleted, the music deletes itself too*/
 CREATE TABLE musics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE musics (
     FOREIGN KEY (uploaderId) REFERENCES users(id) ON DELETE CASCADE
 );
 
---if user gets deleted, the playlist does too
+/*if user gets deleted, the playlist does too*/
 CREATE TABLE playlists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE playlists (
     FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE
 );
 
---if the playlist. or the music in the playlist gets deleted, so does it's place in the playlist
+/*if the playlist. or the music in the playlist gets deleted, so does it's place in the playlist*/
 CREATE TABLE playlist_musics (
     playlistId INT NOT NULL,
     musicId INT NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE playlist_musics (
     FOREIGN KEY (musicId) REFERENCES musics(id) ON DELETE CASCADE
 );
 
---Before we insert the user in the users table, we encrypt the password
+/*Before we insert the user in the users table, we encrypt the password*/
 CREATE TRIGGER insert_user BEFORE INSERT ON users
 FOR EACH ROW SET new.pwd = pwd_encrypt(new.pwd);
 
@@ -68,7 +68,7 @@ CREATE FUNCTION pwd_encrypt(pwd VARCHAR(100))
 RETURNS VARCHAR(255) DETERMINISTIC
 RETURN SHA2(CONCAT(pwd,'poopastinka'),256);
 
---We check if the email and password match
+/*We check if the email and password match*/
 DELIMITER $$
 
 CREATE FUNCTION login(email VARCHAR(100),pwd VARCHAR(100))
