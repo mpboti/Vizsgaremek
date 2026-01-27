@@ -3,7 +3,6 @@ export interface IMusic {
     name: string;
     musicFileId: number;
     uploaderId: number;
-    createdAt: null;
 }
 
 export default class Music implements IMusic {
@@ -11,13 +10,11 @@ export default class Music implements IMusic {
     name: string;
     musicFileId: number;
     uploaderId: number;
-    createdAt: null;
 
     constructor(init: IMusic) {
         this.id = init.id;
         this.name = init.name;
         this.musicFileId = init.musicFileId;
         this.uploaderId = init.uploaderId;
-        this.createdAt = init.createdAt;
     }
 }
