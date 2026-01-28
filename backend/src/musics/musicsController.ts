@@ -31,9 +31,11 @@ export async function getMusicById(req: Request, res: Response) {
             return res.status(404).json({ message: "Music not found." });
         }
         res.status(200).json(results[0]);
+        return;
     } catch (error) {
         console.error("Error fetching music:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -54,9 +56,11 @@ export async function createMusic(req: Request, res: Response) {
     try  {
         const [results] = await conn.query("INSERT INTO musics (id, name, musicFileId, uploaderId) VALUES (null, ?, ?, ?)", [music.name, music.musicFileId, music.uploaderId]);
         res.status(201).json({ message: "Music created successfully.", id: results.insertId });
+        return;
     } catch (error) {
         console.error("Error creating music:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -74,9 +78,11 @@ export async function deleteMusic(req: Request, res: Response) {
             return res.status(404).json({ message: "Music not found." });
         }
         res.status(200).json({ message: "Music deleted successfully." });
+        return;
     } catch (error) {
         console.error("Error deleting music:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -109,8 +115,10 @@ export async function updateMusic(req: Request, res: Response) {
             return res.status(404).json({ message: "Music not found." });
         }
         res.status(200).json({ message: "Music updated successfully." });
+        return;
     } catch (error) {
         console.error("Error updating music:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 }

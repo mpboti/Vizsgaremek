@@ -21,9 +21,11 @@ export async function logIn(req: Request, res: Response) {
         }
         const token = jwt.sign({ id: results[0].id, username }, config.jwtSecret, { expiresIn: '1d' });
         res.status(200).json({ message: "Login successful.", token });
+        return;
     } catch (error) {
         console.error("Error during login:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 }
 
@@ -34,11 +36,14 @@ export async function getAllUsers(_req: Request, res: Response) {
         const [results] = await conn.query("SELECT * FROM users");
         if (results.length === 0) {
             res.status(404).json({ message: "No users found." });
+            return;
         }
         res.status(200).json(results);
+        return;
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -56,9 +61,11 @@ export async function getUserById(req: Request, res: Response) {
             return res.status(404).json({ message: "User not found." });
         }
         res.status(200).json(results[0]);
+        return;
     } catch (error) {
         console.error("Error fetching user:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -79,9 +86,11 @@ export async function createUser(req: Request, res: Response) {
     try {
         const [results] = await conn.query("INSERT INTO users (id, username, email, pwd) VALUES (null, ?, ?, ?)", [user.username, user.email, user.pwd]);
         res.status(201).json({ message: "User created successfully.", id: results.insertId });
+        return;
     } catch (error) {
         console.error("Error creating user:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -99,9 +108,11 @@ export async function deleteUser(req: Request, res: Response) {
             return res.status(404).json({ message: "User not found." });
         }
         res.status(200).json({ message: "User deleted successfully." });
+        return;
     } catch (error) {
         console.error("Error deleting user:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 };
 
@@ -134,8 +145,10 @@ export async function updateUser(req: Request, res: Response) {
             return res.status(404).json({ message: "User not found." });
         }
         res.status(200).json({ message: "User updated successfully." });
+        return;
     } catch (error) {
         console.error("Error updating user:", error);
         res.status(500).json({ message: "Internal server error." });
+        return;
     }
 }

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
+import path from 'path';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ class DBConfig {
 const config: any = {
     connection: new DBConfig(),
     jwtSecret: process.env.JWT_SECRET || 'key',
+    baseDir: path.resolve(__dirname, '../../'),
 }
 
 export default config;
