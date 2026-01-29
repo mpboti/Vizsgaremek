@@ -31,6 +31,14 @@ let userData = [{
     listaCim: "Jó zenék",
     listaPic: "https://mosaic.scdn.co/300/ab67616d00001e027028981d09d2e5833c9c78adab67616d00001e02b4bafae67d95046f07a9debdab67616d00001e02c6710b4a52539506c30e5354ab67616d00001e02de1af2785a83cc660155a0c4",
     mufajok:"rock, punk, pop"
+},
+{
+    name: "mpboti",
+    email: "botond.maderpiros@gmail.com",
+    userPic: "https://i.scdn.co/image/ab6775700000b8a8a81ce3d87efdd7f1dcd56853",
+    listaCim: "Jó zenék",
+    listaPic: "https://mosaic.scdn.co/300/ab67616d00001e027028981d09d2e5833c9c78adab67616d00001e02b4bafae67d95046f07a9debdab67616d00001e02c6710b4a52539506c30e5354ab67616d00001e02de1af2785a83cc660155a0c4",
+    mufajok:"rock, punk, pop"
 }];
 
 export function dataListaz(){

@@ -42,5 +42,22 @@ td.listaDataTd{
 
 button.zeneGombok :hover{
     transform: scale(1.1);
-    background-color: #000288b7;
+    background-color: #2130fd33;
+}
+
+.playlistContainer{
+   padding-bottom: 120px;
+   padding-top: 90px;
+}
+
+@media screen and (max-width: 1300px){
+    div.playlistContainer{
+       padding-top: 70px;
+    }
+}
+
+@media screen and (max-width: 1155px){
+    div.playlistContainer{
+       padding-bottom: 250px;
+    }
 }

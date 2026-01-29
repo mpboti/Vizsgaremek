@@ -1,0 +1,103 @@
+div.keresesMenu {
+    position: fixed;
+    top: 100px;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #000657;
+    border-radius: 10px;
+}
+
+div.keresesMenuFlex {
+    display: flex;
+}
+
+
+div.musicOrPlaylistFlex {
+    padding-top: 10px;
+    height: 40px;
+    display: flex;
+}
+
+button.musicOrPlaylistButton{
+    font-size: 20px;
+    text-align: center;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 8px;
+    flex: 1;
+}
+button.microSelected{
+    background-color: #555a9cab;
+    font-size: 20px;
+    text-align: center;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 8px;
+    flex: 1;
+}
+
+button.musicOrPlaylistButton:hover{
+    background-color: #2130fd33;
+}
+
+button.keresesMenuButtons{
+    font-size: 25px;
+    border-radius: 15px;
+    padding: 20px;
+    flex:1;
+}
+
+button.keresesMenuButtons:hover{
+    background-color: #2130fd33;
+}
+
+button.selected{
+    background-color: #555a9cab;
+    font-size: 25px;
+    border-radius: 15px;
+    padding: 20px;
+    flex:1;
+}
+
+div.keresesContent{
+   padding-bottom: 120px;
+   padding-top: 250px;
+}
+
+@media screen and (max-width: 1381px){
+    div.keresesContent{
+       padding-top: 275px;
+    }
+}
+
+@media screen and (max-width: 1155px){
+    div.keresesContent{
+       padding-bottom: 250px;
+    }
+}
+
+@media screen and (max-width: 950px){
+    button.keresesMenuButtons{
+        font-size: 14px;
+        padding: 4px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    button.selected{
+        font-size: 14px;
+        padding: 4px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    button.musicOrPlaylistButton{
+        font-size: 12px;
+        padding: 4px;
+    }
+    button.microSelected{
+        font-size: 12px;
+        padding: 4px;
+    }
+}

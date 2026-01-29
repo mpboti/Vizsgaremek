@@ -2,9 +2,11 @@
     font-family: Arial, sans-serif;
     margin: 20px;
     background-color: #0b0072;
+    min-width: 410px;
 }
 
 button {
+  color: white;
   background-color: transparent;
   border: none;
   cursor: pointer;

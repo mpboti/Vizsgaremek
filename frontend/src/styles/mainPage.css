@@ -3,17 +3,71 @@
     color: inherit;
     display: block;
     font-size: 20px;
+    flex: 10;
 }
 
-.row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+.botRow-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    font-size: 20px;
+}
+
+.botRow{
+    margin-top: 20px;
     padding: 12px;
-    cursor: pointer;
     color: white;
     background-color: #010042;
     border-radius: 20px;
+    box-shadow: -10px 10px 10px #00000033;
+    text-align: center;
+}
+
+.botRow-link:hover .botRow{
+    background-color: #01004293;
+}
+
+div.listaInfo{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+div.listaButtons{
+    display: flex;
+    flex: 1;
+    align-items: right;
+    gap: 16px;
+    margin-right: 10px;
+    padding-top: 45px;
+    padding-bottom: 45px;
+    box-sizing: border-box;
+    justify-content: flex-end;
+}
+
+button.mainListButtons{
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 20px;
+    margin: -5px;
+}
+
+button.mainListButtons:hover{
+    transform: scale(1.1);
+    background-color: #2130fd33;
+}
+
+.row {
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    color: white;
+    background-color: #010042;
+    border-radius: 20px;
+    box-shadow: -10px 10px 10px #00000033;
 }
 
 img.mainKep {
@@ -23,12 +77,89 @@ img.mainKep {
     padding-top: 2px;
 }
 
+img.listAddImg {
+    width: 100px;
+    height: 100px;
+    border-radius: 15px;
+    padding-top: 22px;
+    padding-bottom: 20px;
+}
+
+img.listaButtonImg {
+    width: 75px;
+    height: 75px;
+}
+
 p.mainCim{
     font-size: 30px;
     margin-bottom: -22px;
+    vertical-align: middle;
 }
 
 p.creator {
     font-size: 20px;
     color: #cacaca;
+}
+
+div.mainPage{
+    padding-top: 70px;
+    padding-bottom: 130px;
+}
+
+@media screen and (max-width: 1300px){
+    div.mainPage{
+       padding-top: 50px;
+    }
+}
+
+@media screen and (max-width: 1155px){
+    div.mainPage{
+        padding-bottom: 260px;
+    }
+}
+
+@media screen and (max-width: 1300px){
+    img.mainKep {
+        width: 100px;
+        height: 100px;
+    }
+    img.listAddImg {
+        width: 50px;
+        height: 50px;
+        padding-top: 12px;
+        padding-bottom: 10px;
+    }
+    button.mainListButtons{
+        padding: 7px;
+    }
+    img.listaButtonImg {
+        width: 40px;
+        height: 40px;
+    }
+    div.listaButtons{
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+    p.mainCim{
+        font-size: 20px;
+        margin-bottom: -15px;
+        margin-top: -2px;
+    }
+    p.creator {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 625px){
+    .row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    div.listaInfo{
+        justify-content: left;
+    }
+    div.listaButtons{
+        justify-content: center;
+        margin-right: -10px;
+    }
 }

@@ -12,46 +12,35 @@ export default function Playlist() {
   const data = dataListaz();
   const userData = userDataListaz()[0];
   const [phone, setPhone] = useState(false)
-  sizer()
+  
   function sizer(){
     if(!phone && 800>=window.innerWidth)
       setPhone(true)
     else if(phone && 800<window.innerWidth)
       setPhone(false)
   }
+  sizer()
   window.addEventListener("resize", sizer)
   return (
-    <>
-      <table>
-        <tbody>
-          <tr>
-            <td className="mainAlbumCover">
-              <img src={userData.listaPic} alt="album kép" className="albumCover"/>
-            </td>
-            <td className="listaDataTd">
-              <p className="listaCim">{userData.listaCim}</p>
-              <p className="letrehozo">Létrehozó: {userData.name}</p>
-              <p className="mufajok">mufajok: <span className="lowerMufajok">{userData.mufajok}</span></p>
-              {phone?undefined:<p className="listaGombtartó">
-                <button className="listaGombok"><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
-              </p>}
-            </td>
-          </tr>
-          {phone?<tr>
-            <td colSpan={2}>
-              <p className="listaGombtartó">
-                <button className="listaGombok"><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
-                <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
-              </p>
-            </td>
-          </tr>:undefined}
-        </tbody>
-      </table>
+    <div className="playlistContainer">
+      <div>
+        <div className="playlistHeader">
+          <div className="mainAlbumCover">
+            <img src={userData.listaPic} alt="album kép" className="albumCoverImg"/>
+          </div>
+          <div className="listaDataDiv">
+            <p className="listaCim">{userData.listaCim}</p>
+            <p className="letrehozo">Létrehozó: {userData.name}</p>
+            <p className="mufajok">műfajok: <span className="lowerMufajok">{userData.mufajok}</span></p>
+            <p className="listaGombtarto">
+              <button className="listaGombok"><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>
+              <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
+              <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
+              <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
+            </p>
+          </div>
+        </div>
+      </div>
       <table className="zeneTabla">
         <thead>
           <tr className="tableHeader">
@@ -63,11 +52,11 @@ export default function Playlist() {
             <th></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="playlistBody">
           {data.map((item, index) => 
             <RowGenerator 
+            key={index}
             phone={phone}
-            key={index} 
             kep={item.kep} 
             cim={item.cim} 
             eloado={item.eloado} 
@@ -77,6 +66,6 @@ export default function Playlist() {
           )}
         </tbody>
       </table>
-    </>
+    </div>
   );
 }

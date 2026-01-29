@@ -15,7 +15,7 @@ export default function RowGenerator({phone, kep, cim, eloado, album, megjelenes
     if(phone){
         return (
             <tr className="zeneSor">
-                <td className="albumCover"><img src={kep?kep:undefined} className="zeneAlbumCover" alt="nincs album kép"/></td>
+                <td className="albumCover"><img src={kep?kep:undefined} className="zeneAlbumCover"/></td>
                 <td className="cimEloado">
                     <p className="cimClass">{cim}</p>
                     <p className="eloadoClass">{eloado}</p>
@@ -42,7 +42,7 @@ export default function RowGenerator({phone, kep, cim, eloado, album, megjelenes
     else{
         return (
             <tr className="zeneSor">
-                <td className="albumCover"><img src={kep?kep:undefined} className="zeneAlbumCover" alt="nincs album kép"/></td>
+                <td className="albumCover"><img src={kep?kep:undefined} className="zeneAlbumCover"/></td>
                 <td className="cimEloado">
                     <p className="cimClass">{cim}</p>
                     <p className="eloadoClass">{eloado}</p>

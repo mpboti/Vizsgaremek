@@ -2,8 +2,8 @@ import { RouterProvider } from "react-router-dom";
 import './App.css';
 import TopContent from "./components/top-content";
 import MainPage from "./components/MainPage";
-import Playlist from "./components/Playlist";
-import Kereses from "./components/Kereses";
+import Playlist from "./components/playlist";
+import Kereses from "./components/kereses";
 import ErrorNotFound from "./components/ErrorNotFound";
 import { createBrowserRouter } from "react-router-dom";
 

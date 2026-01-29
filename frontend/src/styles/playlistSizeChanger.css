@@ -1,126 +1,129 @@
-@media screen and (min-width: 1299px){
+div.playlistHeader{
+    display: flex;
+    margin-bottom: 20px;
+    color:white;
+    gap: 20px;
+}
 
-    p.cimClass{
-        font-size: 27px;
-        padding-bottom: 0px;
-        margin-bottom: 0px;
-    }
+p.cimClass{
+    font-size: 27px;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
 
-    p.eloadoClass{
-        font-size: 20px;
-        padding-top: 0px;
-        margin-top: 0px;
-        color: #969393;
-        border-radius: 20px;
-    }
+p.eloadoClass{
+    font-size: 20px;
+    padding-top: 0px;
+    margin-top: 0px;
+    color: #969393;
+    border-radius: 20px;
+}
 
-    p.listaCim{
-        font-size: 40px;
-        margin-top: 20px;
-        margin-bottom: 0px;
-    }
+p.listaCim{
+    font-size: 40px;
+    margin-top: 20px;
+    margin-bottom: 0px;
+}
 
-    p.letrehozo{
-        color: #cacaca;
-        font-size: 30px;
-        margin-top: 0px;
-        margin-bottom: 0px;
-    }
+p.letrehozo{
+    color: #cacaca;
+    font-size: 30px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
 
-    p.mufajok{
-        font-size: 35px;
-        margin-top: 10px;
-    }
+p.mufajok{
+    font-size: 35px;
+    margin-top: 10px;
+}
 
-    span.lowerMufajok{
-        font-size: 30px;
-        color: #dfdfdf;
-    }
+span.lowerMufajok{
+    font-size: 30px;
+    color: #dfdfdf;
+}
 
-    p{
-        font-size: 20px;
-    }
+p{
+    font-size: 20px;
+}
 
-    tr.tableHeader{
-        background-color: transparent;
-        box-shadow: none;
-        font-size: 20px;
-        text-align: left;
-        margin-left: 40px;
+tr.tableHeader{
+    background-color: transparent;
+    box-shadow: none;
+    font-size: 20px;
+    text-align: left;
+    margin-left: 40px;
+}
 
-    }
+td.albumCover{
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 90px;
+}
 
-    td.albumCover{
-        margin-left: 20px;
-        margin-right: 20px;
-        width: 90px;
-    }
+td.gombok{
+    text-align: right;
+    padding-right: 20px;
+    width: 380px;
+}
 
-    td.gombok{
-        text-align: right;
-        padding-right: 20px;
-        width: 380px;
-    }
+img.zeneGombokImg{
+    width: 50px;
+    height: 50px;
+    padding: 7px;
+    border-radius: 10px;
+}
 
-    img.zeneGombokImg{
-        width: 50px;
-        height: 50px;
-        padding: 7px;
-        border-radius: 10px;
-    }
+img.zeneGombokImgk{
+    width: 50px;
+    height: 50px;
+    padding: 7px;
+    border-radius: 10px;
+}
 
-    img.zeneGombokImgk{
-        width: 50px;
-        height: 50px;
-        padding: 7px;
-        border-radius: 10px;
-    }
+img.zeneAlbumCover{
+    width: 100px;   
+    height: 100px;
+    border-radius: 20px;
+}
 
-    img.zeneAlbumCover{
-        width: 100px;   
-        height: 100px;
-        border-radius: 20px;
-    }
+img.albumCoverImg{
+    width: 300px;   
+    height: 300px;
+    border-radius: 20px;
+}
 
-    img.albumCover{
-        width: 300px;   
-        height: 300px;
-        border-radius: 20px;
-    }
+.lenyilo{
+    border-radius: 7px;
+    background-color: #3300aa7e;
+    position: absolute;
+    right: 47px;
+}
 
-    .lenyilo{
-        border-radius: 7px;
-        background-color: #3300aa7e;
-        position: absolute;
-        right: 47px;
-    }
+p.listaGombtarto{
+    background-color: #000291;
+    box-shadow: -10px 10px 10px #00000033;
+    width: 365px;
+    text-align: center;
+    border-radius: 20px;
+}
 
-    p.listaGombtartó{
-        background-color: #000291;
-        box-shadow: -10px 10px 10px #00000033;
-        width: 365px;
-        text-align: center;
-        border-radius: 20px;
-    }
+button.listaGombok{
+    border-radius: 20px;
+    padding: 10px;
+}
 
-    button.listaGombok{
-        border-radius: 20px;
-        padding: 10px;
-    }
+button.listaGombok:hover{
+    background-color: #020077;
+    border-radius: 20px;
+}
 
-    button.listaGombok :hover{
-        background-color: #020077;
-        border-radius: 20px;
-    }
+img.listaGombokImg{
+    width: 70px;
+    height: 70px;
+}
 
-    img.listaGombokImg{
-        width: 70px;
-        height: 70px;
-    }
-
-    th{
-        font-size: 20px;
-    }
+th{
+    font-size: 20px;
 }
 
 @media screen and (max-width: 1300px){
@@ -149,7 +152,7 @@
         border-radius: 10px;
         padding: 5px;
     }
-    img.albumCover{
+    img.albumCoverImg{
         width: 200px;
         height: 200px;
         margin-bottom: 30px;
@@ -208,7 +211,7 @@
         position: absolute;
         right: 47px;
     }
-    p.listaGombtartó{
+    p.listaGombtarto{
         background-color: #000291;
         box-shadow: -10px 10px 10px #00000033;
         width: 240px;
@@ -221,7 +224,7 @@
         padding: 5px;
     }
 
-    button.listaGombok :hover{
+    button.listaGombok:hover{
         background-color: #020077;
         border-radius: 10px;
     }
@@ -235,7 +238,18 @@
         font-size: 15px;
     }
 }
+
 @media screen and (max-width: 800px){
+    img.albumCoverImg{
+        margin-bottom: -25px;
+        width: 300px;
+        height: 300px;
+    }
+    div.playlistHeader{
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
     td.gombok{
         width: 90px;
     }
@@ -253,12 +267,15 @@
         padding: 4px;
         border-radius: 10px;
     }
-    p.listaGombtartó{
+    p.listaGombtarto{
         background-color: #000291;
         box-shadow: -10px 10px 10px #00000033;
         width: 240px;
         text-align: center;
+        margin-left: auto;
+        margin-right: auto;
         border-radius: 14px;
-        margin-top: -60px;
+        margin-bottom: 40px;
+        margin-top: 25px;
     }
 }

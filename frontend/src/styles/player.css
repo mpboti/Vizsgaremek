@@ -1,0 +1,139 @@
+.player {
+    background-color: #010042;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+.playerCimEloado {
+    margin-top: -25px;
+}
+.playerData {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 20px;
+}
+
+div.playerSliders {
+    display: flex;
+    align-items: center;
+    color: white;
+    gap: 8px;
+}
+
+.muteButton {
+    margin-left: 8px;
+    margin-right: -8px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.muteButton:hover {
+    background-color: #2130fd33;
+}
+
+div.playerControls {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 8px;
+    margin-right: 17px;
+    color: white;
+}
+
+button.controlButton {
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button.controlButton:hover {
+    transform: scale(1.1);
+    background-color: #2130fd33;
+}
+
+img.controlImg {
+    width: 50px;
+    height: 50px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+img.muteImg {
+    width: 70px;
+    height: 70px;
+}
+
+.playerAlbumPic {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+}
+
+.playerSong {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-bottom: -14px;
+    font-size: 20px;
+    color: white;
+}
+
+.playerArtist {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    color: #cacaca;
+}
+
+.timeSlider {
+    width: 300px;
+    cursor: pointer;
+}
+
+.volumeSlider {
+    width: 150px;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 1475px){
+    .timeSlider {
+        width: 150px;
+    }
+    .volumeSlider {
+        width: 100px;
+    }
+    img.muteImg{
+        width: 50px;
+        height: 50px;
+    }
+    img.controlImg{
+        width: 40px;
+        height: 40px;
+    }
+    div.playerControls {
+        gap: 5px;
+    }
+}
+@media screen and (max-width: 1155px){
+    div.player{
+        margin-left: 0;
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+        align-items: center;
+    }
+    div.playerControls {
+        display: flex;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .playerData {
+        width: 440px;
+    }
+}
