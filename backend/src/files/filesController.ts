@@ -1,38 +1,28 @@
 import config from "../config/config";
 import { Request, Response } from "express";
-import fs from "fs";
 import { uploadMusicMiddleware, uploadImageMiddleware } from "../middleware/upload";
+import mysql from "mysql2/promise";
+import { ImageFile, IImageFile, IMulterFile as IMulterImageFile } from "./imageFile";
+import { MusicFile, IMusicFile, IMulterFile as IMulterMusicFile } from "./musicFile";
 
 export async function getMusicFileList (_req: Request, res: Response) {
-    const musicDir = config.baseDir + '/uploads/musics/';
-    fs.readdir(musicDir, function (err, files) {
-        if (err) {
-            console.error("Error reading music directory:", err);
-            return res.status(500).json({ message: "Internal server error." });
-        }
-        const musicFiles: any = [];
-        files.forEach(function (file) {
-            musicFiles.push({ filename: file });
-        });
-        res.status(200).json(musicFiles);
+    const conn = await config.connection;
+    const [results] = await conn.query("SELECT * FROM music_files");
+    if (results.length === 0) {
+        res.status(404).json({ message: "No music files found." });
         return;
-    });
+    }
+    res.status(200).json(results);
 }
 
 export async function getImageFileList (_req: Request, res: Response) {
-    const imageDir = config.baseDir + '/uploads/images/';
-    fs.readdir(imageDir, function (err, files) {
-        if (err) {
-            console.error("Error reading image directory:", err);
-            return res.status(500).json({ message: "Internal server error." });
-        }
-        const imageFiles: any = [];
-        files.forEach(function (file) {
-            imageFiles.push({ filename: file });
-        });
-        res.status(200).json(imageFiles);
+    const conn = await config.connection;
+    const [results] = await conn.query("SELECT * FROM profile_pictures");
+    if (results.length === 0) {
+        res.status(404).json({ message: "No image files found." });
         return;
-    });
+    };
+    res.status(200).json(results);
 }
 
 export async function uploadMusicFile(req: Request, res: Response) {

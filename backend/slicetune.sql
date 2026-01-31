@@ -2,19 +2,21 @@ CREATE DATABASE slicetune;
 USE slicetune;
 
 CREATE TABLE profile_pictures (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(255) PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     mimeType VARCHAR(100),
-    filePath VARCHAR(500) NOT NULL
+    filePath VARCHAR(500) NOT NULL,
+    fileSize INT NOT NULL
 );
 
 CREATE TABLE music_files (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(255) PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     mimeType VARCHAR(100),
-    filePath VARCHAR(500) NOT NULL
+    filePath VARCHAR(500) NOT NULL,
+    fileSize INT NOT NULL
 );
 
 /*If profile picture gets deleted avatarId is set to null*/
