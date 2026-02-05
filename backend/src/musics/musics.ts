@@ -1,14 +1,14 @@
 export interface IMusic {
     id: number | null;
     name: string;
-    musicFileId: number;
+    musicFileId: string;
     uploaderId: number;
 }
 
 export default class Music implements IMusic {
     id: number | null;
     name: string;
-    musicFileId: number;
+    musicFileId: string;
     uploaderId: number;
 
     constructor(init: IMusic) {

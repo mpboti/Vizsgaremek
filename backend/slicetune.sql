@@ -25,7 +25,7 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
-    avatarId INT NULL,
+    avatarId VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (avatarId) REFERENCES profile_pictures(id) ON DELETE SET NULL
 );
@@ -34,7 +34,7 @@ CREATE TABLE users (
 CREATE TABLE musics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    musicFileId INT NOT NULL,
+    musicFileId VARCHAR(255) NOT NULL,
     uploaderId INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (musicFileId) REFERENCES music_files(id) ON DELETE CASCADE,

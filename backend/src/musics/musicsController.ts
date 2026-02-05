@@ -48,7 +48,7 @@ export async function createMusic(req: Request, res: Response) {
 
     if (music.name === undefined || music.musicFileId === undefined || music.uploaderId === undefined ||
         music.name === null || music.musicFileId === null || music.uploaderId === null ||
-        music.name === "" || music.musicFileId <= 0 || music.uploaderId <= 0) {
+        music.name === "" || music.musicFileId === "") {
         return res.status(400).json({ message: "Invalid music data." });
     }
     const conn = await config.connection;

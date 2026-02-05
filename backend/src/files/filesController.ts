@@ -1,9 +1,6 @@
 import config from "../config/config";
 import { Request, Response } from "express";
 import { uploadMusicMiddleware, uploadImageMiddleware } from "../middleware/upload";
-import mysql from "mysql2/promise";
-import { ImageFile, IImageFile, IMulterFile as IMulterImageFile } from "./imageFile";
-import { MusicFile, IMusicFile, IMulterFile as IMulterMusicFile } from "./musicFile";
 
 export async function getMusicFileList (_req: Request, res: Response) {
     const conn = await config.connection;
@@ -58,23 +55,45 @@ export async function uploadImageFile(req: Request, res: Response) {
 export async function downloadMusicFile(req: Request, res: Response) {
     const fileName = req.params.id as string;
     const filePath = config.baseDir + '/uploads/musics/';
-    res.download(filePath + fileName, fileName, (err) => {
-        if (err) {
-            console.error("Error downloading music file:", err);
-            res.status(500).json({ message: "Internal server error." });
-        } 
-    });
-    return;
-}
+    const conn = await config.connection;
+    try {
+        const [ressults] = await conn.query("SELECT * FROM music_files WHERE id = ?", [fileName]);
+        if (ressults.length === 0) {
+            res.status(404).json({ message: "Music file not found." });
+            return;
+        }
+        res.download(filePath + fileName, fileName, (err) => {
+            if (err) {
+                console.error("Error downloading music file:", err);
+                res.status(500).json({ message: "Internal server error." });
+            }
+        });
+    } catch (error) {
+        console.error("Error downloading music file:", error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+};
 
 export async function downloadImageFile(req: Request, res: Response) {
     const fileName = req.params.id as string;
     const filePath = config.baseDir + '/uploads/images/';
-    res.download(filePath + fileName, fileName, (err) => {
-        if (err) {
-            console.error("Error downloading image file:", err);
-            res.status(500).json({ message: "Internal server error." });
-        } 
-    });
-    return;
+    const conn = await config.connection;
+    try {
+        const [ressults] = await conn.query("SELECT * FROM profile_pictures WHERE id = ?", [fileName]);
+        if (ressults.length === 0) {
+            res.status(404).json({ message: "Image file not found." });
+            return;
+        }
+        res.download(filePath + fileName, fileName, (err) => {
+            if (err) {
+                console.error("Error downloading image file:", err);
+                res.status(500).json({ message: "Internal server error." });
+            }
+        });
+    } catch (error) {
+        console.error("Error downloading image file:", error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
 }
