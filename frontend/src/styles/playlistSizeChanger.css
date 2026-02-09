@@ -158,7 +158,7 @@ th{
         margin-bottom: 30px;
         border-radius: 20px;
     }
-    p{
+    p.listaGombtarto, p.letrehozo, p.mufajok, p.listaCim{
         font-size: 12px;
         padding-bottom: 0px;
         margin-bottom: 0px;
