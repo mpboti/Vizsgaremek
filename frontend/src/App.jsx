@@ -6,6 +6,7 @@ import Playlist from "./components/playlist";
 import Kereses from "./components/kereses";
 import ErrorNotFound from "./components/ErrorNotFound";
 import { createBrowserRouter } from "react-router-dom";
+import LoginOrSignin, { LoginAction } from "./components/loginOrSignin";
 
 function App() {
 
@@ -14,7 +15,8 @@ function App() {
     children:[
       {path: "/", element: <MainPage />},
       {path: "/playlist/:id", element: <Playlist />},
-      {path: "/search", element: <Kereses />}
+      {path: "/search", element: <Kereses />},
+      {path: "/auth", element: <LoginOrSignin />, action: LoginAction}
     ]}
   ]);
 
