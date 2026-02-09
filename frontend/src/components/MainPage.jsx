@@ -27,7 +27,7 @@ export default function MainPage() {
                     </div>
                 </div>
             ))}
-            <Link to="/" className="botRow-link">
+            <Link to="/addplaylist" className="botRow-link">
                 <div className="botRow">
                     <span className="listAdd"><img src={add} alt="Hozzáadás" className="listAddImg"/></span>
                 </div>

@@ -1,21 +1,50 @@
 button.loginFormButton{
-    background-color: #000291;
+    background-color: #0003b3;
     padding: 10px;
-    margin: 5px;
+    margin: 0 5px 5px;
     border-radius: 10px;
     font-size: 20px;
 }
 
 button.loginFormButton:hover{
-    background-color: #0104b9;
+    background-color: #0004e0;
 }
 
 Form.authForm{
+    position: relative;
+    top: 200px;
     text-align: center;
     vertical-align: middle;
-    margin: auto;
+    gap: 0px;
+}
+
+Form.authForm h1{
+    color: white;
 }
 
 Form.authForm input{
     font-size: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 40%;
+    background-color: #4d50ffbb;
+    border-collapse: collapse;
+    border: none;
+    color: white;
+    outline: none;
+}
+
+Form.authForm input::placeholder{
+    color: rgba(255, 255, 255, 0.767);
+}
+
+Form.authForm input:focus{
+    transform: scale(1.06);
+    transition: 0.6s
+}
+
+@media screen and (max-width: 1300px){
+    Form.authForm input{
+        width: 60%;
+    }
 }

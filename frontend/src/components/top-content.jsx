@@ -65,7 +65,7 @@ export default function TopContent() {
                     <p className="toltelek"></p>{phone?undefined:<p className="userName">{userData.name.length<19?userData.name:userData.name.substring(0,18)}</p>}
                 </div>
                 <div className="userPicDiv">
-                    <Link to="/auth" className="topGombok">
+                    <Link to="/auth?mode=login" className="topGombok">
                         {userData.userPic?<img className="userPic" src={userData.userPic}/>:<img className="userPic" src="https://cdn.rios.hu/dl/upc/2021-04/18/13365_zedohtonsyowl0va_174572780_3798245446891714_3038821565414680863_n.thumb.jpg"/>}
                     </Link>
                 </div>
