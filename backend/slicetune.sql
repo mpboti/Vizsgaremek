@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS slicetune;
+
 CREATE DATABASE slicetune;
 USE slicetune;
 
@@ -19,6 +21,12 @@ CREATE TABLE music_files (
     fileSize INT NOT NULL
 );
 
+CREATE TABLE albums (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 /*If profile picture gets deleted avatarId is set to null*/
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,9 +42,11 @@ CREATE TABLE users (
 CREATE TABLE musics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    albumId INT NULL,
     musicFileId VARCHAR(255) NOT NULL,
     uploaderId INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (albumId) REFERENCES albums(id) ON DELETE SET NULL,
     FOREIGN KEY (musicFileId) REFERENCES music_files(id) ON DELETE CASCADE,
     FOREIGN KEY (uploaderId) REFERENCES users(id) ON DELETE CASCADE
 );

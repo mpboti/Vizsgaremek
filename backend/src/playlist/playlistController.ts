@@ -15,6 +15,7 @@ export async function getAllPlaylists(_req: Request, res: Response) {
         res.status(500).json({ message: "Internal server error." });
         return;
     }
+    return;
 };
 
 export async function getPlaylistById(req: Request, res: Response) {
@@ -35,6 +36,7 @@ export async function getPlaylistById(req: Request, res: Response) {
         res.status(500).json({ message: "Internal server error." });
         return;
     }
+    return;
 };
 
 export async function createPlaylist(req: Request, res: Response) {

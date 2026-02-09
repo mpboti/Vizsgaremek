@@ -44,7 +44,7 @@ export async function searchPlaylistsByName(req: Request, res: Response) {
     }
 }
 
-export async function searchPlaylistsByNameOfCreatorId(req: Request, res: Response) {
+export async function searchMusicByNameInPlaylist(req: Request, res: Response) {
     const conn = await config.connection;
     
     try {
@@ -57,3 +57,33 @@ export async function searchPlaylistsByNameOfCreatorId(req: Request, res: Respon
         res.status(500).json({ message: "Internal server error." });
     }
 }
+
+export async function searchAlbumsByName(req: Request, res: Response) {
+    const conn = await config.connection;
+
+    try {
+        const [results] = await conn.query("SELECT * FROM albums WHERE name LIKE ?", [`%${req.query.name}%`]);
+        if (results.length === 0) {
+            res.status(404).json({ message: "No albums found." });
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+};
+
+export async function searchMusicByNameInAlbum(req: Request, res: Response) {
+    const conn = await config.connection;
+
+    try {
+        const [results] = await conn.query("SELECT * FROM musics WHERE albumId = ? AND name LIKE ?", [req.query.albumId, `%${req.query.name}%`]);
+        if (results.length === 0) {
+            res.status(404).json({ message: "No musics found." });
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+};

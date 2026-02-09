@@ -1,9 +1,34 @@
-import app from "./app";
+import express, { Request, Response } from "express";
+import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import musicsRouter from "../musics/musicsRoutes";
+import usersRouter from "../users/usersRoutes";
+import searchRouter from "../search/searchRoutes";
+import filesRouter from "../files/filesRoutes";
+import playlistRouter from "../playlist/playlistRoutes";
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, ()=>{
-    console.log(`The server is running on port ${PORT}`)
-})
+const app = express();
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+function root(_req: Request, res: Response) {
+    res.status(200).send({ message: "The server is running." });
+}
+
+const router = express.Router();
+router.get('/', root);
+router.use('/musics', musicsRouter);
+router.use('/users', usersRouter);
+router.use('/search', searchRouter);
+router.use('/files', filesRouter);
+router.use('/playlists', playlistRouter);
+
+app.use(router);
+
+app.listen(PORT, () => {
+    console.log(`The server is running on port ${PORT}`);
+});

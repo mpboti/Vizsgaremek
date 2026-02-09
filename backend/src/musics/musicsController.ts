@@ -8,17 +8,18 @@ export async function getAllMusics(_req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM musics");
     if (results.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            return res.status(404).json({ message: "No musics found." });
         }
         res.status(200).json(results);
     } catch (error) {
         console.error("Error fetching musics:", error);
         res.status(500).json({ message: "Internal server error." });
     }
+    return;
 };
 
 export async function getMusicById(req: Request, res: Response) {
-    const id: number = parseInt(req.params.id as string);
+    const id: number = parseInt(req.params.id as string, 10);
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid music ID." });
     }
@@ -44,17 +45,16 @@ export async function createMusic(req: Request, res: Response) {
         return res.status(400).json({ message: "Request body is missing." });
     }
 
-    const music = new Music(req.body as unknown as IMusic);
+    const body = req.body as Partial<IMusic>;
+    const music = new Music(body as IMusic);
 
-    if (music.name === undefined || music.musicFileId === undefined || music.uploaderId === undefined ||
-        music.name === null || music.musicFileId === null || music.uploaderId === null ||
-        music.name === "" || music.musicFileId === "") {
+    if (typeof body.name !== 'string' || body.name.trim() === '' || body.musicFileId === undefined || body.musicFileId === null || body.uploaderId === undefined || body.uploaderId === null) {
         return res.status(400).json({ message: "Invalid music data." });
     }
     const conn = await config.connection;
 
     try  {
-        const [results] = await conn.query("INSERT INTO musics (id, name, musicFileId, uploaderId) VALUES (null, ?, ?, ?)", [music.name, music.musicFileId, music.uploaderId]);
+        const [results] = await conn.query("INSERT INTO musics (id, name, albumId, musicFileId, uploaderId) VALUES (null, ?, ?, ?, ?)", [music.name, music.albumId, music.musicFileId, music.uploaderId]);
         res.status(201).json({ message: "Music created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -65,7 +65,7 @@ export async function createMusic(req: Request, res: Response) {
 };
 
 export async function deleteMusic(req: Request, res: Response) {
-    const id: number = parseInt(req.params.id as string);
+    const id: number = parseInt(req.params.id as string, 10);
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid music ID." });
     }
@@ -87,7 +87,7 @@ export async function deleteMusic(req: Request, res: Response) {
 };
 
 export async function updateMusic(req: Request, res: Response) {
-    const id: number = parseInt(req.params.id as string);
+    const id: number = parseInt(req.params.id as string, 10);
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid music ID." });
     }
@@ -96,9 +96,10 @@ export async function updateMusic(req: Request, res: Response) {
         return res.status(400).json({ message: "Request body is missing." });
     }
     
-    const music: any = new Music(req.body as unknown as IMusic);
-    const allowedFields = ["name", "musicFileId", "uploaderId"];
-    const keys = Object.keys(music).filter(key => allowedFields.includes(key));
+    const body = req.body as Partial<IMusic>;
+    const music: any = new Music(body as IMusic);
+    const allowedFields = ["name", "albumId", "musicFileId", "uploaderId"];
+    const keys = Object.keys(body).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {
         return res.status(400).json({ message: "No valid fields to update." });
@@ -106,7 +107,7 @@ export async function updateMusic(req: Request, res: Response) {
 
     const updateString = keys.map(key => `${key} = ?`).join(", ");
     const values = keys.map(key => (music)[key]);
-    values.push(id); // For WHERE clause
+    values.push(id);
 
     const conn = await config.connection;
     try {

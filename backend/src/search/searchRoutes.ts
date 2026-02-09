@@ -1,11 +1,13 @@
 import express, { Router } from "express"
-import { searchMusicsByName, searchPlaylistsByName, searchPlaylistsByNameOfCreatorId, searchUsersByUsername } from "./searchController";
+import { searchMusicsByName, searchPlaylistsByName, searchMusicByNameInPlaylist, searchUsersByUsername, searchAlbumsByName, searchMusicByNameInAlbum } from "./searchController";
 
 const router: Router = express.Router();
 
 router.get('/musicsByName', searchMusicsByName);
 router.get('/usersByUsername', searchUsersByUsername);
 router.get('/playlistsByName', searchPlaylistsByName);
-router.get('/playlistsByNameOfCreatorId', searchPlaylistsByNameOfCreatorId);
+router.get('/musicByNameInPlaylist', searchMusicByNameInPlaylist);
+router.get('/albumsByName', searchAlbumsByName);
+router.get('/musicByNameInAlbum', searchMusicByNameInAlbum);
 
 export default router;
