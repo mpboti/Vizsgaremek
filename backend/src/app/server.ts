@@ -6,6 +6,7 @@ import usersRouter from "../users/usersRoutes";
 import searchRouter from "../search/searchRoutes";
 import filesRouter from "../files/filesRoutes";
 import playlistRouter from "../playlist/playlistRoutes";
+import albumsRouter from "../albums/albumsRoutes";
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ router.use('/users', usersRouter);
 router.use('/search', searchRouter);
 router.use('/files', filesRouter);
 router.use('/playlists', playlistRouter);
+router.use('/albums', albumsRouter);
 
 app.use(router);
 
