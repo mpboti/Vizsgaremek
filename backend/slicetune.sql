@@ -27,6 +27,12 @@ CREATE TABLE albums (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE artists (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 /*If profile picture gets deleted avatarId is set to null*/
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,10 +49,12 @@ CREATE TABLE musics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     albumId INT NULL,
+    artistId INT NULL,
     musicFileId VARCHAR(255) NOT NULL,
     uploaderId INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (albumId) REFERENCES albums(id) ON DELETE SET NULL,
+    FOREIGN KEY (artistId) REFERENCES artists(id) ON DELETE SET NULL,
     FOREIGN KEY (musicFileId) REFERENCES music_files(id) ON DELETE CASCADE,
     FOREIGN KEY (uploaderId) REFERENCES users(id) ON DELETE CASCADE
 );

@@ -54,7 +54,7 @@ export async function createMusic(req: Request, res: Response) {
     const conn = await config.connection;
 
     try  {
-        const [results] = await conn.query("INSERT INTO musics (id, name, albumId, musicFileId, uploaderId) VALUES (null, ?, ?, ?, ?)", [music.name, music.albumId, music.musicFileId, music.uploaderId]);
+        const [results] = await conn.query("INSERT INTO musics (id, name, albumId, artistId, musicFileId, uploaderId) VALUES (null, ?, ?, ?, ?, ?)", [music.name, music.albumId, music.artistId, music.musicFileId, music.uploaderId]);
         res.status(201).json({ message: "Music created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -98,7 +98,7 @@ export async function updateMusic(req: Request, res: Response) {
     
     const body = req.body as Partial<IMusic>;
     const music: any = new Music(body as IMusic);
-    const allowedFields = ["name", "albumId", "musicFileId", "uploaderId"];
+    const allowedFields = ["name", "albumId", "artistId", "musicFileId", "uploaderId"];
     const keys = Object.keys(body).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {
