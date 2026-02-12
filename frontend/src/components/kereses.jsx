@@ -1,20 +1,32 @@
 import { useState } from "react";
 import "../styles/kereses.css"
 import { dataListaz, userDataListaz } from "../data";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import RowGenerator from "./playlist-row";
 import play from '../assets/play.png';
 import download from '../assets/download.png';
 import random from '../assets/randomizer_empty.png';
 import list from '../assets/list.png';
+import { loadData } from "../playerLogic";
 
 export default function Kereses(){
-  const data = dataListaz();
+  const [data, setData] = useState(dataListaz());
   const userData = userDataListaz();
   const [selected, setSelected] = useState(0);
   const [microSelected, setMicroSelected] = useState(0);
   const [isUser, setIsUser] = useState(false);
   const [isMusic, setIsMusic] = useState(true);
+  const [isItunes, setIsItunes] = useState(false);
+  const [isDifferent, setIsDifferent] = useState(true);
+  const { text } = useParams();
+
+  async function firstPlay(id){
+    if(isDifferent){
+      await loadData(data, id);
+      setIsDifferent(false)
+    }
+  }
+
   const [phone, setPhone] = useState(false)
   sizer()
   function sizer(){
@@ -24,39 +36,110 @@ export default function Kereses(){
       setPhone(false)
   }
   window.addEventListener("resize", sizer)
+
+  async function readITunes(){
+    try {
+      const response = await fetch(`https://itunes.apple.com/search?term=${text}&media=music&limit=100`);
+      const resData = await response.json();
+      console.log(resData);
+      let perData = new Array();
+      let i = 0;
+      resData.results.forEach(element => {
+        perData.push({
+          id: i++,
+          kep: element.artworkUrl100,
+          cim: element.trackName,
+          eloado: element.artistName,
+          album: element.collectionName?element.collectionName:"-",
+          megjelenes: element.releaseDate?element.releaseDate.split("-")[0]:"-",
+          mufaj: element.primaryGenreName,
+          zene: element.previewUrl
+        })
+      });
+      setData(perData);
+      setIsItunes(true);
+    }catch(e){
+      console.log(e.message);
+    }
+  }
+
+  async function readMusicByName(){
+    try {
+      const response = await fetch(`https://localhost:3000/search/musicsByName/${text}`);
+      const resData = await response.json();
+      console.log(resData);
+      let perData = new Array();
+      let i = 0;
+      resData.results.forEach(element => {
+        perData.push({
+          id: i++,
+          kep: element.artworkUrl100,
+          cim: element.trackName,
+          eloado: element.artistName,
+          album: element.collectionName?element.collectionName:"-",
+          megjelenes: element.releaseDate?element.releaseDate.split("-")[0]:"-",
+          mufaj: element.primaryGenreName,
+          zene: element.previewUrl
+        })
+      });
+      setData(perData);
+      setIsItunes(true);
+    }catch(e){
+      console.log(e.message);
+    }
+  }
+
   return (
     <div className="keresesContent">
       <div className="keresesMenu">
         <div className="keresesMenuFlex">
-          <button className={selected === 0 ? "selected" : "keresesMenuButtons"} onClick={() => {setSelected(0); setIsUser(false); setIsMusic(true);}}>
+          <button className={selected === 0 ? "selected" : "keresesMenuButtons"} 
+          onClick={() => {setIsUser(false); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
+          setSelected(0); readMusicByName();}}>
             Zenék
           </button>
-          <button className={selected === 1 ? "selected" : "keresesMenuButtons"} onClick={() => {setSelected(1); setIsUser(false); setIsMusic(false);}}>
+          <button className={selected === 1 ? "selected" : "keresesMenuButtons"} 
+          onClick={() => {setIsUser(false); setIsMusic(false); setIsItunes(false); setIsDifferent(true); 
+          setSelected(1);}}>
             Lejátszási Listák
           </button>
-          <button className={selected === 2 ? "selected" : "keresesMenuButtons"} onClick={() => {setSelected(2); setMicroSelected(0); setIsUser(true); setIsMusic(true);}}>
+          <button className={selected === 2 ? "selected" : "keresesMenuButtons"} 
+          onClick={() => {setIsUser(true); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
+          setSelected(2); setMicroSelected(0);}}>
             Előadók
           </button>
-          <button className={selected === 3 ? "selected" : "keresesMenuButtons"} onClick={() => {setSelected(3); setMicroSelected(0); setIsUser(true); setIsMusic(true);}}>
+          <button className={selected === 3 ? "selected" : "keresesMenuButtons"} 
+          onClick={() => {setIsUser(true); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
+          setSelected(3); setMicroSelected(0);}}>
             Albumok
           </button>
-          <button className={selected === 4 ? "selected" : "keresesMenuButtons"} onClick={() => {setSelected(4); setMicroSelected(0); setIsUser(true); setIsMusic(true);}}>
+          <button className={selected === 4 ? "selected" : "keresesMenuButtons"} 
+          onClick={() => {setIsUser(true); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
+          setSelected(4); setMicroSelected(0);}}>
             Felhasználók
           </button>
-          <button className={selected === 5 ? "selected" : "keresesMenuButtons"} onClick={() => {setSelected(5); setIsUser(false); setIsMusic(true);}}>
+          <button className={selected === 5 ? "selected" : "keresesMenuButtons"} 
+          onClick={() => {setIsUser(false); setIsMusic(true); setIsDifferent(true);
+          setSelected(5); readITunes();}}>
             Hozzáadás
           </button>
         </div>
         {isUser?
           <div className="musicOrPlaylistFlex">
-            <button className={microSelected === 0 ? "microSelected" : "musicOrPlaylistButton"}  onClick={()=>{setMicroSelected(0); setIsMusic(true);}}>Zenék</button>
-            <button className={microSelected === 1 ? "microSelected" : "musicOrPlaylistButton"} onClick={()=>{setMicroSelected(1); setIsMusic(false);}}>Lejátszási listák</button>
+            <button className={microSelected === 0 ? "microSelected" : "musicOrPlaylistButton"} 
+            onClick={()=>{setMicroSelected(0); setIsMusic(true); setIsDifferent(true);}}>
+              Zenék
+            </button>
+            <button className={microSelected === 1 ? "microSelected" : "musicOrPlaylistButton"} 
+            onClick={()=>{setMicroSelected(1); setIsMusic(false); setIsDifferent(true);}}>
+              Lejátszási listák
+            </button>
           </div>
         :undefined}
       </div>
       {isMusic? 
         <table>
-          <thead >
+          <thead>
               <tr className="tableHeader">
                 <th></th>
                 <th>Cím:</th>
@@ -76,7 +159,10 @@ export default function Kereses(){
               eloado={item.eloado} 
               album={item.album} 
               megjelenes={item.megjelenes} 
-              mufaj={item.mufaj}/>
+              mufaj={item.mufaj}
+              isItunes={isItunes}
+              id={item.id}
+              firstPlay={firstPlay}/>
             )}
           </tbody>
         </table>
