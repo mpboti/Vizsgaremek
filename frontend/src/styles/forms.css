@@ -43,6 +43,21 @@ Form.authForm input:focus{
     transition: 0.6s
 }
 
+img.uploadAlbumCover{
+    width: 300px;   
+    height: 300px;
+    border-radius: 20px;
+}
+
+@media screen and (max-width: 1300px){
+    img.uploadAlbumCover{
+        width: 200px;
+        height: 200px;
+        margin-bottom: 30px;
+        border-radius: 20px;
+    }
+}
+
 @media screen and (max-width: 1300px){
     Form.authForm input{
         width: 60%;
