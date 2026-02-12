@@ -14,7 +14,7 @@ export async function getMusicFileList (_req: Request, res: Response) {
 
 export async function getImageFileList (_req: Request, res: Response) {
     const conn = await config.connection;
-    const [results] = await conn.query("SELECT * FROM profile_pictures");
+    const [results] = await conn.query("SELECT * FROM image_files");
     if (results.length === 0) {
         res.status(404).json({ message: "No image files found." });
         return;
@@ -80,7 +80,7 @@ export async function downloadImageFile(req: Request, res: Response) {
     const filePath = config.baseDir + '/uploads/images/';
     const conn = await config.connection;
     try {
-        const [ressults] = await conn.query("SELECT * FROM profile_pictures WHERE id = ?", [fileName]);
+        const [ressults] = await conn.query("SELECT * FROM image_files WHERE id = ?", [fileName]);
         if (ressults.length === 0) {
             res.status(404).json({ message: "Image file not found." });
             return;

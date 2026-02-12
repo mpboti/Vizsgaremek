@@ -41,18 +41,18 @@ export class ImageFile implements IImageFile {
         try {
             await conn.beginTransaction();
             let [results] = await conn.query(
-                'INSERT INTO profile_pictures (id, name, path, size, mime_type, user_id) VALUES (?, ?, ?, ?, ?, ?)',
+                'INSERT INTO image_files (id, name, path, size, mime_type, user_id) VALUES (?, ?, ?, ?, ?, ?)',
                 [this.id, this.name, this.path, this.size, this.mimeType, this.userId]
             );
             if (results.affectedRows === 0) {
                 throw new Error("Failed to save image file to database.");
             }
             [results] = await conn.query(
-                'UPDATE users SET avatarId = ? WHERE id = ?',
+                'UPDATE users SET imageId = ? WHERE id = ?',
                 [results.insertId, this.userId]
             );
             if (results.affectedRows === 0) {
-                throw new Error("Failed to update user's avatarId.");
+                throw new Error("Failed to update user's imageId.");
             }
             await conn.commit();
         } catch (error) {

@@ -3,7 +3,7 @@ DROP DATABASE IF EXISTS slicetune;
 CREATE DATABASE slicetune;
 USE slicetune;
 
-CREATE TABLE profile_pictures (
+CREATE TABLE image_files (
     id VARCHAR(255) PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -33,15 +33,15 @@ CREATE TABLE artists (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-/*If profile picture gets deleted avatarId is set to null*/
+/*If profile picture gets deleted imageId is set to null*/
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
-    avatarId VARCHAR(255) NULL,
+    imageId VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (avatarId) REFERENCES profile_pictures(id) ON DELETE SET NULL
+    FOREIGN KEY (imageId) REFERENCES image_files(id) ON DELETE SET NULL
 );
 
 /*if the user or the music file gets deleted, the music deletes itself too*/
