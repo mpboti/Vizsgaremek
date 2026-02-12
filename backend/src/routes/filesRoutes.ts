@@ -1,6 +1,6 @@
 import express, { Router } from "express";
-import { uploadMusicFile, uploadImageFile, downloadImageFile, downloadMusicFile } from "./filesController";
-import { logIn } from "../users/usersController";
+import { uploadMusicFile, uploadImageFile, downloadImageFile, downloadMusicFile } from "../controllers/filesController";
+import { logIn } from "../controllers/usersController";
 
 const router: Router = express.Router();
 

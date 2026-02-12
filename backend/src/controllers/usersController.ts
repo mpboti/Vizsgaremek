@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import config from "../config/config";
-import Users, { IUsers } from "./users";
+import Users, { IUsers } from "../classes/users";
 import jwt from 'jsonwebtoken';
 
 export async function logIn(req: Request, res: Response) {

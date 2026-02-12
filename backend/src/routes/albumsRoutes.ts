@@ -1,6 +1,6 @@
 import express, {Router} from "express";
-import {getAllAlbums, getAlbumById, createAlbum, deleteAlbum, getMusicsByAlbumId, updateAlbum} from "./albumsController";
-import { logIn } from "../users/usersController";
+import {getAllAlbums, getAlbumById, createAlbum, deleteAlbum, getMusicsByAlbumId, updateAlbum} from "../controllers/albumsController";
+import { logIn } from "../controllers/usersController";
 
 const router: Router = express.Router();
 

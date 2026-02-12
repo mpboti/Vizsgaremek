@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import config from "../config/config";
-import Music, {IMusic} from "./musics";
+import Music, {IMusic} from "../classes/musics";
 
 export async function getAllMusics(_req: Request, res: Response) {
     const conn = await config.connection;

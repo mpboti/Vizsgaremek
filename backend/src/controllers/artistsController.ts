@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import config from "../config/config";
-import Artist, { IArtist } from "./artists";
+import Artist, { IArtist } from "../classes/artists";
 
 export async function getAllArtists(_req: Request, res: Response) {
     const conn = await config.connection;

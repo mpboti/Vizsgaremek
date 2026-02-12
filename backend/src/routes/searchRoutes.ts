@@ -1,5 +1,5 @@
 import express, { Router } from "express"
-import { searchMusicsByName, searchPlaylistsByName, searchMusicByNameInPlaylist, searchUsersByUsername, searchAlbumsByName, searchMusicByNameInAlbum } from "./searchController";
+import { searchMusicsByName, searchPlaylistsByName, searchMusicByNameInPlaylist, searchUsersByUsername, searchAlbumsByName, searchMusicByNameInAlbum } from "../controllers/searchController";
 
 const router: Router = express.Router();
 

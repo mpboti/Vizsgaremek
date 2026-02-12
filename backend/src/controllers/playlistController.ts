@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import config from "../config/config";
-import { Playlist, IPlaylist, PlaylistMusics, IPlaylistMusics} from "./playlist";
+import { Playlist, IPlaylist, PlaylistMusics, IPlaylistMusics} from "../classes/playlist";
 
 export async function getAllPlaylists(_req: Request, res: Response) {
     const conn = await config.connection;

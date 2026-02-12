@@ -1,6 +1,6 @@
 import express from 'express';
-import { getAllPlaylists, getPlaylistById, createPlaylist, addMusicToPlaylist, removeMusicFromPlaylist, deletePlaylist, updatePlaylist } from './playlistController';
-import { logIn } from "../users/usersController";
+import { getAllPlaylists, getPlaylistById, createPlaylist, addMusicToPlaylist, removeMusicFromPlaylist, deletePlaylist, updatePlaylist } from '../controllers/playlistController';
+import { logIn } from "../controllers/usersController";
 
 const router = express.Router();
 

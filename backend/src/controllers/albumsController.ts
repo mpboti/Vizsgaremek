@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import config from "../config/config";
-import Album, { IAlbum } from "./albums";
+import Album, { IAlbum } from "../classes/albums";
 
 export async function getAllAlbums(_req: Request, res: Response) {
     const conn = await config.connection;
