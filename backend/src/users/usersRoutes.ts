@@ -5,10 +5,9 @@ const router: Router = express.Router();
 
 router.get('/', getAllUsers, logIn);
 router.get('/:id', getUserById, logIn);
+router.post('/login', logIn);
 router.post('/signup', createUser);
 router.delete('/:id', deleteUser, logIn);
 router.put('/:id', updateUser, logIn);
-
-router.post('/login', logIn);
 
 export default router;
