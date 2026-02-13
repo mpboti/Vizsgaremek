@@ -83,25 +83,29 @@ CREATE TABLE playlist_musics (
 DELIMITER $$
 
 CREATE FUNCTION pwd_encrypt(pwd VARCHAR(100))
-RETURNS VARCHAR(255) DETERMINISTIC;
+RETURNS VARCHAR(255) DETERMINISTIC
 BEGIN
-    RETURN SHA2(CONCAT(pwd,'poopastinka'),256);
-END $$
+    RETURN SHA2(CONCAT(pwd,'poopastinka'),256)
+END; $$
 
 /*We check if the email and password match*/
 CREATE FUNCTION login(email VARCHAR(100),pwd VARCHAR(100))
-RETURNS INT DETERMINISTIC;
+RETURNS INT DETERMINISTIC
 BEGIN
-    DECLARE userid INT;
-    SET userid = 0;
-    SELECT id INTO userid FROM users WHERE users.email = email AND users.pwd = pwd_encrypt(pwd);
-    RETURN userid;
-END $$
+    DECLARE userid INT
+    SET userid = 0
+    SELECT id INTO userid FROM users WHERE users.email = email AND users.pwd = pwd_encrypt(pwd)
+    RETURN userid
+END; $$
 
 /*Before we insert the user in the users table, we encrypt the password*/
 CREATE TRIGGER insert_user BEFORE INSERT ON users
 BEGIN
-    FOR EACH ROW SET new.pwd = pwd_encrypt(new.pwd);
-END $$
+    FOR EACH ROW SET new.pwd = pwd_encrypt(new.pwd)
+END; $$
 
 DELIMITER ;
+
+INSERT INTO users 
+(null, "test1", "test1@test.com", "test", null)
+(null, "test2", "test2@test.com", "test", null);

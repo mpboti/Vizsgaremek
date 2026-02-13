@@ -21,7 +21,7 @@
     "build": "tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "prepublish": "npm run build",
-    "dev": "nodemon --exec tsx ./src/app/server.ts"
+    "dev": "nodemon --exec tsx ./src/app.ts"
   },
   "dependencies": {
     "@types/body-parser": "^1.19.6",

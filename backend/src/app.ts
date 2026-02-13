@@ -1,12 +1,12 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import musicsRouter from "../routes/musicsRoutes";
-import usersRouter from "../routes/usersRoutes";
-import searchRouter from "../routes/searchRoutes";
-import filesRouter from "../routes/filesRoutes";
-import playlistRouter from "../routes/playlistRoutes";
-import albumsRouter from "../routes/albumsRoutes";
+import musicsRouter from "./routes/musicsRoutes";
+import usersRouter from "./routes/usersRoutes";
+import searchRouter from "./routes/searchRoutes";
+import filesRouter from "./routes/filesRoutes";
+import playlistRouter from "./routes/playlistRoutes";
+import albumsRouter from "./routes/albumsRoutes";
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
