@@ -4,22 +4,22 @@ import Users, { IUsers } from "../classes/users";
 import jwt from 'jsonwebtoken';
 
 export async function logIn(req: Request, res: Response) {
-    const { username, pwd } = req.body;
+    const { username: email, pwd } = req.body;
 
-    if (!username || !pwd) {
+    if (!email || !pwd) {
         return res.status(400).json({ message: "Username and password are required." });
     }
 
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("SELECT login (?, ?) AS id", [username, pwd]);
+        const [results] = await conn.query("SELECT login (?, ?) AS id", [email, pwd]);
         if (results.length === 0 || results[0].id === null || results[0].id <= 0) {
-            return res.status(401).json({ message: "Invalid username or password." });
+            return res.status(401).json({ message: "Invalid email or password." });
         }
         if(!config.jwtSecret) {
             throw new Error("JWT secret is not defined in the configuration.");
         }
-        const token = jwt.sign({ id: results[0].id, username }, config.jwtSecret, { expiresIn: '1d' });
+        const token = jwt.sign({ id: results[0].id, username: email }, config.jwtSecret, { expiresIn: '1d' });
         res.status(200).json({ message: "Login successful.", token });
         return;
     } catch (error) {
@@ -84,7 +84,7 @@ export async function createUser(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("INSERT INTO users (id, username, email, pwd) VALUES (null, ?, ?, ?)", [user.username, user.email, user.pwd]);
+        const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, profileImageId) VALUES (null, ?, ?, ?, ?)", [user.username, user.email, user.pwd, user.profileImageId]);
         res.status(201).json({ message: "User created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -127,7 +127,7 @@ export async function updateUser(req: Request, res: Response) {
     }
 
     const user: any = new Users(req.body as unknown as IUsers);
-    const allowedFields = ["username", "email", "pwd"];
+    const allowedFields = ["username", "email", "pwd", "profileImageId"];
     const keys = Object.keys(user).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {

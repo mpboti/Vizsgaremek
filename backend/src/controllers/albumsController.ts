@@ -86,14 +86,17 @@ export async function updateAlbum(req: Request, res: Response) {
         return res.status(400).json({ message: "Request body is missing." });
     }
 
-    const body = req.body as Partial<IAlbum>;
-    if (typeof body.name !== 'string' || body.name.trim() === '') {
-        return res.status(400).json({ message: "Invalid album data." });
-    }
+    const album: any = new Album(req.body as unknown as IAlbum);
+    const allowedFields = ["name", "imageId", "artistId"];
+    const keys = Object.keys(album).filter(key => allowedFields.includes(key));
+
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("UPDATE albums SET name = ? WHERE id = ?", [body.name, id]);
+        const updateString = keys.map(key => `${key} = ?`).join(", ");
+        const values = keys.map(key => (album)[key]);
+        values.push(id);
+        const [results] = await conn.query(`UPDATE albums SET ${updateString} WHERE id = ?`, values);
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: "Album not found." });
         }
@@ -104,18 +107,18 @@ export async function updateAlbum(req: Request, res: Response) {
     return;
 };
 
-export async function getMusicsByAlbumId(req: Request, res: Response) {
+export async function getAlbumsByArtistId(req: Request, res: Response) {
     const id: number = parseInt(req.params.id as string);
     if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid album ID." });
+        return res.status(400).json({ message: "Invalid artist ID." });
     }
-    
+
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("SELECT * FROM musics WHERE album_id = ?", [id]);
+        const [results] = await conn.query("SELECT * FROM albums WHERE artistId = ?", [id]);
         res.status(200).json(results);
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
-    }
+    } 
     return;
 };

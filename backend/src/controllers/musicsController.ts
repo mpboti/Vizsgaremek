@@ -123,3 +123,20 @@ export async function updateMusic(req: Request, res: Response) {
         return;
     }
 }
+
+export function getMusicsByAlbumId(req: Request, res: Response) {
+    const albumId: number = parseInt(req.params.albumId as string, 10);
+    if (isNaN(albumId)) {
+        return res.status(400).json({ message: "Invalid album ID." });
+    }
+
+    const conn = config.connection;
+    try {
+        const [results] = conn.query("SELECT * FROM musics WHERE albumId = ?", [albumId]);
+        res.status(200).json(results);
+    } catch (error) {
+        console.error("Error fetching musics by album ID:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+};

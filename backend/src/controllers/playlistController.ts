@@ -64,6 +64,14 @@ export async function addMusicToPlaylist(req: Request, res: Response) {
     if(!req.body) {
         return res.status(400).json({ message: "Request body is missing." });
     }
+
+    const playlistId: number = parseInt(req.params.playlistId as string);
+    const musicId: number = parseInt(req.params.musicId as string);
+
+    if (isNaN(playlistId) || isNaN(musicId)) {
+        return res.status(400).json({ message: "Invalid playlist ID or music ID." });
+    }
+    
     const playlistMusic = new PlaylistMusics(req.body as unknown as IPlaylistMusics);
     if (playlistMusic.playlistId === undefined || playlistMusic.musicId === undefined || playlistMusic.position === undefined ||
         playlistMusic.playlistId === null || playlistMusic.musicId === null || playlistMusic.position === null) {

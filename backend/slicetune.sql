@@ -21,16 +21,22 @@ CREATE TABLE music_files (
     fileSize INT NOT NULL
 );
 
-CREATE TABLE albums (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE artists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    artistImageId VARCHAR(255) NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (artistImageId) REFERENCES image_files(id) ON DELETE SET NULL
+);
+
+CREATE TABLE albums (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    albumArtId VARCHAR(255) NULL,
+    artistId INT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (albumArtId) REFERENCES image_files(id) ON DELETE SET NULL,
+    FOREIGN KEY (artistId) REFERENCES artists(id) ON DELETE SET NULL
 );
 
 /*If profile picture gets deleted imageId is set to null*/
@@ -39,9 +45,9 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
-    imageId VARCHAR(255) NULL,
+    profileImageId VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (imageId) REFERENCES image_files(id) ON DELETE SET NULL
+    FOREIGN KEY (profileImageId) REFERENCES image_files(id) ON DELETE SET NULL
 );
 
 /*if the user or the music file gets deleted, the music deletes itself too*/
@@ -85,27 +91,26 @@ DELIMITER $$
 CREATE FUNCTION pwd_encrypt(pwd VARCHAR(100))
 RETURNS VARCHAR(255) DETERMINISTIC
 BEGIN
-    RETURN SHA2(CONCAT(pwd,'poopastinka'),256)
-END; $$
+    RETURN SHA2(CONCAT(pwd,'poopastinka'),256);
+END $$
 
 /*We check if the email and password match*/
 CREATE FUNCTION login(email VARCHAR(100),pwd VARCHAR(100))
 RETURNS INT DETERMINISTIC
 BEGIN
-    DECLARE userid INT
-    SET userid = 0
-    SELECT id INTO userid FROM users WHERE users.email = email AND users.pwd = pwd_encrypt(pwd)
-    RETURN userid
-END; $$
+    DECLARE userid INT;
+    SET userid = 0;
+    SELECT id INTO userid FROM users WHERE users.email = email AND users.pwd = pwd_encrypt(pwd);
+    RETURN userid;
+END $$
 
 /*Before we insert the user in the users table, we encrypt the password*/
 CREATE TRIGGER insert_user BEFORE INSERT ON users
-BEGIN
-    FOR EACH ROW SET new.pwd = pwd_encrypt(new.pwd)
-END; $$
+FOR EACH ROW
+SET new.pwd = pwd_encrypt(new.pwd); $$
 
 DELIMITER ;
 
-INSERT INTO users 
-(null, "test1", "test1@test.com", "test", null)
+INSERT INTO users (id, username, email, pwd, imageId) VALUES
+(null, "test1", "test1@test.com", "test", null),
 (null, "test2", "test2@test.com", "test", null);
