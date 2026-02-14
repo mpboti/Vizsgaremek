@@ -87,3 +87,47 @@ export async function searchMusicByNameInAlbum(req: Request, res: Response) {
     }
     return;
 };
+
+export async function searchMusicByNameByArtist(req: Request, res: Response) {
+    const conn = await config.connection;
+
+    try {
+        const [results] = await conn.query("SELECT * FROM musics WHERE artistId = ? AND name LIKE ?", [req.query.artistId, `%${req.query.name}%`]);
+        if (results.length === 0) {
+            res.status(404).json({ message: "No musics found." });
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+};
+
+export async function searchAlbumsByNameByArtist(req: Request, res: Response) {
+    const conn = await config.connection;
+
+    try {
+        const [results] = await conn.query("SELECT * FROM albums WHERE artistId = ? AND name LIKE ?", [req.query.artistId, `%${req.query.name}%`]);
+        if (results.length === 0) {
+            res.status(404).json({ message: "No albums found." });
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+};
+
+export async function searchArtistsByName(req: Request, res: Response) {
+    const conn = await config.connection;
+    try {
+        const [results] = await conn.query("SELECT * FROM artists WHERE name LIKE ?", [`%${req.query.name}%`]);
+        if (results.length === 0) {
+            res.status(404).json({ message: "No artists found." });
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+};

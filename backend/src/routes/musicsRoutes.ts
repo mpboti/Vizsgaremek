@@ -1,5 +1,5 @@
 import express, {Router} from "express";
-import {getAllMusics, getMusicById, createMusic, deleteMusic, updateMusic, getMusicsByAlbumId from "../controllers/musicsController";
+import {getAllMusics, getMusicById, createMusic, deleteMusic, updateMusic, getMusicsByAlbumId } from "../controllers/musicsController";
 import { logIn } from "../controllers/usersController";
 
 const router: Router = express.Router();
