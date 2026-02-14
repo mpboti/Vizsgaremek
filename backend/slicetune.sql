@@ -24,18 +24,18 @@ CREATE TABLE music_files (
 CREATE TABLE artists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    artistImageId VARCHAR(255) NULL,
+    imageFileId VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (artistImageId) REFERENCES image_files(id) ON DELETE SET NULL
+    FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
 );
 
 CREATE TABLE albums (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    albumArtId VARCHAR(255) NULL,
+    imageFileId VARCHAR(255) NULL,
     artistId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (albumArtId) REFERENCES image_files(id) ON DELETE SET NULL,
+    FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL,
     FOREIGN KEY (artistId) REFERENCES artists(id) ON DELETE SET NULL
 );
 
@@ -45,9 +45,9 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
-    profileImageId VARCHAR(255) NULL,
+    imageFileId VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (profileImageId) REFERENCES image_files(id) ON DELETE SET NULL
+    FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
 );
 
 /*if the user or the music file gets deleted, the music deletes itself too*/
@@ -111,6 +111,6 @@ SET new.pwd = pwd_encrypt(new.pwd); $$
 
 DELIMITER ;
 
-INSERT INTO users (id, username, email, pwd, imageId) VALUES
+INSERT INTO users (id, username, email, pwd, imageFileId) VALUES
 (null, "test1", "test1@test.com", "test", null),
 (null, "test2", "test2@test.com", "test", null);

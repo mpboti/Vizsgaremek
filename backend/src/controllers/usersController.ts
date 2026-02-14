@@ -84,7 +84,7 @@ export async function createUser(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, profileImageId) VALUES (null, ?, ?, ?, ?)", [user.username, user.email, user.pwd, user.profileImageId]);
+        const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, imageFileId) VALUES (null, ?, ?, ?, ?)", [user.username, user.email, user.pwd, user.imageFileId]);
         res.status(201).json({ message: "User created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -127,7 +127,7 @@ export async function updateUser(req: Request, res: Response) {
     }
 
     const user: any = new Users(req.body as unknown as IUsers);
-    const allowedFields = ["username", "email", "pwd", "profileImageId"];
+    const allowedFields = ["username", "email", "pwd", "imageFileId"];
     const keys = Object.keys(user).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {

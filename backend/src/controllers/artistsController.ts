@@ -49,7 +49,7 @@ export async function createArtist(req: Request, res: Response) {
 
     const conn = await config.connection;
     try  {
-        const [results] = await conn.query("INSERT INTO artists (id, name, imageId) VALUES (null, ?, ?)", [artist.name, artist.imageId]);
+        const [results] = await conn.query("INSERT INTO artists (id, name, imageFileId) VALUES (null, ?, ?)", [artist.name, artist.imageFileId]);
         res.status(201).json({ message: "Artist created successfully.", id: results.insertId });
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
@@ -87,7 +87,7 @@ export async function updateArtist(req: Request, res: Response) {
     }
 
     const artist: any = new Artist(req.body as unknown as IArtist);
-    const allowedFields = ["name", "imageId"];
+    const allowedFields = ["name", "imageFileId"];
     const keys = Object.keys(artist).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {
@@ -108,21 +108,5 @@ export async function updateArtist(req: Request, res: Response) {
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
     }
-    return;
-};
-
-export async function getAlbumsByArtistId(req: Request, res: Response) {
-    const id: number = parseInt(req.params.id as string, 10);
-    if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid artist ID." });
-    }
-
-    const conn = await config.connection;
-    try {
-        const [results] = await conn.query("SELECT * FROM albums WHERE artistId = ?", [id]);
-        res.status(200).json(results);
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error." });
-    } 
     return;
 };

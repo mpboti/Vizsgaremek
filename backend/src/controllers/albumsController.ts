@@ -41,15 +41,14 @@ export async function createAlbum(req: Request, res: Response) {
         return res.status(400).json({ message: "Request body is missing." });
     }
 
-    const body = req.body as Partial<IAlbum>;
-    const album = new Album(body as IAlbum);
-    if (typeof body.name !== 'string' || body.name.trim() === '') {
+    const album = new Album(req.body as unknown as IAlbum);
+    if (typeof album.name !== 'string' || album.name.trim() === '') {
         return res.status(400).json({ message: "Invalid album data." });
     }
     const conn = await config.connection;
 
     try  {
-        const [results] = await conn.query("INSERT INTO albums (id, name) VALUES (null, ?)", [album.name]);
+        const [results] = await conn.query("INSERT INTO albums (id, name, imageFileId, artistId) VALUES (null, ?, ?, ?)", [album.name, album.imageFileId, album.artistId]);
         res.status(201).json({ message: "Album created successfully.", id: results.insertId });
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
@@ -87,7 +86,7 @@ export async function updateAlbum(req: Request, res: Response) {
     }
 
     const album: any = new Album(req.body as unknown as IAlbum);
-    const allowedFields = ["name", "imageId", "artistId"];
+    const allowedFields = ["name", "imageFileId", "artistId"];
     const keys = Object.keys(album).filter(key => allowedFields.includes(key));
 
     const conn = await config.connection;
