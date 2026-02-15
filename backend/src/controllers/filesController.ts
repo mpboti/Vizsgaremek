@@ -1,6 +1,8 @@
 import config from "../config/config";
 import { Request, Response } from "express";
 import { uploadMusicMiddleware, uploadImageMiddleware } from "../middleware/upload";
+import { ImageFile } from "../classes/imageFile";
+import { MusicFile } from "../classes/musicFile";
 
 export async function getMusicFileList (_req: Request, res: Response) {
     const conn = await config.connection;
@@ -28,6 +30,16 @@ export async function uploadMusicFile(req: Request, res: Response) {
         if (req.file === undefined) {
             return res.status(400).json({ message: "No file uploaded." });
         }
+        const userId = (req as any).user?.id || req.body?.userId;
+        if (userId) {
+            try {
+                const music = new MusicFile(req.file as any, Number(userId));
+                await music.saveToDatabase();
+            } catch (err) {
+                console.error("Error saving music file to DB:", err);
+                return res.status(500).json({ message: "Failed to save music metadata to database." });
+            }
+        }
         res.status(200).json({ message: "Music file uploaded successfully.", filename: req.file.filename });
         return;
     } catch (error) {
@@ -42,6 +54,16 @@ export async function uploadImageFile(req: Request, res: Response) {
         await uploadImageMiddleware(req, res);
         if (req.file === undefined) {
             return res.status(400).json({ message: "No file uploaded." });
+        }
+        const userId = (req as any).user?.id || req.body?.userId;
+        if (userId) {
+            try {
+                const img = new ImageFile(req.file as any, Number(userId));
+                await img.saveToDatabase();
+            } catch (err) {
+                console.error("Error saving image file to DB:", err);
+                return res.status(500).json({ message: "Failed to save image metadata to database." });
+            }
         }
         res.status(200).json({ message: "Image file uploaded successfully.", filename: req.file.filename });
         return;

@@ -43,14 +43,14 @@ export class MusicFile implements IMusicFile {
         try {
             await conn.beginTransaction();
             let [results]: any = await conn.query(
-                'INSERT INTO music_files (id, fileName, filePath, fileSize, mimeType, userId) VALUES (?, ?, ?, ?, ?, ?)',
-                [this.id, this.name, this.path, this.size, this.mimeType, this.userId]
+                'INSERT INTO music_files (id, fileName, mimeType, filePath, fileSize) VALUES (?, ?, ?, ?, ?)',
+                [this.id, this.name, this.mimeType, this.path, this.size]
             );
             if (results.affectedRows === 0) {
                 throw new Error("Failed to save music file to database.");
             }
             await conn.commit();
-            return results.insertId;
+            return 0;
         } catch (error) {
             this.deleteFileDir();
             await conn.rollback();
@@ -60,7 +60,7 @@ export class MusicFile implements IMusicFile {
 
     deleteFileDir(){
         try {
-            fs.unlinkSync(config.baseDir + config.musicUploadDir + this.id);
+            fs.unlinkSync(this.path);
         } catch (error) {
             console.log("Error deleting file after DB failure:", error);
         }
