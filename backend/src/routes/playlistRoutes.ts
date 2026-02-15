@@ -6,10 +6,10 @@ const router = express.Router();
 
 router.get('/', getAllPlaylists);
 router.get('/:id', getPlaylistById);
-router.post('/', createPlaylist, verifyToken);
-router.post('/addMusic', addMusicToPlaylist, verifyToken);
-router.delete('/removeMusic', removeMusicFromPlaylist, verifyToken);
-router.delete('/:id', deletePlaylist, verifyToken);
-router.put('/:id', updatePlaylist, verifyToken);
+router.post('/', verifyToken, createPlaylist);
+router.post('/addMusic', verifyToken, addMusicToPlaylist);
+router.delete('/removeMusic', verifyToken, removeMusicFromPlaylist);
+router.delete('/:id', verifyToken, deletePlaylist);
+router.put('/:id', verifyToken, updatePlaylist);
 
 export default router;

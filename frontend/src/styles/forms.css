@@ -1,4 +1,4 @@
-button.loginFormButton{
+button.loginFormButton, .loginFormButton{
     background-color: #0003b3;
     padding: 10px;
     margin: 0 5px 5px;
@@ -6,13 +6,31 @@ button.loginFormButton{
     font-size: 20px;
 }
 
-button.loginFormButton:hover{
+button.loginFormButton:hover, .loginFormButton:hover{
     background-color: #0004e0;
 }
 
+.loginFormButton{
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    color: white;
+}
+
 Form.authForm{
-    position: relative;
-    top: 200px;
+    padding-top: 150px;
+    padding-bottom: 270px;
     text-align: center;
     vertical-align: middle;
     gap: 0px;
@@ -47,6 +65,9 @@ img.uploadAlbumCover{
     width: 300px;   
     height: 300px;
     border-radius: 20px;
+    object-fit: cover;
+    object-position: center;
+    cursor: pointer;
 }
 
 @media screen and (max-width: 1300px){

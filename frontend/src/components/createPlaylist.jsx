@@ -15,7 +15,7 @@ export default function CreatePlaylist(){
     
     return(
         <Form method="post" className="authForm">
-            <h1></h1>
+            <h1>Lejátszási lista létrehozása</h1>
             <p>
               <input type="text" name="playlistCim" placeholder="Lejátszási lista címe" required />
             </p>

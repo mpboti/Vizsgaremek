@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import cors from "cors";
 import musicsRouter from "./routes/musicsRoutes";
 import usersRouter from "./routes/usersRoutes";
 import searchRouter from "./routes/searchRoutes";
@@ -14,6 +15,11 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(bodyParser.json());
 
 function root(_req: Request, res: Response) {

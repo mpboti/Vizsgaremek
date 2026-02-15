@@ -4,9 +4,9 @@ import verifyToken from "../middleware/auth";
 
 const router: Router = express.Router();
 
-router.post('/music', uploadMusicFile, verifyToken);
-router.post('/image', uploadImageFile, verifyToken);
-router.get('/music/:filename', downloadMusicFile, verifyToken);
-router.get('/image/:filename', downloadImageFile, verifyToken);
+router.post('/music', verifyToken, uploadMusicFile);
+router.post('/image', uploadImageFile);
+router.get('/music/:filename', verifyToken, downloadMusicFile);
+router.get('/image/:filename', verifyToken, downloadImageFile);
 
 export default router;

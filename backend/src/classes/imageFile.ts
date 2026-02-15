@@ -41,18 +41,18 @@ export class ImageFile implements IImageFile {
         try {
             await conn.beginTransaction();
             let [results] = await conn.query(
-                'INSERT INTO image_files (id, fileName, mimeType, filePath, fileSize) VALUES (?, ?, ?, ?, ?)',
-                [this.id, this.name, this.mimeType, this.path, this.size]
+                'INSERT INTO image_files (id, name, path, size, mime_type, user_id) VALUES (?, ?, ?, ?, ?, ?)',
+                [this.id, this.name, this.path, this.size, this.mimeType, this.userId]
             );
-            if ((results as any).affectedRows === 0) {
+            if (results.affectedRows === 0) {
                 throw new Error("Failed to save image file to database.");
             }
             [results] = await conn.query(
-                'UPDATE users SET imageFileId = ? WHERE id = ?',
-                [this.id, this.userId]
+                'UPDATE users SET imageId = ? WHERE id = ?',
+                [results.insertId, this.userId]
             );
-            if ((results as any).affectedRows === 0) {
-                throw new Error("Failed to update user's imageFileId.");
+            if (results.affectedRows === 0) {
+                throw new Error("Failed to update user's imageId.");
             }
             await conn.commit();
         } catch (error) {
@@ -64,7 +64,7 @@ export class ImageFile implements IImageFile {
 
     deleteFileDir(){
         try {
-            fs.unlinkSync(this.path);
+            fs.unlinkSync(config.baseDir + config.imageUploadDir + this.id);
         } catch (error) {
             console.log("Error deleting file after DB failure:", error);
         }

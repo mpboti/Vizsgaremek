@@ -4,10 +4,10 @@ import Users, { IUsers } from "../classes/users";
 import jwt from 'jsonwebtoken';
 
 export async function logIn(req: Request, res: Response) {
-    const { username: email, pwd } = req.body;
+    const { email, pwd } = req.body;
 
     if (!email || !pwd) {
-        return res.status(400).json({ message: "Username and password are required." });
+        return res.status(400).json({ message: "Email and password are required." });
     }
 
     const conn = await config.connection;
@@ -20,7 +20,7 @@ export async function logIn(req: Request, res: Response) {
             throw new Error("JWT secret is not defined in the configuration.");
         }
         const token = jwt.sign({ id: results[0].id, username: email }, config.jwtSecret, { expiresIn: '1d' });
-        res.status(200).json({ message: "Login successful.", token });
+        res.status(200).json({ message: "Login successful.", token: token, id: results[0].id });
         return;
     } catch (error) {
         console.error("Error during login:", error);
@@ -84,7 +84,7 @@ export async function createUser(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, imageFileId) VALUES (null, ?, ?, ?, ?)", [user.username, user.email, user.pwd, user.imageFileId]);
+        const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, imageFileId) VALUES (null, ?, ?, ?, null)", [user.username, user.email, user.pwd]);
         res.status(201).json({ message: "User created successfully.", id: results.insertId });
         return;
     } catch (error) {

@@ -136,10 +136,11 @@ table{
         width: 270px;
     }
     p.toltelek{
-        width: 30px;
+        width: 50px;
     }
     p.userName{
-        top: 30px;
+        font-size: 18px;
+        top: 15px;
         right: 70px;
     }
 }

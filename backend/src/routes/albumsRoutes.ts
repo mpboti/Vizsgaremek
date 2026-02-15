@@ -7,8 +7,8 @@ const router: Router = express.Router();
 router.get('/', getAllAlbums);
 router.get('/:id', getAlbumById);
 router.get('/:id/albums', getAlbumsByArtistId);
-router.post('/', createAlbum, verifyToken);
-router.delete('/:id', deleteAlbum, verifyToken);
-router.put('/:id', updateAlbum, verifyToken);
+router.post('/', verifyToken, createAlbum);
+router.delete('/:id', verifyToken, deleteAlbum);
+router.put('/:id', verifyToken, updateAlbum);
 
 export default router;

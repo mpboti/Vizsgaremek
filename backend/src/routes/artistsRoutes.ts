@@ -6,8 +6,8 @@ const router: Router = express.Router();
 
 router.get('/', getAllArtists);
 router.get('/:id', getArtistById);
-router.post('/', createArtist, verifyToken);
-router.delete('/:id', deleteArtist, verifyToken);
-router.put('/:id', updateArtist, verifyToken);
+router.post('/', verifyToken, createArtist);
+router.delete('/:id', verifyToken, deleteArtist);
+router.put('/:id', verifyToken, updateArtist);
 
 export default router;
