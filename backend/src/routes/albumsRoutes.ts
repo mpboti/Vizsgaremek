@@ -1,14 +1,14 @@
 import express, {Router} from "express";
 import {getAllAlbums, getAlbumById, createAlbum, deleteAlbum, getAlbumsByArtistId, updateAlbum} from "../controllers/albumsController";
-import { logIn } from "../controllers/usersController";
+import verifyToken from "../middleware/auth";
 
 const router: Router = express.Router();
 
 router.get('/', getAllAlbums);
 router.get('/:id', getAlbumById);
 router.get('/:id/albums', getAlbumsByArtistId);
-router.post('/', createAlbum, logIn);
-router.delete('/:id', deleteAlbum, logIn);
-router.put('/:id', updateAlbum, logIn);
+router.post('/', createAlbum, verifyToken);
+router.delete('/:id', deleteAlbum, verifyToken);
+router.put('/:id', updateAlbum, verifyToken);
 
 export default router;
