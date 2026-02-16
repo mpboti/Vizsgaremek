@@ -21,7 +21,7 @@ export default function CreatePlaylist(){
             </p>
             <p>
                 <input ref={fileOpener} type="file" onChange={(e)=>openPic(true, e)} accept="image/*" style={{ display: "none" }}/>
-                <button onClick={(e)=>openPic(false, e)}><img src={img} className="uploadAlbumCover"/></button>
+                <img src={img} className="uploadAlbumCover" onClick={(e)=>openPic(false, e)}/>
             </p>
             <div>     
               <button className="loginFormButton">Létrehoz</button>

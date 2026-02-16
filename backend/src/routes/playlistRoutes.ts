@@ -1,10 +1,11 @@
 import express from 'express';
-import { getAllPlaylists, getPlaylistById, createPlaylist, addMusicToPlaylist, removeMusicFromPlaylist, deletePlaylist, updatePlaylist } from '../controllers/playlistController';
+import { getAllPlaylists, getPlaylistById, createPlaylist, addMusicToPlaylist, removeMusicFromPlaylist, deletePlaylist, updatePlaylist, getPlaylistByUserId } from '../controllers/playlistController';
 import verifyToken from "../middleware/auth";
 
 const router = express.Router();
 
 router.get('/', getAllPlaylists);
+router.get('/byuserid/:id', verifyToken, getPlaylistByUserId);
 router.get('/:id', getPlaylistById);
 router.post('/', verifyToken, createPlaylist);
 router.post('/addMusic', verifyToken, addMusicToPlaylist);

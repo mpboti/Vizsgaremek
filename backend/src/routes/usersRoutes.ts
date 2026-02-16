@@ -5,7 +5,7 @@ import verifyToken from "../middleware/auth";
 const router: Router = express.Router();
 
 router.get('/', verifyToken, getAllUsers);
-router.get('/:id', verifyToken, getUserById);
+router.get('/getuser/:id', verifyToken, getUserById);
 router.post('/login', logIn);
 router.post('/signup', createUser);
 router.delete('/:id', verifyToken, deleteUser);

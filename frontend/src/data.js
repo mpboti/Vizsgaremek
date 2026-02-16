@@ -1,3 +1,4 @@
+import { getAuthToken } from "./auth";
 let data=[{
     kep:"https://i.scdn.co/image/ab67616d00001e02bf01be99811cc56b3ef90fb7",
     cim:"asszonygyilkosság",
@@ -23,28 +24,61 @@ let data=[{
     mufaj:"Rock"
 }
 ];
+let userData = {
+    name: "",
+    email: "",
+    userPic: "",
+    id: -1
+};
 
-let userData = [{
-    name: "mpboti",
-    email: "botond.maderpiros@gmail.com",
-    userPic: "https://i.scdn.co/image/ab6775700000b8a8a81ce3d87efdd7f1dcd56853",
-    listaCim: "Jó zenék",
-    listaPic: "https://mosaic.scdn.co/300/ab67616d00001e027028981d09d2e5833c9c78adab67616d00001e02b4bafae67d95046f07a9debdab67616d00001e02c6710b4a52539506c30e5354ab67616d00001e02de1af2785a83cc660155a0c4",
-    mufajok:"rock, punk, pop"
-},
-{
-    name: "mpboti",
-    email: "botond.maderpiros@gmail.com",
-    userPic: "https://i.scdn.co/image/ab6775700000b8a8a81ce3d87efdd7f1dcd56853",
-    listaCim: "Jó zenék",
-    listaPic: "https://mosaic.scdn.co/300/ab67616d00001e027028981d09d2e5833c9c78adab67616d00001e02b4bafae67d95046f07a9debdab67616d00001e02c6710b4a52539506c30e5354ab67616d00001e02de1af2785a83cc660155a0c4",
-    mufajok:"rock, punk, pop"
-}];
+const token = getAuthToken();
+export let logedIn = false;
 
 export function dataListaz(){
     return data;
 }
 
-export function userDataListaz(){
+export function getUserData(){
     return userData 
 }
+
+async function firstLoad(){
+    if(token == null || token == "EXPIRED")
+        return;
+    const res = await fetch("http://localhost:3000/users/getuser/"+localStorage.getItem("userId"), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': token
+        }
+    });
+    const resData = await res.json();
+    let userPic = "";
+    if(resData.imageFileId!=null){
+      const res2 = await fetch("http://localhost:3000/files/image/", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+      const resData2 = await res2.json();
+      userPic = URL.createObjectURL(resData2[resData.imageFileId]);
+    }
+    
+    if(resData.username && resData.email && resData.id){
+        setUserData(resData.username, resData.email, userPic, parseInt(resData.id));
+    }
+    
+}
+
+export function setUserData(name, email, userPic, id){
+    userData = {
+        name: name,
+        email: email,
+        userPic: userPic,
+        id: id
+    };
+    logedIn = true;
+}
+await firstLoad();

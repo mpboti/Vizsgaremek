@@ -18,6 +18,23 @@ export async function getAllPlaylists(_req: Request, res: Response) {
     return;
 };
 
+export async function getPlaylistByUserId(req: Request, res: Response) {
+    const id: number = parseInt(req.params.id as string);
+    const conn = await config.connection;
+    try {
+        const [results] = await conn.query("SELECT * FROM playlists WHERE ownerId = ?", [id]);
+        if (results.length === 0) {
+            res.status(300).json({ message: "No playlists found for this user." });
+            return;
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+    return;
+};
+
 export async function getPlaylistById(req: Request, res: Response) {
     const id: number = parseInt(req.params.id as string);
     if (isNaN(id)) {

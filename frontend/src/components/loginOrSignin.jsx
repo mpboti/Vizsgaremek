@@ -1,15 +1,16 @@
 import { Form, Link, useSearchParams, redirect} from "react-router-dom";
 import "../styles/forms.css";
+import { setUserData } from "../data";
 
 export default function LoginOrSignin(){
     const [searchParams] = useSearchParams();
     const isLogin = searchParams.get("mode") == "login";
     return(
         <Form method="post" className="authForm">
-            <h1>{isLogin ? 'Log in' : 'Create a new user'}</h1>
+            <h1>{isLogin ? 'Bejelentkezés' : 'Regisztráció'}</h1>
             {!isLogin &&
             <p>
-              <input id="username" type="username" name="username" placeholder="Felhasználó név" required />
+              <input id="username" type="text" name="username" placeholder="Felhasználó név" required />
             </p>}
             <p>
               <input id="email" type="email" name="email" placeholder="Email" required />
@@ -87,7 +88,34 @@ export async function LoginAction({request}){
     if(!response.ok)
       throw Response.json({message: 'Could not authenticate user.'}, {status: 500});
 
-    console.log(resData.message);
+    const expiration = new Date();
+    expiration.setHours(expiration.getHours() +24 );
+    localStorage.setItem("expiration", expiration.toISOString());
+    
+    const res = await fetch("http://localhost:3000/users/getuser/"+resData.id, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': localStorage.getItem("token")
+      }
+    });
+    const resData2 = await res.json();
+    console.log(resData2);
+    if(resData.imageFileId!=null){
+      const res2 = await fetch("http://localhost:3000/files/image/", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': localStorage.getItem("token")
+        }
+      });
+      const resData3 = await res2.json();
+      const userPic = URL.createObjectURL(resData3[resData.imageFileId]);
+      setUserData(resData2.username, resData2.email, userPic, resData2.id);
+    }else{
+      setUserData(resData2.username, resData2.email, "", resData2.id);
+    }
+    
     return redirect('/');
   } catch (error) {
     console.error("Error during authentication:", error);

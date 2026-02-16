@@ -1,16 +1,17 @@
 import { useRef, useState } from "react"
 import "../styles/top.css";
 import { Link, Outlet } from "react-router-dom";
-import { userDataListaz } from '../data';
+import { getUserData, logedIn } from '../data';
 import { useNavigate } from "react-router-dom";
 import back from '../assets/back.png';
 import home from '../assets/home.png';
 import search from '../assets/search.png';
 import Player from "./player";
+import enter from '../assets/enter.png';
 
 export default function TopContent() {
     const szoveg = useRef();
-    const userData = userDataListaz()[0];
+    const userData = getUserData();
     
     function GetText() {
         if (0 < szoveg.current.value.length) {
@@ -65,9 +66,14 @@ export default function TopContent() {
                     <p className="toltelek"></p>{phone?undefined:<p className="userName">{userData.name.length<19?userData.name:userData.name.substring(0,18)}</p>}
                 </div>
                 <div className="userPicDiv">
+                    {logedIn && 
+                    <Link to="/setting" className="topGombok">
+                    {userData.userPic !== ""?<img className="userPic" src={userData.userPic}/>:<img className="userPic" src="https://cdn.rios.hu/dl/upc/2021-04/18/13365_zedohtonsyowl0va_174572780_3798245446891714_3038821565414680863_n.thumb.jpg"/>}
+                    </Link>}
+                    {!logedIn &&
                     <Link to="/auth?mode=login" className="topGombok">
-                        {userData.userPic?<img className="userPic" src={userData.userPic}/>:<img className="userPic" src="https://cdn.rios.hu/dl/upc/2021-04/18/13365_zedohtonsyowl0va_174572780_3798245446891714_3038821565414680863_n.thumb.jpg"/>}
-                    </Link>
+                        <img className="userPic" src={enter}/>
+                    </Link>}
                 </div>
             </div>
             <Outlet />

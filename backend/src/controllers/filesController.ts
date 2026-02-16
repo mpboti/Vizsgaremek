@@ -14,6 +14,22 @@ export async function getMusicFileList (_req: Request, res: Response) {
     res.status(200).json(results);
 }
 
+export async function getImageFileById (req: Request, res: Response) {
+    const id = req.params.id;
+    const conn = await config.connection;
+    try {
+        const [results] = await conn.query("SELECT * FROM image_files WHERE id = ?", [id]);
+        if (results.length === 0) {
+            res.status(404).json({ message: "No image files found for this user." });
+            return;
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        console.error("Error fetching image files by user ID:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+}
+
 export async function getImageFileList (_req: Request, res: Response) {
     const conn = await config.connection;
     const [results] = await conn.query("SELECT * FROM image_files");

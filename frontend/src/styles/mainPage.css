@@ -27,6 +27,30 @@
     background-color: #01004293;
 }
 
+.pleaseLogin{
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #2130fd33;
+    font-size: 30px;
+    position: absolute;
+    top:40%;
+    left: 30%;
+    width: 40%;
+    min-width: 200px;
+}
+.pleaseLogin:hover{
+    background-color: #0104c7;
+}
+
 div.listaInfo{
     display: flex;
     align-items: center;
@@ -161,5 +185,8 @@ div.mainPage{
     div.listaButtons{
         justify-content: center;
         margin-right: -10px;
+    }.pleaseLogin{
+        top: 350px;
+        left: 120px;
     }
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "../styles/kereses.css"
-import { dataListaz, userDataListaz } from "../data";
+import { dataListaz, getUserData } from "../data";
 import { Link, useParams } from "react-router-dom";
 import RowGenerator from "./playlist-row";
 import play from '../assets/play.png';
@@ -11,7 +11,7 @@ import { loadData } from "../playerLogic";
 
 export default function Kereses(){
   const [data, setData] = useState(dataListaz());
-  const userData = userDataListaz();
+  const userData = getUserData();
   const [selected, setSelected] = useState(0);
   const [microSelected, setMicroSelected] = useState(0);
   const [isUser, setIsUser] = useState(false);
