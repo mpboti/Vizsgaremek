@@ -2,7 +2,6 @@ import config from "../config/config";
 import fs from "fs";
 
 export interface IImageFile {
-    id: string;
     name: string;
     path: string;
     size: number;
@@ -22,14 +21,12 @@ export interface IMulterFile {
 }
 
 export class ImageFile implements IImageFile {
-    id: string;
     name: string;
     path: string;
     size: number;
     mimeType: string;
     userId: number;
     constructor(file: IMulterFile, userId: number) {
-        this.id = file.filename;
         this.name = file.originalname;
         this.path = file.path;
         this.size = file.size;
@@ -41,32 +38,17 @@ export class ImageFile implements IImageFile {
         try {
             await conn.beginTransaction();
             let [results] = await conn.query(
-                'INSERT INTO image_files (id, name, path, size, mime_type, user_id) VALUES (?, ?, ?, ?, ?, ?)',
-                [this.id, this.name, this.path, this.size, this.mimeType, this.userId]
+                'INSERT INTO image_files (id, flieName, filePath, fileSize, mimeType, userId) VALUES (null, ?, ?, ?, ?, ?)',
+                [this.name, this.path, this.size, this.mimeType, this.userId]
             );
             if (results.affectedRows === 0) {
                 throw new Error("Failed to save image file to database.");
             }
-            [results] = await conn.query(
-                'UPDATE users SET imageId = ? WHERE id = ?',
-                [results.insertId, this.userId]
-            );
-            if (results.affectedRows === 0) {
-                throw new Error("Failed to update user's imageId.");
-            }
             await conn.commit();
+            return results.id;
         } catch (error) {
-            this.deleteFileDir();
             await conn.rollback();
             throw error;
-        }
-    }
-
-    deleteFileDir(){
-        try {
-            fs.unlinkSync(config.baseDir + config.imageUploadDir + this.id);
-        } catch (error) {
-            console.log("Error deleting file after DB failure:", error);
         }
     }
 }

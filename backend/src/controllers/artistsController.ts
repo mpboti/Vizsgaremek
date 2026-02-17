@@ -69,7 +69,7 @@ export async function deleteArtist(req: Request, res: Response) {
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: "Artist not found." });
         }
-        res.status(200).json(results);
+        res.status(200).json({ message: "Artist deleted." });
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
     }

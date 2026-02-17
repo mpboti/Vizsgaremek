@@ -4,7 +4,7 @@ CREATE DATABASE slicetune;
 USE slicetune;
 
 CREATE TABLE image_files (
-    id VARCHAR(255) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     mimeType VARCHAR(100),
@@ -13,7 +13,7 @@ CREATE TABLE image_files (
 );
 
 CREATE TABLE music_files (
-    id VARCHAR(255) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     mimeType VARCHAR(100),
@@ -24,7 +24,7 @@ CREATE TABLE music_files (
 CREATE TABLE artists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    imageFileId VARCHAR(255) NULL,
+    imageFileId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
 );
@@ -32,7 +32,7 @@ CREATE TABLE artists (
 CREATE TABLE albums (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    imageFileId VARCHAR(255) NULL,
+    imageFileId INT NULL,
     artistId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL,
@@ -45,7 +45,7 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
-    imageFileId VARCHAR(255) NULL,
+    imageFileId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
 );
@@ -56,7 +56,7 @@ CREATE TABLE musics (
     name VARCHAR(255) NOT NULL,
     albumId INT NULL,
     artistId INT NULL,
-    musicFileId VARCHAR(255) NOT NULL,
+    musicFileId INT NOT NULL,
     uploaderId INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (albumId) REFERENCES albums(id) ON DELETE SET NULL,

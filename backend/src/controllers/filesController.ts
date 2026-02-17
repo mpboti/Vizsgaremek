@@ -14,18 +14,33 @@ export async function getMusicFileList (_req: Request, res: Response) {
     res.status(200).json(results);
 }
 
+export async function getMusicFileById (req: Request, res: Response){
+    const id = req.params.id;
+    const conn = await config.connection
+    try {
+        const [results] = await conn.query("SELECT * FROM music_files WHERE id = ?", [id])
+        if (results.length === 0) {
+            res.status(404).json({ message: "No music files found." })
+        }
+        res.status(200).json(results)
+    } catch (error) {
+        console.error("Error fetching image file: ", error);
+        res.status(500).json({ message: "Internal server error." })
+    }
+}
+
 export async function getImageFileById (req: Request, res: Response) {
     const id = req.params.id;
     const conn = await config.connection;
     try {
         const [results] = await conn.query("SELECT * FROM image_files WHERE id = ?", [id]);
         if (results.length === 0) {
-            res.status(404).json({ message: "No image files found for this user." });
+            res.status(404).json({ message: "No image files found." });
             return;
         }
         res.status(200).json(results);
     } catch (error) {
-        console.error("Error fetching image files by user ID:", error);
+        console.error("Error fetching image: ", error);
         res.status(500).json({ message: "Internal server error." });
     }
 }
@@ -42,7 +57,7 @@ export async function getImageFileList (_req: Request, res: Response) {
 
 export async function uploadMusicFile(req: Request, res: Response) {
     try {
-        await uploadMusicMiddleware(req, res);
+        const fileId = await uploadMusicMiddleware(req, res);
         if (req.file === undefined) {
             return res.status(400).json({ message: "No file uploaded." });
         }
@@ -56,7 +71,8 @@ export async function uploadMusicFile(req: Request, res: Response) {
                 return res.status(500).json({ message: "Failed to save music metadata to database." });
             }
         }
-        res.status(200).json({ message: "Music file uploaded successfully.", filename: req.file.filename });
+
+        res.status(200).json({ message: "Music file uploaded successfully.", id: fileId  });
         return;
     } catch (error) {
         console.error("Error uploading music file:", error);
@@ -67,7 +83,7 @@ export async function uploadMusicFile(req: Request, res: Response) {
 
 export async function uploadImageFile(req: Request, res: Response) {
     try {
-        await uploadImageMiddleware(req, res);
+        const fileId = await uploadImageMiddleware(req, res);
         if (req.file === undefined) {
             return res.status(400).json({ message: "No file uploaded." });
         }
@@ -81,7 +97,7 @@ export async function uploadImageFile(req: Request, res: Response) {
                 return res.status(500).json({ message: "Failed to save image metadata to database." });
             }
         }
-        res.status(200).json({ message: "Image file uploaded successfully.", filename: req.file.filename });
+        res.status(200).json({ message: "Image file uploaded successfully.", id: fileId });
         return;
     } catch (error) {
         console.error("Error uploading image file:", error);

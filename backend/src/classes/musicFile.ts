@@ -2,7 +2,6 @@ import config from "../config/config";
 import fs from "fs";
 
 export interface IMusicFile {
-    id: string;
     name: string;
     path: string;
     size: number;
@@ -22,7 +21,6 @@ export interface IMulterFile {
 }
 
 export class MusicFile implements IMusicFile {
-    id: string;
     name: string;
     path: string;
     size: number;
@@ -30,7 +28,6 @@ export class MusicFile implements IMusicFile {
     userId: number;
 
     constructor(file: IMulterFile, userId: number) {
-        this.id = file.filename;
         this.name = file.originalname;
         this.path = file.path;
         this.size = file.size;
@@ -38,31 +35,22 @@ export class MusicFile implements IMusicFile {
         this.userId = userId;
     }
 
-    async saveToDatabase(): Promise<number> {
+    async saveToDatabase() {
         const conn = await config.connection;
         try {
             await conn.beginTransaction();
-            let [results]: any = await conn.query(
-                'INSERT INTO music_files (id, fileName, filePath, fileSize, mimeType, userId) VALUES (?, ?, ?, ?, ?, ?)',
-                [this.id, this.name, this.path, this.size, this.mimeType, this.userId]
+            let [results] = await conn.query(
+                'INSERT INTO music_files (id, fileName, filePath, fileSize, mimeType, userId) VALUES (null, ?, ?, ?, ?, ?)',
+                [this.name, this.path, this.size, this.mimeType, this.userId]
             );
             if (results.affectedRows === 0) {
                 throw new Error("Failed to save music file to database.");
             }
             await conn.commit();
-            return results.insertId;
+            return results.id;
         } catch (error) {
-            this.deleteFileDir();
             await conn.rollback();
             throw error;
-        }
-    }
-
-    deleteFileDir(){
-        try {
-            fs.unlinkSync(config.baseDir + config.musicUploadDir + this.id);
-        } catch (error) {
-            console.log("Error deleting file after DB failure:", error);
         }
     }
 }
