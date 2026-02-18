@@ -134,8 +134,8 @@ export async function updateUser(req: Request, res: Response) {
         return res.status(400).json({ message: "No valid fields to update." });
     }
 
-    const updateString = keys.map(key => `${key} = ?`).join(", ");
-    const values = keys.map(key => (user)[key]);
+    const updateString = keys.map(key => {if(user[key]!=null && user[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
+    const values = keys.map(key => {if(user[key]!=null && user[key]!="") return user[key]; else return null;}).filter(value => value !== null);
     values.push(id); // For WHERE clause
 
     const conn = await config.connection;

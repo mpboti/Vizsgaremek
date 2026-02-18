@@ -11,19 +11,10 @@ button.loginFormButton:hover, .loginFormButton:hover{
 }
 
 .loginFormButton{
-    display: inline-block;
     text-decoration: none;
     text-align: center;
-    white-space: nowrap;
     vertical-align: middle;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
     cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    background-image: none;
     border: 1px solid transparent;
     color: white;
 }
@@ -49,18 +40,25 @@ div.settingPage{
 
 div.justFlex{
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     margin-left: auto;
     margin-right: auto;
     width: 40%;
+    gap: 50px;
 }
-
+div.kepAlign{
+    flex: 2;
+    justify-content: end;
+}
 div.buttonAlign{
     display: flex;
     flex-direction: column;
     gap: 150px;
+    flex: 1;
+    text-align: right;
 }
+
 
 Form.authForm{
     padding-top: 150px;
@@ -70,7 +68,7 @@ Form.authForm{
     gap: 0px;
 }
 
-Form h1{
+Form h1, Form p{
     color: white;
 }
 
@@ -87,9 +85,10 @@ Form input{
 }
 
 Form input.range{
+    width: 100%;
     padding: 0px;
     margin-bottom: 20px;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 Form input.range:focus{
@@ -123,12 +122,42 @@ img.uploadAlbumCover{
 img.uploadImageCover{
     padding: 0px;
     margin: 0px;
-    width: 300px;   
-    height: 300px;
+    width: 250px;   
+    height: 250px;
     border-radius: 200px;
     object-fit: cover;
     object-position: center;
     cursor: pointer;
+}
+Form div.rangeFlex{
+    width: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 0px;
+    padding-top: 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #3538c0bb;
+    border-radius: 10px;
+}
+Form div.rangeFlex p.rangeCim{
+    flex: 2;
+    text-align: left;
+    padding-left: 5px;
+    min-width: 180px;
+    margin: 5px;
+}
+Form div.rangeFlex p.rangeP{
+    flex: 4;
+    width: 100%;
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 
 @media screen and (max-width: 1300px){
@@ -137,11 +166,25 @@ img.uploadImageCover{
         height: 200px;
         margin-bottom: 30px;
         border-radius: 20px;
+    }img.uploadImageCover{
+        width: 200px;   
+        height: 200px;
+    }
+    Form input, Form div.rangeFlex, div.justFlex{
+        width: 60%;
     }
 }
 
-@media screen and (max-width: 1300px){
-    Form input{
-        width: 60%;
+@media screen and (max-width: 900px){
+    Form div.rangeFlex{
+        padding-top: 10px;
+        padding-bottom: -5px;
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 600px){
+    Form input, Form div.rangeFlex, div.justFlex{
+        width: 90%;
     }
 }

@@ -1,9 +1,10 @@
-import { Form } from "react-router-dom";
+import { Form, redirect } from "react-router-dom";
 import { getAuthToken } from "../auth";
-import { getUserData } from "../data";
-import { useState, useRef } from "react";
+import { clearUserData, getUserData } from "../data";
+import { useState, useRef, use } from "react";
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/forms.css";
+
 
 
 export default function Setting() {
@@ -24,6 +25,15 @@ export default function Setting() {
         localStorage.setItem("fadeValue", value);
         setFadeValue(value);
   }
+
+  function logout(){
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("expiration");
+    clearUserData();
+    window.location.href = "/";
+  }
+
   return(
     <div className="settingPage">
       <Form method="post" className="settingForm">
@@ -31,34 +41,40 @@ export default function Setting() {
             <p>
               <input id="username" type="text" name="username" placeholder="Felhasználó név" defaultValue={userData.name} required/>
             </p>
+            <div className="rangeFlex">
+              <p className="rangeCim">Zenék közti átfedés:</p>
+              <p className="rangeP">
+                <span className="rangeSpan">00:{fadeValue<10?"0"+fadeValue:fadeValue || 0}</span>
+                <input id="fadeValue" type="range" min="0" max="15" defaultValue={fadeValue} className="range" onChange={FadeChange}/>
+                <span className="rangeValue">00:15</span>
+              </p>
+            </div>
             <p>
-              <span className="rangeSpan">00:{fadeValue<10?"0"+fadeValue:fadeValue || 0}</span>
-              <input id="fadeValue" type="range" min="0" max="15" defaultValue={fadeValue} className="range" onChange={FadeChange}/>
-              <span className="rangeValue">00:15</span>
+              <input id="email" type="email" name="email" placeholder="Email" defaultValue={userData.email} required/>
             </p>
             <p>
-              <input id="password" type="password" name="password" placeholder="password" required/>
+              <input id="password" type="password" name="password" placeholder="password"/>
             </p>
             <p>
               <input id="newpassword" type="password" name="newpassword" placeholder="New password"/>
             </p>
             <div className="justFlex">
-              <p>
-                  <input ref={fileOpener} type="file" onChange={(e)=>openPic(true, e)} accept="image/*" style={{ display: "none" }}/>
+              <div className="kepAlign">
+                  <input ref={fileOpener} type="file" name="file" id="file" onChange={(e)=>openPic(true, e)} accept="image/*" style={{ display: "none" }}/>
                   <img src={img} className="uploadImageCover" onClick={(e)=>openPic(false, e)}/>
-              </p>
+              </div>
               <div className="buttonAlign">
                 <button className="loginFormButton">Mentés</button>
-                <button className="loginFormButton logoutButton">Kijelentkezés</button>
+                <button className="loginFormButton logoutButton" onClick={logout}>Kijelentkezés</button>
               </div>
             </div>
-            
       </Form>
-      
     </div>
   )
 }
-export async function SettingLoader(){
+
+export async function SettingAction({request}){
+  
   try{
     const token = getAuthToken();
     if(!token || token == "EXPIRED"){
@@ -70,41 +86,64 @@ export async function SettingLoader(){
     }
     const data = await request.formData();
     const username = data.get("username");
+    const email = data.get("email");
     const password = data.get("password");
     const newpassword = data.get("newpassword");
-    if(newpassword && newpassword.length < 6)
-      throw new Response.json({message: "Az új jelszónak legalább 6 karakter hosszúnak kell lennie!"}, {status: 422});
-
-    const response = await fetch("http://localhost:3000/files/image", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'      
-      },
-      body: JSON.stringify({
-        email: userData.email,
-        pwd: password
-      })
-    });
-    const responseData = await response.json();
+    const imgFile = data.get("file");
     
-    let bodyData = {
-      username: username,
-      pwd: password,
-
-    }
-    if(!newpassword || newpassword== ""){
+    let bodyData = {};
+    if(newpassword && newpassword!=password){
       
-    }else{
-      bodyData = {
-        username: username,
-        email: userData.email,
-        pwd: newpassword,
-        imageFileId: 
+      const validateRes = await fetch("http://localhost:3000/users/validatepwd/"+userData.id, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': getAuthToken()
+        },
+        body: JSON.stringify({password: password})
+      });
+      const validateData = await validateRes.json();
+      if(!validateData.valid){
+        throw new Response.json({message: "Hibás jelszó!"}, {status: 422});
+      }
+      bodyData = {...bodyData, pwd: newpassword}
+    }
+    if(username != userData.name)
+      bodyData = {...bodyData, username: username}
+    if(email != userData.email)
+      bodyData = {...bodyData, email: email}
+    if(imgFile && imgFile.name != defaultProfilePic){
+      const formData = new FormData();
+      formData.append("image", imgFile);
+      formData.append("userId", userData.id);
+      const response = await fetch("http://localhost:3000/files/image", {
+        method: 'POST',
+        headers: {
+          'x-access-token': getAuthToken()
+        },
+        body: formData
+      });
+      const responseData = await response.json();
+      bodyData = {...bodyData, imageFileId: responseData.id}
+    }
+    if(Object.keys(bodyData).length > 0){
+      const res = await fetch("http://localhost:3000/users/"+userData.id, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': getAuthToken()
+        },
+        body: JSON.stringify(bodyData)
+      });
+      if(res.status == 200){
+        window.location.href = "/";
+      }else{
+        const err = await res.json();
+        throw new Response.json(err, {status: res.status});
       }
     }
-    
-    
+    return redirect("/");
   }catch(err){
-      console.log(err);
+      console.log(err.message);
   }
 }

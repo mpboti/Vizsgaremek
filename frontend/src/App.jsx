@@ -8,7 +8,7 @@ import ErrorNotFound from "./components/ErrorNotFound";
 import { createBrowserRouter } from "react-router-dom";
 import LoginOrSignin, { LoginAction } from "./components/loginOrSignin";
 import CreatePlaylist, { CreateAction } from "./components/createPlaylist";
-import Setting, { SettingLoader } from "./components/setting";
+import Setting, { SettingAction } from "./components/setting";
 
 function App() {
 
@@ -20,7 +20,7 @@ function App() {
       {path: "/search", element: <Kereses />},
       {path: "/auth", element: <LoginOrSignin />, action: LoginAction},
       {path: "/addplaylist", element: <CreatePlaylist />, action: CreateAction },
-      {path: "/setting", element: <Setting />, loader: SettingLoader},
+      {path: "/setting", element: <Setting />, action: SettingAction},
     ]}
   ]);
 

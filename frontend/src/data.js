@@ -43,8 +43,12 @@ export function getUserData(){
 }
 
 async function firstLoad(){
-    if(token == null || token == "EXPIRED")
+    if(token == null || token == "EXPIRED"){
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("expiration");
         return;
+    }
     const res = await fetch("http://localhost:3000/users/getuser/"+localStorage.getItem("userId"), {
         method: 'GET',
         headers: {
@@ -71,7 +75,6 @@ async function firstLoad(){
     }
     
 }
-
 export function setUserData(name, email, userPic, id){
     userData = {
         name: name,
@@ -82,3 +85,12 @@ export function setUserData(name, email, userPic, id){
     logedIn = true;
 }
 await firstLoad();
+export function clearUserData(){
+    userData = {
+        name: "",
+        email: "",
+        userPic: "",
+        id: -1
+    };
+    logedIn = false;
+}
