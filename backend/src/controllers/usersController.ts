@@ -19,7 +19,7 @@ export async function logIn(req: Request, res: Response) {
         if(!config.jwtSecret) {
             throw new Error("JWT secret is not defined in the configuration.");
         }
-        const token = jwt.sign({ id: results[0].id, username: email }, config.jwtSecret, { expiresIn: '1d' });
+        const token = jwt.sign({ id: results[0].id, username: email }, config.jwtSecret, { expiresIn: '2h' });
         res.status(200).json({ message: "Login successful.", token: token, id: results[0].id });
         return;
     } catch (error) {
@@ -151,4 +151,23 @@ export async function updateUser(req: Request, res: Response) {
         res.status(500).json({ message: "Internal server error." });
         return;
     }
+}
+
+export async function passwordCheck(req: Request, res:Response){
+    const { userid, pwd } = req.body;
+
+    if (!userid || !pwd)
+        return res.status(400).json({ message: "User id and password are required." });
+
+    const conn = await config.connection;
+    try {
+        const [results] = conn.query("SELECT pwd_check(?, ?) AS userpass", [userid, pwd]);
+        if (results.length === 0 || results[0].userpass === false) {
+            return res.status(401).json({ message: "Invalid password.", samePass: false });
+        }
+        res.status(200).json({ message: "Passwords match.", samePass: true })
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." })
+    }
+    return;
 }

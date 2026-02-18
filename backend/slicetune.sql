@@ -94,6 +94,14 @@ BEGIN
     RETURN SHA2(CONCAT(pwd,'poopastinka'),256);
 END $$
 
+CREATE FUNCTION pwd_check(userid INT, pwd VARCHAR(100))
+RETURNS BOOL DETERMINISTIC
+    DECLARE userpwd;
+    DECLARE passok;
+    SELECT userpass INTO userpwd FROM users WHERE users.id = userid
+    IF(userpwd = pwd_check(pwd), RETURN TRUE, RETURN FALSE)
+END $$
+
 /*We check if the email and password match*/
 CREATE FUNCTION login(email VARCHAR(100),pwd VARCHAR(100))
 RETURNS INT DETERMINISTIC
