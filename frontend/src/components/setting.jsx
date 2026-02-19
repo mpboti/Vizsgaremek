@@ -1,7 +1,7 @@
 import { Form, redirect } from "react-router-dom";
 import { getAuthToken } from "../auth";
-import { clearUserData, getUserData } from "../data";
-import { useState, useRef, use } from "react";
+import { clearUserData, currentProfilePicSetting, getUserData, setCurrentProfilePicSetting } from "../data";
+import { useState, useRef } from "react";
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/forms.css";
 
@@ -11,12 +11,13 @@ export default function Setting() {
   const userData = getUserData();
   const [fadeValue, setFadeValue] = useState(localStorage.getItem("fadeValue") || 0);
   const fileOpener = useRef();
-  const [img, setImg] = useState(defaultProfilePic);
+  const [img, setImg] = useState(userData.userPic);
   function openPic(isFinal, e){
     if(!isFinal){
         fileOpener.current.click();
     }else{
         setImg(URL.createObjectURL(e.target.files[0]));
+        setCurrentProfilePicSetting(e.target.files[0]);
     }
   }
   
@@ -89,21 +90,20 @@ export async function SettingAction({request}){
     const email = data.get("email");
     const password = data.get("password");
     const newpassword = data.get("newpassword");
-    const imgFile = data.get("file");
-    
+
     let bodyData = {};
     if(newpassword && newpassword!=password){
       
-      const validateRes = await fetch("http://localhost:3000/users/validatepwd/"+userData.id, {
+      const validateRes = await fetch("http://localhost:3000/users/passcheck", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-access-token': getAuthToken()
         },
-        body: JSON.stringify({password: password})
+        body: JSON.stringify({userid: userData.id, pwd: password})
       });
       const validateData = await validateRes.json();
-      if(!validateData.valid){
+      if(!validateData.samePass){
         throw new Response.json({message: "Hibás jelszó!"}, {status: 422});
       }
       bodyData = {...bodyData, pwd: newpassword}
@@ -112,15 +112,15 @@ export async function SettingAction({request}){
       bodyData = {...bodyData, username: username}
     if(email != userData.email)
       bodyData = {...bodyData, email: email}
-    if(imgFile && imgFile.name != defaultProfilePic){
+    if(currentProfilePicSetting != defaultProfilePic){
+      console.log(currentProfilePicSetting);
+      console.log(currentProfilePicSetting instanceof File);
       const formData = new FormData();
-      formData.append("image", imgFile);
+      formData.append("file", currentProfilePicSetting);
       formData.append("userId", userData.id);
+
       const response = await fetch("http://localhost:3000/files/image", {
         method: 'POST',
-        headers: {
-          'x-access-token': getAuthToken()
-        },
         body: formData
       });
       const responseData = await response.json();

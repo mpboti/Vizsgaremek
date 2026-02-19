@@ -37,14 +37,14 @@ export class ImageFile implements IImageFile {
         try {
             await conn.beginTransaction();
             let [results] = await conn.query(
-                'INSERT INTO image_files (id, flieName, filePath, fileSize, mimeType, userId) VALUES (null, ?, ?, ?, ?, ?)',
-                [this.name, this.path, this.size, this.mimeType, this.userId]
+                'INSERT INTO image_files (id, fileName, filePath, fileSize, mimeType) VALUES (null, ?, ?, ?, ?)',
+                [this.name, this.path, this.size, this.mimeType]
             );
             if (results.affectedRows === 0) {
                 throw new Error("Failed to save image file to database.");
             }
             await conn.commit();
-            return results.id;
+            return results.insertId;
         } catch (error) {
             await conn.rollback();
             throw error;

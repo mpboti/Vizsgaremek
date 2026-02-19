@@ -137,9 +137,14 @@ export async function updateUser(req: Request, res: Response) {
     const updateString = keys.map(key => {if(user[key]!=null && user[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
     const values = keys.map(key => {if(user[key]!=null && user[key]!="") return user[key]; else return null;}).filter(value => value !== null);
     values.push(id); // For WHERE clause
-
+    console.log("Update string: ", updateString);
+    console.log(req.body);
     const conn = await config.connection;
     try {
+        if(updateString.includes("pwd = ?")){
+            const [pwdResults] = await conn.query("SELECT pwd_encrypt(?) AS encryptedPwd", [user.pwd]);
+            values[updateString.indexOf("pwd = ?")] = pwdResults[0].encryptedPwd;
+        }
         const [results] = await conn.query(`UPDATE users SET ${updateString} WHERE id = ?`, values);
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: "User not found." });
@@ -161,11 +166,15 @@ export async function passwordCheck(req: Request, res:Response){
 
     const conn = await config.connection;
     try {
-        const [results] = conn.query("SELECT pwd_check(?, ?) AS userpass", [userid, pwd]);
-        if (results.length === 0 || results[0].userpass === false) {
+        const [passwords] = await conn.query("SELECT pwd_encrypt(?) AS userpass", [pwd]);
+        const [userpasswords] = await conn.query("SELECT pwd AS validpwd FROM users WHERE id = ?", [userid]);
+        if (passwords[0].userpass !== userpasswords[0].validpwd) {
             return res.status(401).json({ message: "Invalid password.", samePass: false });
+        }else if(passwords[0].userpass === userpasswords[0].validpwd){
+            res.status(200).json({ message: "Passwords match.", samePass: true })
+        }else{
+            res.status(500).json({ message: "Unexpected error during password check." });
         }
-        res.status(200).json({ message: "Passwords match.", samePass: true })
     } catch (error) {
         res.status(500).json({ message: "Internal server error." })
     }

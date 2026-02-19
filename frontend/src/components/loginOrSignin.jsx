@@ -52,7 +52,6 @@ export async function LoginAction({request}){
       };
     }
 
-
     const response = await fetch("http://localhost:3000/users/"+mode, {
       method: 'POST',
       headers: {
@@ -89,7 +88,7 @@ export async function LoginAction({request}){
       throw Response.json({message: 'Could not authenticate user.'}, {status: 500});
 
     const expiration = new Date();
-    expiration.setHours(expiration.getHours() +24 );
+    expiration.setHours(expiration.getHours() + 2 );
     localStorage.setItem("expiration", expiration.toISOString());
     
     const res = await fetch("http://localhost:3000/users/getuser/"+resData.id, {

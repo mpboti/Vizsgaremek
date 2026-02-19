@@ -68,7 +68,7 @@ export default function TopContent() {
                 <div className="userPicDiv">
                     {logedIn && 
                     <Link to="/setting" className="topGombok">
-                    {userData.userPic !== ""?<img className="userPic" src={userData.userPic}/>:<img className="userPic" src="https://cdn.rios.hu/dl/upc/2021-04/18/13365_zedohtonsyowl0va_174572780_3798245446891714_3038821565414680863_n.thumb.jpg"/>}
+                    <img className="userPic" src={userData.userPic}/>
                     </Link>}
                     {!logedIn &&
                     <Link to="/auth?mode=login" className="topGombok">

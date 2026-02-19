@@ -19,6 +19,8 @@ const config: any = {
     connection: new DBConfig(),
     jwtSecret: process.env.JWT_SECRET || 'key',
     baseDir: path.resolve(__dirname, '../../'),
+    musicUploadDir: process.env.MUSIC_UPLOAD_DIR || '/uploads/musics/',
+    imageUploadDir: process.env.IMAGE_UPLOAD_DIR || '/uploads/images/',
 }
 
 export default config;

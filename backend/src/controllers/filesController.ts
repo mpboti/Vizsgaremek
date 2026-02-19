@@ -38,7 +38,7 @@ export async function getImageFileById (req: Request, res: Response) {
             res.status(404).json({ message: "No image files found." });
             return;
         }
-        res.status(200).json(results);
+        res.status(200).json({url: (results[0].filePath).slice(2)});
     } catch (error) {
         console.error("Error fetching image: ", error);
         res.status(500).json({ message: "Internal server error." });
@@ -82,8 +82,10 @@ export async function uploadMusicFile(req: Request, res: Response) {
 }
 
 export async function uploadImageFile(req: Request, res: Response) {
+    
     try {
-        const fileId = await uploadImageMiddleware(req, res);
+        await uploadImageMiddleware(req, res);
+        let fileId = null;
         if (req.file === undefined) {
             return res.status(400).json({ message: "No file uploaded." });
         }
@@ -91,11 +93,15 @@ export async function uploadImageFile(req: Request, res: Response) {
         if (userId) {
             try {
                 const img = new ImageFile(req.file as any, Number(userId));
-                await img.saveToDatabase();
+                fileId = await img.saveToDatabase();
             } catch (err) {
                 console.error("Error saving image file to DB:", err);
                 return res.status(500).json({ message: "Failed to save image metadata to database." });
             }
+        }
+        console.log("File ID after DB save:", fileId);
+        if (fileId === null) {
+            return res.status(500).json({ message: "Failed to save image metadata to database." });
         }
         res.status(200).json({ message: "Image file uploaded successfully.", id: fileId });
         return;
