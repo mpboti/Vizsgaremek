@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "../styles/kereses.css"
-import { dataListaz, getUserData } from "../data";
+import { getUserData, ip } from "../data";
 import { Link, useParams } from "react-router-dom";
 import RowGenerator from "./playlist-row";
 import play from '../assets/play.png';
@@ -10,7 +10,7 @@ import list from '../assets/list.png';
 import { loadData } from "../playerLogic";
 
 export default function Kereses(){
-  const [data, setData] = useState(dataListaz());
+  const [data, setData] = useState();
   const userData = getUserData();
   const [selected, setSelected] = useState(0);
   const [microSelected, setMicroSelected] = useState(0);
@@ -65,7 +65,7 @@ export default function Kereses(){
 
   async function readMusicByName(){
     try {
-      const response = await fetch(`https://localhost:3000/search/musicsByName/${text}`);
+      const response = await fetch(`http://${ip}/search/musicsByName/${text}`);
       const resData = await response.json();
       console.log(resData);
       let perData = new Array();

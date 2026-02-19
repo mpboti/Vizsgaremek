@@ -70,8 +70,10 @@ CREATE TABLE playlists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     ownerId INT NOT NULL,
+    playlistPicId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (playlistPicId) REFERENCES image_files(id)
 );
 
 /*if the playlist. or the music in the playlist gets deleted, so does it's place in the playlist*/

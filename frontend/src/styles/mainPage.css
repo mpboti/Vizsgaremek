@@ -99,6 +99,10 @@ img.mainKep {
     height: 175px;
     border-radius: 15px;
     padding-top: 2px;
+    margin: 0px;
+    object-fit: cover;
+    object-position: center;
+    cursor: pointer;
 }
 
 img.listAddImg {

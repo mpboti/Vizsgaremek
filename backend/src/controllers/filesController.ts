@@ -38,7 +38,7 @@ export async function getImageFileById (req: Request, res: Response) {
             res.status(404).json({ message: "No image files found." });
             return;
         }
-        res.status(200).json({url: (results[0].filePath).slice(2)});
+        res.status(200).json({url: (results[0].filePath).slice(config.baseDir.length)});
     } catch (error) {
         console.error("Error fetching image: ", error);
         res.status(500).json({ message: "Internal server error." });

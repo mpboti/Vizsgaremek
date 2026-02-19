@@ -68,10 +68,12 @@ export async function createPlaylist(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try  {
-        const [results] = await conn.query("INSERT INTO playlists (id, name, creatorId) VALUES (null, ?, ?)", [playlist.name, playlist.creatorId]);
+        const [results] = await conn.query("INSERT INTO playlists (id, name, ownerId, playlistPicId) VALUES (null, ?, ?, ?)",
+        [playlist.name, playlist.creatorId, playlist.playlistPicId]);
         res.status(201).json({ message: "Playlist created successfully.", id: results.insertId });
         return;
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: "Internal server error." });
         return;
     }
@@ -162,13 +164,24 @@ export async function updatePlaylist(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("UPDATE playlists SET name = ? WHERE id = ?", [playlist.name, id]);
-        if (results.affectedRows === 0) {
-            res.status(404).json({ message: "Playlist not found." });
+        if(playlist.playlistPicId==null){
+            const [results] = await conn.query("UPDATE playlists SET name = ? WHERE id = ?", [playlist.name, id]);
+            if (results.affectedRows === 0) {
+                res.status(404).json({ message: "Playlist not found." });
+                return;
+            }
+            res.status(200).json({ message: "Playlist updated successfully." });
+            return;
+        }else{
+            const [results] = await conn.query("UPDATE playlists SET name = ?, playlistPicId = ? WHERE id = ?", [playlist.name, playlist.playlistPicId, id]);
+            if (results.affectedRows === 0) {
+                res.status(404).json({ message: "Playlist not found." });
+                return;
+            }
+            res.status(200).json({ message: "Playlist updated successfully." });
             return;
         }
-        res.status(200).json({ message: "Playlist updated successfully." });
-        return;
+        
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
         return;

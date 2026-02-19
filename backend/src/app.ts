@@ -21,6 +21,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(bodyParser.json());
+app.use("/uploads", express.static("uploads"));
 
 function root(_req: Request, res: Response) {
     res.status(200).send({ message: "The server is running." });

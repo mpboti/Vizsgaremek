@@ -1,8 +1,9 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import "../styles/top.css";
 import { Link, Outlet } from "react-router-dom";
-import { getUserData, logedIn } from '../data';
+import { getUserData, logedIn, logout } from '../data';
 import { useNavigate } from "react-router-dom";
+import { getAuthToken } from "../auth";
 import back from '../assets/back.png';
 import home from '../assets/home.png';
 import search from '../assets/search.png';
@@ -12,6 +13,13 @@ import enter from '../assets/enter.png';
 export default function TopContent() {
     const szoveg = useRef();
     const userData = getUserData();
+
+    useEffect(()=>{
+      const token = getAuthToken();
+      if((!token || token == "EXPIRED") && logedIn){
+        logout();
+      }
+    },[])
     
     function GetText() {
         if (0 < szoveg.current.value.length) {
@@ -77,7 +85,7 @@ export default function TopContent() {
                 </div>
             </div>
             <Outlet />
-            <Player />
+            {/*<Player />*/}
         </>
         
     );

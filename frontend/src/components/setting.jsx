@@ -1,6 +1,6 @@
 import { Form, redirect } from "react-router-dom";
 import { getAuthToken } from "../auth";
-import { clearUserData, currentProfilePicSetting, getUserData, setCurrentProfilePicSetting } from "../data";
+import { logout, currentProfilePicSetting, getUserData, setCurrentProfilePicSetting, ip } from "../data";
 import { useState, useRef } from "react";
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/forms.css";
@@ -12,6 +12,7 @@ export default function Setting() {
   const [fadeValue, setFadeValue] = useState(localStorage.getItem("fadeValue") || 0);
   const fileOpener = useRef();
   const [img, setImg] = useState(userData.userPic);
+  
   function openPic(isFinal, e){
     if(!isFinal){
         fileOpener.current.click();
@@ -25,14 +26,6 @@ export default function Setting() {
         const value = event.target.value;
         localStorage.setItem("fadeValue", value);
         setFadeValue(value);
-  }
-
-  function logout(){
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("expiration");
-    clearUserData();
-    window.location.href = "/";
   }
 
   return(
@@ -79,8 +72,9 @@ export async function SettingAction({request}){
   try{
     const token = getAuthToken();
     if(!token || token == "EXPIRED"){
-      throw new Response.json({message: "Nem vagy bejelentkezve!"}, {status: 401});
+      logout();
     }
+    console.log(token);
     const userData = getUserData();
     if(userData.id == -1){
       throw new Response.json({message: "Nem vagy bejelentkezve!"}, {status: 401});
@@ -94,7 +88,7 @@ export async function SettingAction({request}){
     let bodyData = {};
     if(newpassword && newpassword!=password){
       
-      const validateRes = await fetch("http://localhost:3000/users/passcheck", {
+      const validateRes = await fetch(`http://${ip}/users/passcheck`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +113,7 @@ export async function SettingAction({request}){
       formData.append("file", currentProfilePicSetting);
       formData.append("userId", userData.id);
 
-      const response = await fetch("http://localhost:3000/files/image", {
+      const response = await fetch(`http://${ip}/files/image`, {
         method: 'POST',
         body: formData
       });
@@ -127,7 +121,8 @@ export async function SettingAction({request}){
       bodyData = {...bodyData, imageFileId: responseData.id}
     }
     if(Object.keys(bodyData).length > 0){
-      const res = await fetch("http://localhost:3000/users/"+userData.id, {
+      console.log(getAuthToken())
+      const res = await fetch(`http://${ip}/users/${userData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

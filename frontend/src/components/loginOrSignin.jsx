@@ -1,6 +1,7 @@
 import { Form, Link, useSearchParams, redirect} from "react-router-dom";
 import "../styles/forms.css";
-import { setUserData } from "../data";
+import { setUserData, ip, firstLoad } from "../data";
+import { getAuthToken } from "../auth";
 
 export default function LoginOrSignin(){
     const [searchParams] = useSearchParams();
@@ -52,7 +53,7 @@ export async function LoginAction({request}){
       };
     }
 
-    const response = await fetch("http://localhost:3000/users/"+mode, {
+    const response = await fetch(`http://${ip}/users/${mode}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -68,7 +69,7 @@ export async function LoginAction({request}){
         email: data.get("email"),
         pwd: data.get("password")
       };
-      const res = await fetch("http://localhost:3000/users/login", {
+      const res = await fetch(`http://${ip}/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -91,30 +92,30 @@ export async function LoginAction({request}){
     expiration.setHours(expiration.getHours() + 2 );
     localStorage.setItem("expiration", expiration.toISOString());
     
-    const res = await fetch("http://localhost:3000/users/getuser/"+resData.id, {
+    const res = await fetch(`http://${ip}/users/getuser/${resData.id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': localStorage.getItem("token")
+        'x-access-token': getAuthToken()
       }
     });
     const resData2 = await res.json();
-    console.log(resData2);
-    if(resData.imageFileId!=null){
-      const res2 = await fetch("http://localhost:3000/files/image/", {
+    if(resData2.imageFileId!=null){
+      const res2 = await fetch(`http://${ip}/files/image/${resData2.imageFileId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-access-token': localStorage.getItem("token")
+          'x-access-token': getAuthToken()
         }
       });
       const resData3 = await res2.json();
-      const userPic = URL.createObjectURL(resData3[resData.imageFileId]);
+      const userPic = `http://${ip}`+resData3.url;
+      console.log(userPic)
       setUserData(resData2.username, resData2.email, userPic, resData2.id);
     }else{
       setUserData(resData2.username, resData2.email, "", resData2.id);
     }
-    
+    window.location.href = "/";
     return redirect('/');
   } catch (error) {
     console.error("Error during authentication:", error);

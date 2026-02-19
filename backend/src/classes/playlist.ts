@@ -2,6 +2,7 @@ export interface IPlaylist {
     id: number | null;
     name: string;
     creatorId: number;
+    playlistPicId: number | null;
     musicIds: number[];
 }
 
@@ -9,12 +10,14 @@ export class Playlist implements IPlaylist {
     id: number | null;
     name: string;
     creatorId: number;
+    playlistPicId: number | null;
     musicIds: number[];
 
     constructor(init: IPlaylist) {
         this.id = init.id;
         this.name = init.name;
         this.creatorId = init.creatorId;
+        this.playlistPicId = init.playlistPicId
         this.musicIds = init.musicIds;
     }
 }

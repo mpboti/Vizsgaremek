@@ -15,7 +15,7 @@ const imageStorage = multer.diskStorage({
 });
 
 const uploadMusic = multer({ storage: musicStorage, limits: { fileSize: 100 * 1024 * 1024 } }).single('file');
-const uploadImage = multer({ storage: imageStorage, limits: { fileSize: 5 * 1024 * 1024 } }).single('file');
+const uploadImage = multer({ storage: imageStorage, limits: { fileSize: 20 * 1024 * 1024 } }).single('file');
 
 export const uploadMusicMiddleware = util.promisify(uploadMusic);
 export const uploadImageMiddleware = util.promisify(uploadImage);

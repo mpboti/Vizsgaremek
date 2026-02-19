@@ -1,7 +1,12 @@
 import { getAuthToken } from "./auth";
 import defaultProfilePic from "./assets/defaultUserPic.png";
+import defaultPlaylistPic from "./assets/defaultPlaylistPic.png";
 
-let data=[{
+const token = getAuthToken();
+export let logedIn = false;
+export const ip = "localhost:3000"
+/*
+{
     kep:"https://i.scdn.co/image/ab67616d00001e02bf01be99811cc56b3ef90fb7",
     cim:"asszonygyilkosság",
     eloado:"csaknekedkislány",
@@ -9,53 +14,90 @@ let data=[{
     megjelenes:2015,
     mufaj:"Rock"
 },
-{
-    kep:"",
-    cim:"song2",
-    eloado:"blur",
-    album:"blur",
-    megjelenes:1997,
-    mufaj:""
-},
-{
-    kep: "https://i.scdn.co/image/ab67616d00001e02890ce61533a89e00ce593fcb",
-    cim: "You're Gonna Go Far, Kid",
-    eloado: "the offspring",
-    album: "Rise and fall, rage and grace",
-    megjelenes: 2008,
-    mufaj:"Rock"
+*/
+
+export let currentPlaylistPicSetting = defaultPlaylistPic;
+export function setCurrentPlaylistPicSetting(pic){
+    currentPlaylistPicSetting = pic;
 }
-];
+
+let playlistsData=[];
+export async function loadPlaylists(){
+    if(userData.id == -1)
+        return;
+    const response = await fetch(`http://${ip}/playlists/byuserid/${userData.id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': localStorage.getItem("token")
+        }
+    });
+    const resData = await response.json();
+    if(resData.message == "No playlists found for this user.") {
+        playlistsData=[];
+        console.log(resData.message);
+    }else{
+        playlistsData=[];
+        resData.map((elem)=>{
+            playlistsData=[...playlistsData, {
+                id: elem.id,
+                name: elem.name,
+                userName: userData.name,
+                listaPic: elem.playlistPicId,
+            }]
+        });
+        for(let i = 0; i<playlistsData.length;i++){
+            let playlistPic = defaultPlaylistPic;
+            if(playlistsData[i].listaPic != null){
+                const res2 = await fetch(`http://${ip}/files/image/${playlistsData[i].listaPic}`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-access-token': token
+                    }
+                });
+                const resData2 = await res2.json();
+                playlistPic = `http://${ip}`+resData2.url;
+            }
+            playlistsData[i].listaPic=playlistPic
+        };
+    }
+}
+
+export function getPlaylistsData(){
+    return playlistsData;
+}
+
+
+let musicsData = [];
+
+export function getMusics(){
+    return musicsData;
+}
+
+//user data kezelés betöltés és setting
+export let currentProfilePicSetting = defaultProfilePic;
+export function setCurrentProfilePicSetting(pic){
+    currentProfilePicSetting = pic;
+}
+
 let userData = {
     name: "",
     email: "",
     userPic: defaultProfilePic,
     id: -1
 };
-
-const token = getAuthToken();
-export let logedIn = false;
-
-export function dataListaz(){
-    return data;
-}
-
-export let currentProfilePicSetting = defaultProfilePic;
-export function setCurrentProfilePicSetting(pic){
-    currentProfilePicSetting = pic;
-}
-
 export function getUserData(){
     return userData 
 }
-async function firstLoad(){
+export async function firstLoad(){
     if(token == null || token == "EXPIRED"){
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         localStorage.removeItem("expiration");
         return;
     }
-    const res = await fetch("http://localhost:3000/users/getuser/"+localStorage.getItem("userId"), {
+    const res = await fetch(`http://${ip}/users/getuser/${localStorage.getItem("userId")}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -65,7 +107,7 @@ async function firstLoad(){
     const resData = await res.json();
     let userPic = defaultProfilePic;
     if(resData.imageFileId!=null){
-      const res2 = await fetch("http://localhost:3000/files/image/"+resData.imageFileId, {
+      const res2 = await fetch(`http://${ip}/files/image/${resData.imageFileId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -73,14 +115,13 @@ async function firstLoad(){
         }
       });
       const resData2 = await res2.json();
-      userPic = "http://localhost:3000"+resData2.url;
-      console.log(userPic);
+      userPic = `http://${ip}`+resData2.url;
     }
     
     if(resData.username && resData.email && resData.id){
         setUserData(resData.username, resData.email, userPic, parseInt(resData.id));
     }
-    
+    await loadPlaylists();
 }
 export function setUserData(name, email, userPic, id){
     if(userPic == "")
@@ -103,3 +144,11 @@ export function clearUserData(){
     };
     logedIn = false;
 }
+
+export function logout(){
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("expiration");
+    clearUserData();
+    window.location.href = "/";
+  }

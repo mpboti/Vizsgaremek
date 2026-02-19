@@ -2,14 +2,14 @@ import { useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
-import { getUserData, dataListaz } from '../data.js'
+import { getMusics, getUserData, ip } from '../data.js'
 import pencil from "../assets/pencil.png"
 import repeat from "../assets/repeat.png"
 import randomizer from "../assets/randomizer_empty.png"
 import play from "../assets/play.png"
 
 export default function Playlist() {
-  const data = dataListaz();
+  const data = getMusics();
   const userData = getUserData()[0];
   const [phone, setPhone] = useState(false)
   

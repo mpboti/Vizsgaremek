@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { dataListaz } from "../data";
+//import { } from "../data";
 import "../styles/player.css";
 import volumeIcon0 from "../assets/volume 0.png";
 import volumeIcon1 from "../assets/volume 1.png";
@@ -14,7 +14,7 @@ import download from "../assets/download.png";
 import add from "../assets/add.png";
 
 export default function Player() {
-    const data = dataListaz();
+    const data = localStorage.getItem("playing");
     const hosszValue = data[2].hossz;
     const hossz = data[2].hossz;
     const current = "0:00";
