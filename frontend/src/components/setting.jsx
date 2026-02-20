@@ -106,6 +106,14 @@ export async function SettingAction({request}){
     if(email != userData.email)
       bodyData = {...bodyData, email: email}
     if(currentProfilePicSetting != defaultProfilePic){
+      if(userData.userPicId != null){
+        await fetch(`http://${ip}/files/image/${userData.userPicId}`, {
+          method:"DELETE",
+          headers:{
+            'x-access-token': getAuthToken()
+          }
+        })
+      }
       const formData = new FormData();
       formData.append("file", currentProfilePicSetting);
       formData.append("userId", userData.id);

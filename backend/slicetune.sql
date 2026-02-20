@@ -50,17 +50,6 @@ CREATE TABLE users (
     FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
 );
 
-CREATE TABLE user_settings(
-    userId INT PRIMARY KEY,
-    volume INT NOT NULL DEFAULT 0.5,
-    fadeValue INT NOT NULL DEFAULT 0,
-    lastMusicId INT NULL,
-    lastPlaylist INT NULL,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (lastMusicId) REFERENCES musics(id) ON DELETE SET NULL,
-    FOREIGN KEY (lastPlaylistId) REFERENCES playlists(id) ON DELETE SET NULL
-);
-
 /*if the user or the music file gets deleted, the music deletes itself too*/
 CREATE TABLE musics (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,7 +73,7 @@ CREATE TABLE playlists (
     playlistPicId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (playlistPicId) REFERENCES image_files(id)
+    FOREIGN KEY (playlistPicId) REFERENCES image_files(id) ON DELETE SET NULL
 );
 
 /*if the playlist. or the music in the playlist gets deleted, so does it's place in the playlist*/
@@ -97,6 +86,17 @@ CREATE TABLE playlist_musics (
     UNIQUE (playlistId, position),
     FOREIGN KEY (playlistId) REFERENCES playlists(id) ON DELETE CASCADE,
     FOREIGN KEY (musicId) REFERENCES musics(id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_settings(
+    userId INT PRIMARY KEY,
+    volume INT NOT NULL DEFAULT 0.5,
+    fadeValue INT NOT NULL DEFAULT 0,
+    lastMusicId INT NULL,
+    lastPlaylistId INT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (lastMusicId) REFERENCES musics(id) ON DELETE SET NULL,
+    FOREIGN KEY (lastPlaylistId) REFERENCES playlists(id) ON DELETE SET NULL
 );
 
 DELIMITER $$
@@ -116,10 +116,6 @@ BEGIN
     SELECT id INTO userid FROM users WHERE users.email = email AND users.pwd = pwd_encrypt(pwd);
     RETURN userid;
 END $$
-
-CREATE TRIGGER bestow_settings BEFORE INSERT ON users
-INSERT INTO user_settings(userId, volume, fadeValue, lastMusicId, lastPlaylistId) VALUES
-(new.id, DEFAULT, DEFAULT, NULL, NULL); $$
 
 /*Before we insert the user in the users table, we encrypt the password*/
 CREATE TRIGGER insert_user BEFORE INSERT ON users

@@ -57,7 +57,7 @@ export async function getUserById(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("SELECT users.id, users.username, users.email, image_files.fileName, image_files.mimeType, image_files.filePath  FROM users INNER JOIN image_files ON image_files.id = users.imageFileId WHERE users.id = ?", [id]);
+        const [results] = await conn.query("SELECT users.id, users.username, users.email, users.imageFileId, image_files.fileName, image_files.mimeType, image_files.filePath  FROM users INNER JOIN image_files ON image_files.id = users.imageFileId WHERE users.id = ?", [id]);
         if (results.length === 0) {
             const [results2] = await conn.query("SELECT users.id, users.username, users.email FROM users WHERE id = ?", [id]);
             if (results2.length === 0) {
@@ -92,6 +92,7 @@ export async function createUser(req: Request, res: Response) {
 
     try {
         const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, imageFileId) VALUES (null, ?, ?, ?, null)", [user.username, user.email, user.pwd]);
+        await conn.query("INSERT INTO user_settings (userId, volume, fadeValue, lastMusicId, lastPlaylistId) VALUES (?, DEFAULT, DEFAULT, NULL, NULL)",[results.insertId]);
         res.status(201).json({ message: "User created successfully.", id: results.insertId });
         return;
     } catch (error) {

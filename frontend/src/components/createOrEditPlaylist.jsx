@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Form, Navigate, redirect, useSearchParams } from "react-router-dom";
+import { Form, redirect, useSearchParams } from "react-router-dom";
 import defaultPlaylistPic from "../assets/defaultPlaylistPic.png"
 import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists } from "../data";
 import { getAuthToken } from "../auth";
@@ -7,6 +7,7 @@ import { getAuthToken } from "../auth";
 export default function CreateOrEditPlaylist(){
   const [searchParams] = useSearchParams();
   const playlistId = searchParams.get("id");
+  const playlistData = getPlaylistsData().find(elem=>elem.id==playlistId);
   
   const fileOpener = useRef();
   const [img, setImg] = useState(playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).listaPic:defaultPlaylistPic);
@@ -21,6 +22,15 @@ export default function CreateOrEditPlaylist(){
   }
 
   async function deletePlaylist() {
+    if(playlistData?.listaPicId != null && playlistId){
+      console.log(playlistData.listaPicId)
+      await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
+        method:"DELETE",
+        headers:{
+          'x-access-token': getAuthToken()
+        }
+      })
+    }
     await fetch(`http://${ip}/playlists/${playlistId}`, {
       method:"DELETE",
       headers:{
@@ -49,12 +59,13 @@ export default function CreateOrEditPlaylist(){
     </Form>
   )
 }
-
+// /files/image/:id
 export async function PlaylistAction({request}){
   try{
     const url = new URL(request.url);
     const playlistId = url.searchParams.get("id");
     const data = await request.formData();
+    const playlistData = getPlaylistsData().find(elem=>elem.id==playlistId);
     const token = getAuthToken();
     if(!token || token == "EXPIRED"){
       logout();
@@ -66,7 +77,16 @@ export async function PlaylistAction({request}){
     }
 
     let playlistPicId=null;
-    if((playlistId && currentPlaylistPicSetting != defaultPlaylistPic) || (!playlistId && currentPlaylistPicSetting != getPlaylistsData().find(elem=>elem.id==playlistId)?.listaPic)){
+    if((playlistId && currentPlaylistPicSetting != defaultPlaylistPic) || (!playlistId && currentPlaylistPicSetting != playlistData?.listaPic)){
+      if(playlistData?.listaPicId != null && playlistId){
+        console.log(playlistData.listaPicId)
+        await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
+          method:"DELETE",
+          headers:{
+            'x-access-token': getAuthToken()
+          }
+        })
+      }
       const formData = new FormData();
       formData.append("file", currentPlaylistPicSetting);
       formData.append("userId", userData.id);
@@ -79,7 +99,7 @@ export async function PlaylistAction({request}){
       playlistPicId = uploadData.id;
     }
 
-    const playlistData={
+    const playlistUpdateData={
       name: data.get("playlistCim"),
       creatorId: localStorage.getItem("userId"),
       playlistPicId: playlistPicId
@@ -92,23 +112,20 @@ export async function PlaylistAction({request}){
           'Content-Type': 'application/json',
           'x-access-token': getAuthToken()
         },
-        body: JSON.stringify(playlistData)
+        body: JSON.stringify(playlistUpdateData)
       });
 
       const resData = await res.json();
       console.log(resData.id);
     }else{
-      const res = await fetch(`http://${ip}/playlists/${playlistId}`, {
+      await fetch(`http://${ip}/playlists/${playlistId}`, {
         method:"PUT",
         headers:{
           'Content-Type': 'application/json',
           'x-access-token': getAuthToken()
         },
-        body: JSON.stringify(playlistData)
+        body: JSON.stringify(playlistUpdateData)
       });
-
-      const resData = await res.json();
-      console.log(resData.id);
     }
 
     await loadPlaylists();

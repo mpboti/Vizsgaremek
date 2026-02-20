@@ -1,6 +1,6 @@
 import { Form, Link, useSearchParams, redirect} from "react-router-dom";
 import "../styles/forms.css";
-import { setUserData, ip } from "../data";
+import { setUserData, ip, loadData, loadPlaylists } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function LoginOrSignin(){
@@ -92,22 +92,8 @@ export async function LoginAction({request}){
     expiration.setHours(expiration.getHours() + 2 );
     localStorage.setItem("expiration", expiration.toISOString());
     
-    const res = await fetch(`http://${ip}/users/getuser/${resData.id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-access-token': getAuthToken()
-      }
-    });
-    const resData2 = await res.json();
-    if(resData2.url!=null){
-      const userPic = `http://${ip}`+resData2.url;
-      console.log(userPic)
-      setUserData(resData2.username, resData2.email, userPic, resData2.id);
-    }else{
-      setUserData(resData2.username, resData2.email, "", resData2.id);
-    }
-    window.location.href = "/";
+    await loadData();
+    await loadPlaylists();
     return redirect('/');
   } catch (error) {
     console.error("Error during authentication:", error);

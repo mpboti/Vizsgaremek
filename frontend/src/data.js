@@ -2,7 +2,7 @@ import { getAuthToken } from "./auth";
 import defaultProfilePic from "./assets/defaultUserPic.png";
 import defaultPlaylistPic from "./assets/defaultPlaylistPic.png";
 
-const token = getAuthToken();
+
 export let logedIn = false;
 export const ip = "localhost:3000"
 /*
@@ -25,7 +25,6 @@ let playlistsData=[];
 export async function loadPlaylists(){
     currentPlaylistPicSetting=defaultPlaylistPic;
     if(userData.id == -1) {
-        // nothing to load if we don't know who the user is
         playlistsData = [];
         return;
     }
@@ -38,7 +37,6 @@ export async function loadPlaylists(){
         }
     });
 
-    // check status first, avoid relying on a magic string
     if (!response.ok) {
         console.error("failed to fetch playlists", response.status, response.statusText);
         playlistsData = [];
@@ -53,6 +51,7 @@ export async function loadPlaylists(){
             id: elem.id,
             name: elem.name,
             userName: userData.name,
+            listaPicId: elem.playlistPicId,
             listaPic: elem.url
         }));
 
@@ -87,15 +86,17 @@ export function setCurrentProfilePicSetting(pic){
 }
 
 let userData = {
+    id: -1,
     name: "",
     email: "",
-    userPic: defaultProfilePic,
-    id: -1
+    userPicId: null,
+    userPic: defaultProfilePic
 };
 export function getUserData(){
     return userData 
 }
 export async function loadData(){
+    const token = getAuthToken();
     if(token == null || token == "EXPIRED"){
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
@@ -115,27 +116,27 @@ export async function loadData(){
       userPic = `http://${ip}`+resData.url;
     }
     if(resData.username && resData.email && resData.id){
-        setUserData(resData.username, resData.email, userPic, parseInt(resData.id));
+        setUserData(parseInt(resData.id), resData.username, resData.email, resData.imageFileId, userPic);
     }
 }
-export function setUserData(name, email, userPic, id){
-    if(userPic == "")
-        userPic = defaultProfilePic;
+export function setUserData(id, name, email, userPicId, userPic){
     userData = {
+        id: id,
         name: name,
         email: email,
-        userPic: userPic,
-        id: id
+        userPicId: userPicId,
+        userPic: userPic
     };
     logedIn = true;
 }
 
 export function clearUserData(){
     userData = {
+        id: -1,
         name: "",
         email: "",
-        userPic: defaultProfilePic,
-        id: -1
+        userPicId: null,
+        userPic: defaultProfilePic
     };
     logedIn = false;
 }
