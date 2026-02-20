@@ -5,9 +5,17 @@
     min-width: 410px;
 }
 
+#root{
+  text-align: left;
+}
+
 button {
   color: white;
   background-color: transparent;
   border: none;
   cursor: pointer;
+}
+
+input::selection {
+  background-color: rgba(0, 0, 0, 0.425);
 }

@@ -23,8 +23,12 @@ export function setCurrentPlaylistPicSetting(pic){
 
 let playlistsData=[];
 export async function loadPlaylists(){
-    if(userData.id == -1)
+    if(userData.id == -1) {
+        // nothing to load if we don't know who the user is
+        playlistsData = [];
         return;
+    }
+
     const response = await fetch(`http://${ip}/playlists/byuserid/${userData.id}`, {
         method: 'GET',
         headers: {
@@ -32,23 +36,27 @@ export async function loadPlaylists(){
             'x-access-token': localStorage.getItem("token")
         }
     });
+
+    // check status first, avoid relying on a magic string
+    if (!response.ok) {
+        console.error("failed to fetch playlists", response.status, response.statusText);
+        playlistsData = [];
+        return;
+    }
+
     const resData = await response.json();
-    if(resData.message == "No playlists found for this user.") {
-        playlistsData=[];
-        console.log(resData.message);
-    }else{
-        playlistsData=[];
-        resData.map((elem)=>{
-            playlistsData=[...playlistsData, {
-                id: elem.id,
-                name: elem.name,
-                userName: userData.name,
-                listaPic: elem.playlistPicId,
-            }]
-        });
-        for(let i = 0; i<playlistsData.length;i++){
+
+    if (Array.isArray(resData)) {
+        playlistsData = resData.map(elem => ({
+            id: elem.id,
+            name: elem.name,
+            userName: userData.name,
+            listaPic: elem.playlistPicId,
+        }));
+
+        for (let i = 0; i < playlistsData.length; i++) {
             let playlistPic = defaultPlaylistPic;
-            if(playlistsData[i].listaPic != null){
+            if (playlistsData[i].listaPic != null) {
                 const res2 = await fetch(`http://${ip}/files/image/${playlistsData[i].listaPic}`, {
                     method: 'GET',
                     headers: {
@@ -57,10 +65,14 @@ export async function loadPlaylists(){
                     }
                 });
                 const resData2 = await res2.json();
-                playlistPic = `http://${ip}`+resData2.url;
+                playlistPic = `http://${ip}` + resData2.url;
             }
-            playlistsData[i].listaPic=playlistPic
-        };
+            playlistsData[i].listaPic = playlistPic;
+        }
+    } else {
+        // fallback for the old-style message
+        console.log(resData.message || "no playlists response");
+        playlistsData = [];
     }
 }
 
@@ -90,7 +102,7 @@ let userData = {
 export function getUserData(){
     return userData 
 }
-export async function firstLoad(){
+export async function loadData(){
     if(token == null || token == "EXPIRED"){
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
@@ -121,7 +133,7 @@ export async function firstLoad(){
     if(resData.username && resData.email && resData.id){
         setUserData(resData.username, resData.email, userPic, parseInt(resData.id));
     }
-    await loadPlaylists();
+    
 }
 export function setUserData(name, email, userPic, id){
     if(userPic == "")
@@ -134,7 +146,7 @@ export function setUserData(name, email, userPic, id){
     };
     logedIn = true;
 }
-await firstLoad();
+
 export function clearUserData(){
     userData = {
         name: "",
@@ -146,9 +158,12 @@ export function clearUserData(){
 }
 
 export function logout(){
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("expiration");
-    clearUserData();
-    window.location.href = "/";
-  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("expiration");
+  clearUserData();
+  window.location.href = "/";
+}
+
+await loadData();
+await loadPlaylists();

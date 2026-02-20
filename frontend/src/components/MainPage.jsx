@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { getPlaylistsData, getUserData, loadPlaylists } from "../data";
+import { getPlaylistsData, getUserData} from "../data";
 import '../styles/mainPage.css';
 import add from '../assets/add.png';
 import play from '../assets/play.png';

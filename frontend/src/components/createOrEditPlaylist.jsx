@@ -1,13 +1,12 @@
 import { useRef, useState } from "react"
-import { Form, redirect, useSearchParams } from "react-router-dom";
+import { Form, Navigate, redirect, useSearchParams } from "react-router-dom";
 import defaultPlaylistPic from "../assets/defaultPlaylistPic.png"
-import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData } from "../data";
+import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists } from "../data";
 import { getAuthToken } from "../auth";
-let pId;
+
 export default function CreateOrEditPlaylist(){
   const [searchParams] = useSearchParams();
   const playlistId = searchParams.get("id");
-  pId=playlistId;
   
   const fileOpener = useRef();
   const [img, setImg] = useState(playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).listaPic:defaultPlaylistPic);
@@ -20,6 +19,19 @@ export default function CreateOrEditPlaylist(){
       setCurrentPlaylistPicSetting(e.target.files[0]);
     }
   }
+
+  async function deletePlaylist() {
+    await fetch(`http://${ip}/playlists/${playlistId}`, {
+      method:"DELETE",
+      headers:{
+        'Content-Type': 'application/json',
+        'x-access-token': getAuthToken()
+      },
+      body: JSON.stringify({userId: localStorage.getItem("userId")})
+    });
+    loadPlaylists();
+    Navigate("/");
+  }
   return(
     <Form method="post" className="authForm">
       <h1>{!playlistId?"Lejátszási lista létrehozása":"Lejátszási lista szerkesztése"}</h1>
@@ -31,7 +43,8 @@ export default function CreateOrEditPlaylist(){
         <img src={img} className="uploadAlbumCover" onClick={(e)=>openPic(false, e)}/>
       </p>
       <div>
-        <button className="loginFormButton">{playlistId?"Módosítás":"Létrehoz"}</button>
+        <button className="loginFormButton" type="submit">{playlistId?"Módosítása":"Létrehoz"}</button>
+        {playlistId?<button className="loginFormButton logoutButton" onClick={deletePlaylist} type="button">Törlés</button>:undefined}
       </div>
     </Form>
   )
@@ -39,18 +52,21 @@ export default function CreateOrEditPlaylist(){
 
 export async function PlaylistAction({request}){
   try{
+    const url = new URL(request.url);
+    const playlistId = url.searchParams.get("id");
     const data = await request.formData();
     const token = getAuthToken();
     if(!token || token == "EXPIRED"){
       logout();
     }
+    
     const userData = getUserData();
     if(userData.id == -1){
       throw new Response.json({message: "Nem vagy bejelentkezve!"}, {status: 401});
     }
+
     let playlistPicId=null;
-    if((pId && currentPlaylistPicSetting != defaultPlaylistPic) || (!pId && currentPlaylistPicSetting != getPlaylistsData().find(elem=>elem.id==pId)?.listaPic)){
-      
+    if((playlistId && currentPlaylistPicSetting != defaultPlaylistPic) || (!playlistId && currentPlaylistPicSetting != getPlaylistsData().find(elem=>elem.id==playlistId)?.listaPic)){
       const formData = new FormData();
       formData.append("file", currentPlaylistPicSetting);
       formData.append("userId", userData.id);
@@ -58,15 +74,18 @@ export async function PlaylistAction({request}){
         method: 'POST',
         body: formData
       });
+
       const uploadData = await picUpload.json();
       playlistPicId = uploadData.id;
     }
+
     const playlistData={
       name: data.get("playlistCim"),
       creatorId: localStorage.getItem("userId"),
       playlistPicId: playlistPicId
     }
-    if(!pId){
+
+    if(!playlistId){
       const res = await fetch(`http://${ip}/playlists/`, {
         method:"POST",
         headers:{
@@ -75,10 +94,11 @@ export async function PlaylistAction({request}){
         },
         body: JSON.stringify(playlistData)
       });
+
       const resData = await res.json();
       console.log(resData.id);
     }else{
-      const res = await fetch(`http://${ip}/playlists/${pId}`, {
+      const res = await fetch(`http://${ip}/playlists/${playlistId}`, {
         method:"PUT",
         headers:{
           'Content-Type': 'application/json',
@@ -86,10 +106,12 @@ export async function PlaylistAction({request}){
         },
         body: JSON.stringify(playlistData)
       });
+
       const resData = await res.json();
       console.log(resData.id);
     }
-    window.location.href = "/";
+
+    await loadPlaylists();
     return redirect("/");
   }catch(err){
     console.log(err);

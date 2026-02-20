@@ -2,7 +2,7 @@ import { useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
-import { getMusics, getUserData, ip } from '../data.js'
+import { getMusics, getUserData, ip } from '../data'
 import pencil from "../assets/pencil.png"
 import repeat from "../assets/repeat.png"
 import randomizer from "../assets/randomizer_empty.png"

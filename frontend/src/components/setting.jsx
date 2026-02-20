@@ -1,6 +1,6 @@
 import { Form, redirect } from "react-router-dom";
 import { getAuthToken } from "../auth";
-import { logout, currentProfilePicSetting, getUserData, setCurrentProfilePicSetting, ip } from "../data";
+import { logout, currentProfilePicSetting, getUserData, setCurrentProfilePicSetting, ip, loadData } from "../data";
 import { useState, useRef } from "react";
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/forms.css";
@@ -74,7 +74,6 @@ export async function SettingAction({request}){
     if(!token || token == "EXPIRED"){
       logout();
     }
-    console.log(token);
     const userData = getUserData();
     if(userData.id == -1){
       throw new Response.json({message: "Nem vagy bejelentkezve!"}, {status: 401});
@@ -107,8 +106,6 @@ export async function SettingAction({request}){
     if(email != userData.email)
       bodyData = {...bodyData, email: email}
     if(currentProfilePicSetting != defaultProfilePic){
-      console.log(currentProfilePicSetting);
-      console.log(currentProfilePicSetting instanceof File);
       const formData = new FormData();
       formData.append("file", currentProfilePicSetting);
       formData.append("userId", userData.id);
@@ -121,7 +118,6 @@ export async function SettingAction({request}){
       bodyData = {...bodyData, imageFileId: responseData.id}
     }
     if(Object.keys(bodyData).length > 0){
-      console.log(getAuthToken())
       const res = await fetch(`http://${ip}/users/${userData.id}`, {
         method: 'PUT',
         headers: {
@@ -131,7 +127,7 @@ export async function SettingAction({request}){
         body: JSON.stringify(bodyData)
       });
       if(res.status == 200){
-        window.location.href = "/";
+        await loadData();
       }else{
         const err = await res.json();
         throw new Response.json(err, {status: res.status});

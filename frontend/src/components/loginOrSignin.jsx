@@ -1,6 +1,6 @@
 import { Form, Link, useSearchParams, redirect} from "react-router-dom";
 import "../styles/forms.css";
-import { setUserData, ip, firstLoad } from "../data";
+import { setUserData, ip } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function LoginOrSignin(){

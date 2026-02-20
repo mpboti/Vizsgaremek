@@ -23,7 +23,10 @@ export async function getPlaylistByUserId(req: Request, res: Response) {
     const conn = await config.connection;
     try {
         const [results] = await conn.query("SELECT * FROM playlists WHERE ownerId = ?", [id]);
+        // include a no-store header to prevent the browser caching a previous empty response
+        res.setHeader('Cache-Control', 'no-store');
         if (results.length === 0) {
+            console.log("something right");
             res.status(300).json({ message: "No playlists found for this user." });
             return;
         }
@@ -133,16 +136,28 @@ export async function deletePlaylist(req: Request, res: Response) {
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid playlist ID." });
     }
+    if(!req.body) {
+        return res.status(400).json({ message: "Request body is missing." });
+    }
+    const data = req.body;
+    if (data.userId === undefined || data.userId === null) {
+        return res.status(400).json({ message: "Invalid playlist data." });
+    }
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("DELETE FROM playlists WHERE id = ?", [id]);
-        if (results.affectedRows === 0) {
-            res.status(404).json({ message: "Playlist not found." });
-            return;
-        }
-        res.status(200).json({ message: "Playlist deleted successfully." });
+        const [playlistResults] = await conn.query("SELECT * FROM playlists WHERE ownerId = ?", [data.userId])
+        if(playlistResults.some((elem:any)=> elem.id === id)){
+            const [results] = await conn.query("DELETE FROM playlists WHERE id = ?", [id]);
+            if (results.affectedRows === 0) {
+                res.status(404).json({ message: "Playlist not found." });
+                return;
+            }
+            res.status(200).json({ message: "Playlist deleted successfully." });
+        }else
+            res.status(402).json({ message: "Not your playlist shoo."})
         return;
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: "Internal server error." });
         return;
     }
