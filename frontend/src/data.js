@@ -23,6 +23,7 @@ export function setCurrentPlaylistPicSetting(pic){
 
 let playlistsData=[];
 export async function loadPlaylists(){
+    currentPlaylistPicSetting=defaultPlaylistPic;
     if(userData.id == -1) {
         // nothing to load if we don't know who the user is
         playlistsData = [];
@@ -45,33 +46,25 @@ export async function loadPlaylists(){
     }
 
     const resData = await response.json();
+    
 
-    if (Array.isArray(resData)) {
+    if (response.status != 300) {
         playlistsData = resData.map(elem => ({
             id: elem.id,
             name: elem.name,
             userName: userData.name,
-            listaPic: elem.playlistPicId,
+            listaPic: elem.url
         }));
 
-        for (let i = 0; i < playlistsData.length; i++) {
-            let playlistPic = defaultPlaylistPic;
-            if (playlistsData[i].listaPic != null) {
-                const res2 = await fetch(`http://${ip}/files/image/${playlistsData[i].listaPic}`, {
-                    method: 'GET',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'x-access-token': token
-                    }
-                });
-                const resData2 = await res2.json();
-                playlistPic = `http://${ip}` + resData2.url;
+        for (const elem of playlistsData) {
+            if (elem.listaPic != null) {
+                elem.listaPic = `http://${ip}` + elem.listaPic;
+            }else{
+                elem.listaPic = defaultPlaylistPic;
             }
-            playlistsData[i].listaPic = playlistPic;
         }
     } else {
-        // fallback for the old-style message
-        console.log(resData.message || "no playlists response");
+        console.log(resData.message);
         playlistsData = [];
     }
 }
@@ -118,22 +111,12 @@ export async function loadData(){
     });
     const resData = await res.json();
     let userPic = defaultProfilePic;
-    if(resData.imageFileId!=null){
-      const res2 = await fetch(`http://${ip}/files/image/${resData.imageFileId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token
-        }
-      });
-      const resData2 = await res2.json();
-      userPic = `http://${ip}`+resData2.url;
+    if(resData.url!=null){
+      userPic = `http://${ip}`+resData.url;
     }
-    
     if(resData.username && resData.email && resData.id){
         setUserData(resData.username, resData.email, userPic, parseInt(resData.id));
     }
-    
 }
 export function setUserData(name, email, userPic, id){
     if(userPic == "")

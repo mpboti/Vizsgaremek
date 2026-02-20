@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { uploadMusicMiddleware, uploadImageMiddleware } from "../middleware/upload";
 import { ImageFile } from "../classes/imageFile";
 import { MusicFile } from "../classes/musicFile";
+import { safeUnlink } from "../utils/fileUtils";
 
 export async function getMusicFileList (_req: Request, res: Response) {
     const conn = await config.connection;
@@ -155,5 +156,73 @@ export async function downloadImageFile(req: Request, res: Response) {
         console.error("Error downloading image file:", error);
         res.status(500).json({ message: "Internal server error." });
         return;
+    }
+}
+
+export async function deleteImageFile(req: Request, res: Response) {
+    const id = Number(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: 'Invalid id' });
+
+    const conn = await config.connection;
+    try {
+        await conn.beginTransaction();
+
+        const [rows] = await conn.query('SELECT filePath FROM image_files WHERE id = ?', [id]);
+        if (!rows || rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: 'Image not found' });
+        }
+
+        const filePath = rows[0].filePath as string;
+
+        const [delRes] = await conn.query('DELETE FROM image_files WHERE id = ?', [id]);
+        if (delRes.affectedRows === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: 'Image not found' });
+        }
+
+        await conn.commit();
+
+        // unlink asynchronously; failures logged but do not affect response
+        safeUnlink(filePath).catch(err => console.error('Failed to unlink image file:', filePath, err));
+
+        return res.status(204).send();
+    } catch (err) {
+        await conn.rollback();
+        console.error('Error deleting image file:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export async function deleteMusicFile(req: Request, res: Response) {
+    const id = Number(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: 'Invalid id' });
+
+    const conn = await config.connection;
+    try {
+        await conn.beginTransaction();
+
+        const [rows] = await conn.query('SELECT filePath FROM music_files WHERE id = ?', [id]);
+        if (!rows || rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: 'Music file not found' });
+        }
+        const filePath = rows[0].filePath as string;
+
+        const [delRes] = await conn.query('DELETE FROM music_files WHERE id = ?', [id]);
+        if (delRes.affectedRows === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: 'Music file not found' });
+        }
+
+        await conn.commit();
+
+        safeUnlink(filePath).catch(err => console.error('Failed to unlink music file:', filePath, err));
+
+        return res.status(204).send();
+    } catch (err) {
+        await conn.rollback();
+        console.error('Error deleting music file:', err);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }

@@ -100,16 +100,8 @@ export async function LoginAction({request}){
       }
     });
     const resData2 = await res.json();
-    if(resData2.imageFileId!=null){
-      const res2 = await fetch(`http://${ip}/files/image/${resData2.imageFileId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': getAuthToken()
-        }
-      });
-      const resData3 = await res2.json();
-      const userPic = `http://${ip}`+resData3.url;
+    if(resData2.url!=null){
+      const userPic = `http://${ip}`+resData2.url;
       console.log(userPic)
       setUserData(resData2.username, resData2.email, userPic, resData2.id);
     }else{

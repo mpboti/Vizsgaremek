@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import config from "../config/config";
 import Music, {IMusic} from "../classes/musics";
+import { safeUnlink } from "../utils/fileUtils";
 
 export async function getAllMusics(_req: Request, res: Response) {
     const conn = await config.connection;
@@ -69,17 +70,47 @@ export async function deleteMusic(req: Request, res: Response) {
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid music ID." });
     }
-
     const conn = await config.connection;
-
     try {
-        const [results] = await conn.query("DELETE FROM musics WHERE id = ?", [id]);
-        if (results.affectedRows === 0) {
+        await conn.beginTransaction();
+
+        const [musicRows] = await conn.query("SELECT musicFileId FROM musics WHERE id = ?", [id]);
+        if (!musicRows || musicRows.length === 0) {
+            await conn.rollback();
             return res.status(404).json({ message: "Music not found." });
         }
+        const musicFileId = musicRows[0].musicFileId as number;
+
+        // delete the music row
+        const [delMusicRes] = await conn.query("DELETE FROM musics WHERE id = ?", [id]);
+        if (delMusicRes.affectedRows === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: "Music not found." });
+        }
+
+        let filePath: string | null = null;
+        if (musicFileId) {
+            // if no other musics reference this file, remove the file record and capture filePath
+            const [countRows] = await conn.query("SELECT COUNT(*) as cnt FROM musics WHERE musicFileId = ?", [musicFileId]);
+            const cnt = (countRows && countRows[0] && (countRows[0] as any).cnt) || 0;
+            if (cnt === 0) {
+                const [fileRows] = await conn.query("SELECT filePath FROM music_files WHERE id = ?", [musicFileId]);
+                if (fileRows && fileRows.length > 0) filePath = fileRows[0].filePath as string;
+                await conn.query("DELETE FROM music_files WHERE id = ?", [musicFileId]);
+            }
+        }
+
+        await conn.commit();
+
+        // unlink after commit
+        if (filePath) {
+            safeUnlink(filePath).catch(err => console.error('Failed to unlink music file:', filePath, err));
+        }
+
         res.status(200).json({ message: "Music deleted successfully." });
         return;
     } catch (error) {
+        await conn.rollback();
         console.error("Error deleting music:", error);
         res.status(500).json({ message: "Internal server error." });
         return;

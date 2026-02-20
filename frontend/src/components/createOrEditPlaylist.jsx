@@ -30,7 +30,7 @@ export default function CreateOrEditPlaylist(){
       body: JSON.stringify({userId: localStorage.getItem("userId")})
     });
     loadPlaylists();
-    Navigate("/");
+    window.location.href = "/";
   }
   return(
     <Form method="post" className="authForm">

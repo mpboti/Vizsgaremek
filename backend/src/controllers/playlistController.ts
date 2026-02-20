@@ -23,14 +23,21 @@ export async function getPlaylistByUserId(req: Request, res: Response) {
     const conn = await config.connection;
     try {
         const [results] = await conn.query("SELECT * FROM playlists WHERE ownerId = ?", [id]);
-        // include a no-store header to prevent the browser caching a previous empty response
         res.setHeader('Cache-Control', 'no-store');
-        if (results.length === 0) {
-            console.log("something right");
+        if (results.length == 0){
             res.status(300).json({ message: "No playlists found for this user." });
             return;
         }
-        res.status(200).json(results);
+        const atributes = new Array();
+        for (const result of results){
+            if(result.playlistPicId==null){
+                atributes.push({ ...result, url: null })
+            }else{
+                const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
+                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length) })
+            }
+        }
+        res.status(200).json(atributes);
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
         return;

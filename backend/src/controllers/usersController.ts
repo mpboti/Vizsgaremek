@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import config from "../config/config";
 import Users, { IUsers } from "../classes/users";
 import jwt from 'jsonwebtoken';
+import { safeUnlink } from "../utils/fileUtils";
 
 export async function logIn(req: Request, res: Response) {
     const { email, pwd } = req.body;
@@ -56,11 +57,17 @@ export async function getUserById(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("SELECT * FROM users WHERE id = ?", [id]);
+        const [results] = await conn.query("SELECT users.id, users.username, users.email, image_files.fileName, image_files.mimeType, image_files.filePath  FROM users INNER JOIN image_files ON image_files.id = users.imageFileId WHERE users.id = ?", [id]);
         if (results.length === 0) {
-            return res.status(404).json({ message: "User not found." });
+            const [results2] = await conn.query("SELECT users.id, users.username, users.email FROM users WHERE id = ?", [id]);
+            if (results2.length === 0) {
+                return res.status(404).json({ message: "User not found." });
+            }
+            res.status(200).json({...results2[0], url: null});
+        }else{
+            
+            res.status(200).json({...results[0], url: (results[0].filePath).slice(config.baseDir.length)});
         }
-        res.status(200).json(results[0]);
         return;
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -99,17 +106,42 @@ export async function deleteUser(req: Request, res: Response) {
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid user ID." });
     }
-
     const conn = await config.connection;
-
     try {
-        const [results] = await conn.query("DELETE FROM users WHERE id = ?", [id]);
-        if (results.affectedRows === 0) {
+        await conn.beginTransaction();
+
+        // find user's profile image file (if any)
+        const [userRows] = await conn.query("SELECT imageFileId FROM users WHERE id = ?", [id]);
+        if (!userRows || userRows.length === 0) {
+            await conn.rollback();
             return res.status(404).json({ message: "User not found." });
         }
+        const imageFileId = userRows[0].imageFileId as number | null;
+
+        // delete user
+        const [results] = await conn.query("DELETE FROM users WHERE id = ?", [id]);
+        if (results.affectedRows === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        let filePath: string | null = null;
+        if (imageFileId) {
+            const [fileRows] = await conn.query("SELECT filePath FROM image_files WHERE id = ?", [imageFileId]);
+            if (fileRows && fileRows.length > 0) filePath = fileRows[0].filePath as string;
+            await conn.query("DELETE FROM image_files WHERE id = ?", [imageFileId]);
+        }
+
+        await conn.commit();
+
+        if (filePath) {
+            safeUnlink(filePath).catch(err => console.error('Failed to unlink user image:', filePath, err));
+        }
+
         res.status(200).json({ message: "User deleted successfully." });
         return;
     } catch (error) {
+        await conn.rollback();
         console.error("Error deleting user:", error);
         res.status(500).json({ message: "Internal server error." });
         return;
