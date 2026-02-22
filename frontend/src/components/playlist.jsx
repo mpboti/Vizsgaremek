@@ -2,7 +2,7 @@ import { useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
-import { getMusicsData, getPlaylistData, getUserData, ip, loadMusicsDataByPlaylistId, loadPlaylist, loadPlaylists } from '../data'
+import { getMusicsData, getPlaylistData, getUserData, ip, loadMusicsDataByPlaylistId, loadPlaylist, loadPlaylists, logedIn } from '../data'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import pencil from "../assets/pencil.png"
 import repeat from "../assets/repeat.png"
@@ -39,7 +39,7 @@ export default function Playlist() {
             <p className="letrehozo">Létrehozó: {playlistData.userName}</p>
             <p className="mufajok">műfajok: <span className="lowerMufajok">{playlistData.mufajok}</span></p>
             <p className="listaGombtarto">
-              <button className={isEdit?"listaGombok editing":"listaGombok"} onClick={()=>isEdit?setIsEdit(false):setIsEdit(true)}><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>
+              {logedIn && userData.id==playlistData.ownerId?<button className={isEdit?"listaGombok editing":"listaGombok"} onClick={()=>isEdit?setIsEdit(false):setIsEdit(true)}><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>:undefined}
               <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
               <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
               <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
@@ -71,7 +71,7 @@ export default function Playlist() {
             megjelenes={item.megjelenes} 
             mufaj={item.mufaj}/>
           )}
-          {isEdit || playlistData.musics.length==0?<tr className="zeneSor addContaner" onClick={()=>{navigate("/addMusic?mode=create")}}><td className="addRow" colSpan={phone?4:6}><img className="addRowImg" src={add} alt="Hozzáadás" /></td></tr>:undefined}
+          {(isEdit || playlistData.musics.length==0)&&logedIn?<tr className="zeneSor addContaner" onClick={()=>{navigate("/addMusic?mode=create")}}><td className="addRow" colSpan={phone?4:6}><img className="addRowImg" src={add} alt="Hozzáadás" /></td></tr>:undefined}
         </tbody>
       </table>
     </div>

@@ -4,7 +4,7 @@ import Artist, { IArtist } from "../classes/artists";
 
 export async function getAllArtists(_req: Request, res: Response) {
     const conn = await config.connection;
-
+    res.setHeader('Cache-Control', 'no-store');
     try{
         const [results] = await conn.query("SELECT * FROM artists");
         if (results.length === 0) {
@@ -49,7 +49,7 @@ export async function createArtist(req: Request, res: Response) {
 
     const conn = await config.connection;
     try  {
-        const [results] = await conn.query("INSERT INTO artists (id, name, imageFileId) VALUES (null, ?, ?)", [artist.name, artist.imageFileId]);
+        const [results] = await conn.query("INSERT INTO artists (id, name) VALUES (null, ?)", [artist.name]);
         res.status(201).json({ message: "Artist created successfully.", id: results.insertId });
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
@@ -87,7 +87,7 @@ export async function updateArtist(req: Request, res: Response) {
     }
 
     const artist: any = new Artist(req.body as unknown as IArtist);
-    const allowedFields = ["name", "imageFileId"];
+    const allowedFields = ["name"];
     const keys = Object.keys(artist).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {

@@ -30,7 +30,7 @@ CREATE TABLE artists (
 CREATE TABLE albums (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    releaseDate TIMESTAMP NULL,
+    releaseDate INT NULL,
     imageFileId INT NULL,
     imageFilePath VARCHAR(255) NULL,
     artistId INT NULL,
@@ -124,7 +124,3 @@ FOR EACH ROW
 SET new.pwd = pwd_encrypt(new.pwd); $$
 
 DELIMITER ;
-
-INSERT INTO users (id, username, email, pwd, imageFileId) VALUES
-(null, "test1", "test1@test.com", "test", null),
-(null, "test2", "test2@test.com", "test", null);

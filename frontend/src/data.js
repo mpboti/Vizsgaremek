@@ -99,7 +99,6 @@ export async function loadPlaylists(userId){
             'x-access-token': getAuthToken()
         }
     });
-    console.log(response)
     if (!response.ok) {
         console.error("failed to fetch playlists", response.status, response.statusText);
         playlistsData = [];
@@ -150,6 +149,7 @@ export async function loadPlaylist(playlistId){
     const resData = await res.json();
     loadedPlaylistData={
         id: playlistId,
+        ownerId:resData.ownerId,
         name: resData.name,
         userName: resData.username,
         listaPicId: resData.playlistPicId,
@@ -178,28 +178,30 @@ export function setUploadedMusicFile(file){
 }
 
 //legödülő menük betöltése
-export let artistOptions = [];
+export let artistOptions = {ids: [], artists:[]};
 export async function loadArtistOptions(){
-    artistOptions = [];
+    artistOptions = {ids: [], artists:[]};
     try{
         const res = await fetch(`http://${ip}/artists`);
-        resData = await res.json();
+        const resData = await res.json();
         for(var elem of resData){
-            artistOptions.push(elem.name);
+            artistOptions.artists.push(elem.name)
+            artistOptions.push(elem.id);
         } 
     }catch{
 
     }
 }
 
-export let albumOptions = [];
+export let albumOptions = {ids: [], albums:[]};
 export async function loadAlbumOptions(){
-    albumOptions = [];
+    albumOptions = {ids: [], albums:[]};
     try{
         const res = await fetch(`http://${ip}/albums`);
-        resData = await res.json();
+        const resData = await res.json();
         for(var elem of resData){
-            albumOptions.push(elem.name);
+            albumOptions.albums.push(elem.name)
+            albumOptions.ids.push(elem.id);
         } 
     }catch{
 
@@ -211,7 +213,7 @@ export async function loadMufajOptions(){
     mufajOptions = [];
     try{
         const res = await fetch(`http://${ip}/musics`);
-        resData = await res.json();
+        const resData = await res.json();
         for(var elem of resData){
             if(!mufajOptions.includes(elem.mufaj))
                 mufajOptions.push(elem.mufaj);
@@ -221,6 +223,26 @@ export async function loadMufajOptions(){
     }
 }
 
+export let playlistOptions = {ids: [], playlists:[]};
+export async function loadPlaylistOptions(){
+    playlistOptions = {ids: [], playlists:[]};
+    try{
+        const res = await fetch(`http://${ip}/playlists/byuserid/${userData.id}`,{
+            method: "GET",
+            headers: {
+            'x-access-token': getAuthToken()
+            }
+        });
+        const resData = await res.json();
+        for(const elem of resData){
+            playlistOptions.playlists.push(elem.name)
+            playlistOptions.ids.push(elem.id);
+        } 
+        console.log(playlistOptions)
+    }catch(err){
+        console.log(err)
+    }
+}
 
 
 //a zenék betöltése
@@ -234,8 +256,9 @@ export async function loadMufajOptions(){
     mufaj:"Rock"
 },
 */
-export let musicsData = [];
 
+
+export let musicsData = [];
 export function getMusicsData(){
     return musicsData;
 }
@@ -244,6 +267,9 @@ export async function loadMusicsDataByPlaylistId(playlistId){
 
 }
 
-
+export let currentMusicData = null;
+export async function loadCurrentMusicData(id){
+    currentMusicData = musicsData[id]
+}
 await loadData();
 await loadPlaylists(userData.id);

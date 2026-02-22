@@ -106,7 +106,7 @@ img.albumCoverImg{
 p.listaGombtarto{
     background-color: #000291;
     box-shadow: -10px 10px 10px #00000033;
-    width: 365px;
+    width: fit-content;
     text-align: center;
     border-radius: 20px;
 }
@@ -218,7 +218,6 @@ th{
     p.listaGombtarto{
         background-color: #000291;
         box-shadow: -10px 10px 10px #00000033;
-        width: 240px;
         text-align: center;
         border-radius: 14px;
     }
@@ -274,7 +273,6 @@ th{
     p.listaGombtarto{
         background-color: #000291;
         box-shadow: -10px 10px 10px #00000033;
-        width: 240px;
         text-align: center;
         margin-left: auto;
         margin-right: auto;

@@ -5,7 +5,7 @@ import { safeUnlink } from "../utils/fileUtils";
 
 export async function getAllMusics(_req: Request, res: Response) {
     const conn = await config.connection;
-
+    res.setHeader('Cache-Control', 'no-store');
     try {
         const [results] = await conn.query("SELECT * FROM musics");
     if (results.length === 0) {
@@ -55,7 +55,7 @@ export async function createMusic(req: Request, res: Response) {
     const conn = await config.connection;
 
     try  {
-        const [results] = await conn.query("INSERT INTO musics (id, name, albumId, artistId, musicFileId, uploaderId) VALUES (null, ?, ?, ?, ?, ?)", [music.name, music.albumId, music.artistId, music.musicFileId, music.uploaderId]);
+        const [results] = await conn.query("INSERT INTO musics (id, name, mufaj, albumId, artistId, musicFileId, uploaderId) VALUES (null, ?, ?, ?, ?, ?, ?)", [music.name, music.mufaj, music.albumId, music.artistId, music.musicFileId, music.uploaderId]);
         res.status(201).json({ message: "Music created successfully.", id: results.insertId });
         return;
     } catch (error) {

@@ -47,16 +47,41 @@ div.justFlex{
     width: 40%;
     gap: 50px;
 }
+
 div.kepAlign{
     flex: 2;
     justify-content: end;
 }
+
 div.buttonAlign{
     display: flex;
     flex-direction: column;
     gap: 50px;
     flex: 1;
     text-align: right;
+}
+
+div.justFlex2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+    gap: 30px;
+}
+
+div.numInputs{
+    flex: 1;
+    padding: 0;
+    margin: 0;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+div.numInputs input{
+    width: 100%;
+    box-sizing: border-box;
 }
 
 Form.authForm{
@@ -186,7 +211,7 @@ Form div.rangeFlex p.rangeP{
         width: 200px;   
         height: 200px;
     }
-    Form input, Form div.rangeFlex, div.justFlex{
+    Form input, Form div.rangeFlex, div.justFlex, div.justFlex2{
         width: 60%;
     }
 }
@@ -200,7 +225,7 @@ Form div.rangeFlex p.rangeP{
 }
 
 @media screen and (max-width: 600px){
-    Form input, Form div.rangeFlex, div.justFlex{
+    Form input, Form div.rangeFlex, div.justFlex, div.justFlex2{
         width: 90%;
     }
 }

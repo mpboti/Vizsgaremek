@@ -5,7 +5,7 @@ import upload from "../assets/upload.png"
 import play from "../assets/play.png"
 import pause from "../assets/pause.png"
 import del from "../assets/bin.png"
-import { getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists, setCurrentAlbumPicSetting, getMusicsData, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions } from "../data";
+import { getUserData, logout, ip, setCurrentAlbumPicSetting, getMusicsData, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function CreateOrEditMusic(){
@@ -18,22 +18,6 @@ export default function CreateOrEditMusic(){
   const picOpener = useRef();
   const fileOpener = useRef();
   const [img, setImg] = useState(musicId?musicData.albumPic:defaultMusicPic);
-
-  async function openUrl(url){
-    const checked = await new Promise((resolve) => {
-      const image = new Image();
-
-      image.onload = () => resolve(true);
-      image.onerror = () => resolve(false);
-
-      image.src = url;
-    });
-    if(checked){
-      setImg(url)
-    }else{
-      setImg(URL.createObjectURL(currentAlbumPicSetting))
-    }
-  }
 
   async function openPic(isFinal, e){
     if(!isFinal){
@@ -50,6 +34,7 @@ export default function CreateOrEditMusic(){
       if(checked){
         setImg(e.target.value);
         setCurrentAlbumPicUrl(e.target.value);
+        setCurrentAlbumPicSetting(defaultMusicPic);
       }else {
         if(currentAlbumPicSetting == defaultMusicPic)
           setImg(currentAlbumPicSetting);
@@ -60,16 +45,29 @@ export default function CreateOrEditMusic(){
     }else{
       setImg(URL.createObjectURL(e.target.files[0]));
       setCurrentAlbumPicSetting(e.target.files[0]);
+      setCurrentAlbumPicUrl(null);
     }
   }
 
-  function openFile(isFinal, e){
+  async function openFile(isFinal, e){
     if(!isFinal){
       fileOpener.current.click();
     }else{
-      setPlayPic(play);
-      setMus(new Audio(URL.createObjectURL(e.target.files[0])))
-      setUploadedMusicFile(e.target.files[0]);
+      const checked = await new Promise((resolve) => {
+        const audio = new Audio();
+        
+        audio.oncanplaythrough = () => resolve(true);
+        audio.onerror = () => resolve(false);
+        
+        if(e.target.files[0])
+          audio.src = URL.createObjectURL(e.target.files[0]);
+      });
+      if(checked){
+        setPlayPic(play);
+        setMus(new Audio(URL.createObjectURL(e.target.files[0])))
+        setUploadedMusicFile(e.target.files[0]);
+      }else
+        console.log("something is not right")
     }
   }
 
@@ -129,9 +127,23 @@ export default function CreateOrEditMusic(){
         <p>
           <input type="text" name="album" placeholder="Album neve" defaultValue={mode=="itunes"?asd:""}/>
         </p>
-        <p>
-          <input type="number" name="releaseDate" placeholder="Album megjelenési éve" defaultValue={mode=="itunes"?asd:""}/>
-        </p>
+        <div className="justFlex2">
+          <div className="numInputs">
+            <input type="number" name="releaseDate" placeholder="Album megjelenési éve" defaultValue={mode=="itunes"?asd:""}/>
+          </div>
+          <div className="numInputs">
+            {playlistOptions.ids.map((option, index) => (
+              <label key={option} style={{ display: "block" }}>
+                <input
+                  type="checkbox"
+                  name="playlists"
+                  value={option}
+                />
+                {playlistOptions.playlists[index]}
+              </label>
+            ))}
+          </div>
+        </div>
         <p>
           <input type="text" name="mufaj" placeholder="Zene műfaja" defaultValue={mode=="itunes"?asd:""}/>
         </p>
@@ -144,7 +156,7 @@ export default function CreateOrEditMusic(){
             <img src={img} className="uploads" onClick={(e)=>openPic(false, e)}/>
           </div>
           <div className="kepAlign">
-            <input ref={fileOpener} type="file" name="file" id="file" onChange={(e)=>openFile(true, e)} accept="audio/*" style={{ display: "none" }}/>
+            <input ref={fileOpener} type="file" name="file" id="file" onChange={(e)=>openFile(true, e)} accept="audio/*" style={{ display: "none" }} required/>
             <img src={playPic} className="uploads" onClick={(e)=>fileChecker(e)}/>
           </div>
         </div>
@@ -159,12 +171,160 @@ export default function CreateOrEditMusic(){
   )
 }
 
-export async function MusicAction(){
+export async function MusicAction({request}){
+  
+  try{
+      const token = getAuthToken();
+      if(!token || token == "EXPIRED"){
+        logout();
+      }
+      const userData = getUserData();
+      if(userData.id == -1){
+        throw new Response.json({message: "Nem vagy bejelentkezve!"}, {status: 401});
+      }
+      const params = new URL(request.url).searchParams;
+      const mode = params.get("mode");
 
+      const data = await request.formData();
+      const cim = data.get("cim");
+      const eloado = data.get("eloado");
+      const album = data.get("album");
+      const releaseDate = data.get("releaseDate");
+      const mufaj = data.get("mufaj");
+
+      let artistId=null;
+      if(album){
+        const createArtist = await fetch(`http://${ip}/artists`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': getAuthToken()
+          },
+          body: JSON.stringify({name:eloado})
+        });
+        const createArtistData = await createArtist.json();
+        artistId=createArtistData.id;
+      }else if(artistOptions.artists.includes(eloado)){
+        artistId=artistOptions.ids[artistOptions.artists.findIndex(eloado)];
+      }
+
+      let albumId = null
+      if(album){
+        let albumBody = {};
+        if(releaseDate){
+          albumBody = {
+            name: album,
+            releaseDate: releaseDate
+          }
+        }else{
+          albumBody = {
+            name: album
+          }
+        }
+        if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic){
+          albumBody = {...albumBody, imageUrl: currentAlbumPicUrl};
+        }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic){
+          const formData = new FormData();
+          formData.append("file", currentAlbumPicSetting);
+          formData.append("userId", userData.id);
+    
+          const uploadPic = await fetch(`http://${ip}/files/image`, {
+            method: 'POST',
+            body: formData
+          });
+          const uploadPicData = await uploadPic.json();
+          albumBody = {...albumBody, artistId: uploadPicData.id};
+        }
+        const createAlbum = await fetch(`http://${ip}/albums/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': getAuthToken()
+          },
+          body: JSON.stringify(albumBody)
+        });
+        if(!createAlbum.ok){
+          throw new Response.json({message: "Nem sikerült az album létrehozása"}, {status: 422});
+        }
+        const createAlbumData = await createAlbum.json();
+        albumId=createAlbumData.id;
+      }else if(artistOptions.artists.includes(album)){
+        albumId = artistOptions.ids[artistOptions.artists.findIndex(album)]
+      }
+
+      if(mode!="edit"){
+        if(!uploadedMusicFile)
+          throw new Response.json({message: "Tölts fel filet!"}, {status: 401})
+        let musicBody={name: cim, uploaderId: userData.id}
+        if(mufaj){
+          musicBody={...musicBody, mufaj: mufaj}
+        }
+        if(artistId){
+          musicBody={...musicBody, artistId: artistId}
+        }
+        if(albumId){
+          musicBody={...musicBody, albumId: albumId}
+        }
+        const formData = new FormData();
+        formData.append("file", currentAlbumPicSetting);
+        formData.append("userId", userData.id);
+
+        const uploadMusic = await fetch(`http://${ip}/files/music`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadMusicData = await uploadMusic.json();
+        musicBody = {...musicBody, musicFileId: uploadMusicData.id};
+
+        const createMusic = await fetch(`http://${ip}/musics/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': getAuthToken()
+          },
+          body: JSON.stringify(musicBody)
+        });
+        const createMusicData = await createMusic.json();
+        createMusicData.id
+      }else{
+        /*
+        if(Object.keys(bodyData).length > 0){
+          const res = await fetch(`http://${ip}/users/${userData.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify(bodyData)
+          });
+          if(res.status == 200){
+            await loadData();
+          }else{
+            const err = await res.json();
+            throw new Response.json(err, {status: res.status});
+          }
+        }
+        */
+      }
+      await loadPlaylist();
+      return redirect("/");
+    }catch(err){
+        console.log(err.message);
+    }
 }
 
-export async function MusicAddLoader(){
-  await loadArtistOptions();
-  await loadAlbumOptions();
-  await loadMufajOptions();
+export async function MusicAddLoader({request}){
+    const token = getAuthToken();
+    if(!token || token == "EXPIRED"){
+      logout();
+    }
+    const params = new URL(request.url).searchParams
+    const mode = params.get("mode")
+    if(mode=="itunes" || mode=="edit"){
+      await loadCurrentMusicData(params.get("id"))
+    }
+    await loadArtistOptions();
+    await loadAlbumOptions();
+    await loadMufajOptions();
+    await loadPlaylistOptions();
 }

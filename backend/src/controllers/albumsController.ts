@@ -4,6 +4,7 @@ import Album, { IAlbum } from "../classes/albums";
 
 export async function getAllAlbums(_req: Request, res: Response) {
     const conn = await config.connection;
+    res.setHeader('Cache-Control', 'no-store');
     try {
         const [results] = await conn.query("SELECT * FROM albums");
         if (results.length === 0) {
@@ -46,9 +47,8 @@ export async function createAlbum(req: Request, res: Response) {
         return res.status(400).json({ message: "Invalid album data." });
     }
     const conn = await config.connection;
-
     try  {
-        const [results] = await conn.query("INSERT INTO albums (id, name, imageFileId, artistId) VALUES (null, ?, ?, ?)", [album.name, album.imageFileId, album.artistId]);
+        const [results] = await conn.query("INSERT INTO albums (id, name, imageFilePath, artistId) VALUES (null, ?, ?, ?)", [album.name, album.imageUrl, album.artistId]);
         res.status(201).json({ message: "Album created successfully.", id: results.insertId });
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });

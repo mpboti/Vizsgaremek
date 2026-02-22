@@ -1,6 +1,7 @@
 export interface IMusic {
     id: number | null;
     name: string;
+    mufaj: string | null;
     artistId: number | null;
     albumId: number | null;
     musicFileId: string;
@@ -10,6 +11,7 @@ export interface IMusic {
 export default class Music implements IMusic {
     id: number | null;
     name: string;
+    mufaj: string | null;
     artistId: number | null;
     albumId: number | null;
     musicFileId: string;
@@ -18,6 +20,7 @@ export default class Music implements IMusic {
     constructor(init: IMusic) {
         this.id = init.id;
         this.name = init.name;
+        this.mufaj = init.mufaj;
         this.artistId = init.artistId;
         this.albumId = init.albumId;
         this.musicFileId = init.musicFileId;

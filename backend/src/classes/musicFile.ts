@@ -46,7 +46,7 @@ export class MusicFile implements IMusicFile {
                 throw new Error("Failed to save music file to database.");
             }
             await conn.commit();
-            return results.id;
+            return results.insertId;
         } catch (error) {
             await conn.rollback();
             throw error;
