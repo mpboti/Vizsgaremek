@@ -7,7 +7,7 @@ export async function getAllAlbums(_req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM albums");
         if (results.length === 0) {
-            return res.status(404).json({ message: "No albums found." });
+            return res.status(300).json({ message: "No albums found." });
         }
         res.status(200).json(results);
     } catch (error) {

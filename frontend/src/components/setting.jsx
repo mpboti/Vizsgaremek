@@ -21,11 +21,26 @@ export default function Setting() {
         setCurrentProfilePicSetting(e.target.files[0]);
     }
   }
-  
   function FadeChange(event) {
         const value = event.target.value;
         localStorage.setItem("fadeValue", value);
         setFadeValue(value);
+  }
+
+  async function deleteUser(){
+    const confirmed = window.confirm("Biztos törölni akarod a felhasználódat?");
+    if (!confirmed)
+      return;
+    
+    await fetch(`http://${ip}/users/${userData.id}`, {
+      method:"DELETE",
+      headers:{
+        'Content-Type': 'application/json',
+        'x-access-token': getAuthToken()
+      },
+      body: JSON.stringify({userId: localStorage.getItem("userId")})
+    });
+    logout();
   }
 
   return(
@@ -58,8 +73,9 @@ export default function Setting() {
                   <img src={img} className="uploadImageCover" onClick={(e)=>openPic(false, e)}/>
               </div>
               <div className="buttonAlign">
-                <button className="loginFormButton">Mentés</button>
+                <button className="loginFormButton" type="submit">Mentés</button>
                 <button className="loginFormButton logoutButton" onClick={logout}>Kijelentkezés</button>
+                <button className="loginFormButton logoutButton" onClick={deleteUser} type="button">Felhasználó törlése</button>
               </div>
             </div>
       </Form>
@@ -85,8 +101,7 @@ export async function SettingAction({request}){
     const newpassword = data.get("newpassword");
 
     let bodyData = {};
-    if(newpassword && newpassword!=password){
-      
+    if((newpassword && newpassword!=password) || email != userData.email && email.includes("@") && email != ""){
       const validateRes = await fetch(`http://${ip}/users/passcheck`, {
         method: 'POST',
         headers: {
@@ -99,12 +114,13 @@ export async function SettingAction({request}){
       if(!validateData.samePass){
         throw new Response.json({message: "Hibás jelszó!"}, {status: 422});
       }
-      bodyData = {...bodyData, pwd: newpassword}
+      if(newpassword && newpassword!=password)
+        bodyData = {...bodyData, pwd: newpassword}
+      else
+        bodyData = {...bodyData, email: email}
     }
     if(username != userData.name)
       bodyData = {...bodyData, username: username}
-    if(email != userData.email)
-      bodyData = {...bodyData, email: email}
     if(currentProfilePicSetting != defaultProfilePic){
       if(userData.userPicId != null){
         await fetch(`http://${ip}/files/image/${userData.userPicId}`, {

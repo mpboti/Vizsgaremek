@@ -61,7 +61,8 @@ export async function getUserById(req: Request, res: Response) {
         if (results.length === 0) {
             const [results2] = await conn.query("SELECT users.id, users.username, users.email FROM users WHERE id = ?", [id]);
             if (results2.length === 0) {
-                return res.status(404).json({ message: "User not found." });
+                res.status(404).json({ message: "User not found." });
+                return;
             }
             res.status(200).json({...results2[0], url: null});
         }else{

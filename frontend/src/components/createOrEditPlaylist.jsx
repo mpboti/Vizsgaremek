@@ -39,7 +39,7 @@ export default function CreateOrEditPlaylist(){
       },
       body: JSON.stringify({userId: localStorage.getItem("userId")})
     });
-    loadPlaylists();
+    loadPlaylists(getUserData().id);
     window.location.href = "/";
   }
   return(
@@ -128,7 +128,7 @@ export async function PlaylistAction({request}){
       });
     }
 
-    await loadPlaylists();
+    await loadPlaylists(userData.id);
     return redirect("/");
   }catch(err){
     console.log(err);

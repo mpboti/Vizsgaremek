@@ -9,7 +9,7 @@ export async function getAllMusics(_req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM musics");
     if (results.length === 0) {
-            return res.status(404).json({ message: "No musics found." });
+            return res.status(300).json({ message: "No musics found." });
         }
         res.status(200).json(results);
     } catch (error) {

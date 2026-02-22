@@ -9,6 +9,7 @@ tr.zeneSor{
     box-shadow: -10px 10px 10px #00000091;
     background-color: #010042;
     border-radius: 11px;
+    align-items: center;
 }
 
 td{
@@ -38,6 +39,27 @@ td.mainAlbumCover{
 
 td.listaDataTd{
     vertical-align: top;
+}
+
+td.addRow{
+   text-align: center;
+   padding: 15px;
+}
+
+img.addRowImg{
+    width: 60px;
+    height: 60px;
+}
+
+tr.addContaner{
+    cursor: pointer;
+}
+
+button.editing{
+    background-color: rgb(189, 143, 26);
+}
+button.editing:hover{
+    background-color: rgba(181, 137, 26, 0.629);
 }
 
 button.zeneGombok :hover{

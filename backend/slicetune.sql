@@ -24,15 +24,15 @@ CREATE TABLE music_files (
 CREATE TABLE artists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    imageFileId INT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE albums (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    releaseDate TIMESTAMP NULL,
     imageFileId INT NULL,
+    imageFilePath VARCHAR(255) NULL,
     artistId INT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL,
@@ -54,6 +54,7 @@ CREATE TABLE users (
 CREATE TABLE musics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    mufaj VARCHAR(255) NULL,
     albumId INT NULL,
     artistId INT NULL,
     musicFileId INT NOT NULL,

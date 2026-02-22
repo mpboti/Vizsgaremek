@@ -1,6 +1,6 @@
 import { Form, Link, useSearchParams, redirect} from "react-router-dom";
 import "../styles/forms.css";
-import { setUserData, ip, loadData, loadPlaylists } from "../data";
+import { setUserData, ip, loadData, loadPlaylists, getUserData } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function LoginOrSignin(){
@@ -93,7 +93,7 @@ export async function LoginAction({request}){
     localStorage.setItem("expiration", expiration.toISOString());
     
     await loadData();
-    await loadPlaylists();
+    await loadPlaylists(getUserData().id);
     return redirect('/');
   } catch (error) {
     console.error("Error during authentication:", error);
