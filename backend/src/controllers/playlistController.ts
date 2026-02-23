@@ -60,22 +60,28 @@ export async function getPlaylistById(req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, image_files.fileName, image_files.mimeType, image_files.filePath FROM playlists INNER JOIN image_files ON image_files.id = playlists.playlistPicId WHERE playlists.id = ?", [id]);
         const [musics] = await conn.query("SELECT musicId, position FROM playlist_musics WHERE playlistId = ?", [id]);
-        const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [results[0].ownerId]);
-        if (username.length === 0) {
-            res.status(404).json({ message: "User not found." });
-            return;
-        }
         if (results.length === 0) {
-            const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId FROM users WHERE id = ?", [id]);
+            const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId FROM playlists WHERE id = ?", [id]);
             if (results2.length === 0) {
                 res.status(404).json({ message: "Playlist not found." });
                 return;
             }
+            const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [results2[0].ownerId]);
+            if (username.length === 0) {
+                res.status(404).json({ message: "User not found." });
+                return;
+            }
             res.status(200).json({...results2[0], url: null, musics: musics, ...username[0]});
-        }else{            
+        }else{
+            const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [results[0].ownerId]);
+            if (username.length === 0) {
+                res.status(404).json({ message: "User not found." });
+                return;
+            }            
             res.status(200).json({...results[0], url: (results[0].filePath).slice(config.baseDir.length), musics: musics, ...username[0]});
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Internal server error." });
         return;
     }
@@ -109,20 +115,29 @@ export async function addMusicToPlaylist(req: Request, res: Response) {
     if(!req.body) {
         return res.status(400).json({ message: "Request body is missing." });
     }
-
-    const playlistId: number = parseInt(req.params.playlistId as string);
-    const musicId: number = parseInt(req.params.musicId as string);
-
-    if (isNaN(playlistId) || isNaN(musicId)) {
+    const playlistId: number = parseInt(req.body.playlistId as string);
+    if (isNaN(playlistId)) {
         return res.status(400).json({ message: "Invalid playlist ID or music ID." });
     }
-    
-    const playlistMusic = new PlaylistMusics(req.body as unknown as IPlaylistMusics);
+    let position = 1;
+    const conn = await config.connection;
+    try  {
+        const [results]=await conn.query("SELECT position FROM playlist_musics WHERE playlistId=?", [playlistId]);
+        if(results.length === 0){
+            position = 1;
+        }else{
+            position = parseInt(results[results.length-1].position)+1;
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+    }
+
+    const playlistMusic = new PlaylistMusics({...req.body, position: position} as unknown as IPlaylistMusics);
     if (playlistMusic.playlistId === undefined || playlistMusic.musicId === undefined || playlistMusic.position === undefined ||
         playlistMusic.playlistId === null || playlistMusic.musicId === null || playlistMusic.position === null) {
         return res.status(400).json({ message: "Invalid playlist music data." });
     }
-    const conn = await config.connection;
+
     try  {
         await conn.query("INSERT INTO playlist_musics (playlistId, musicId, position) VALUES (?, ?, ?)", [playlistMusic.playlistId, playlistMusic.musicId, playlistMusic.position]);
         res.status(201).json({ message: "Music added to playlist successfully." });

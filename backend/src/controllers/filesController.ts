@@ -66,7 +66,7 @@ export async function uploadMusicFile(req: Request, res: Response) {
         const userId = (req as any).user?.id || req.body?.userId;
         if (userId) {
             try {
-                const music = new MusicFile(req.file as any, Number(userId));
+                const music = new MusicFile(req.file as any);
                 fileId = await music.saveToDatabase();;
             } catch (err) {
                 console.error("Error saving music file to DB:", err);

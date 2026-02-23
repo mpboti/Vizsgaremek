@@ -7,7 +7,7 @@ const router: Router = express.Router();
 router.post('/music', verifyToken, uploadMusicFile);
 router.post('/image', uploadImageFile);
 router.get('/image', verifyToken, getImageFileList);
-router.get('/image/:id', verifyToken, getImageFileById);
+router.get('/image/:id', getImageFileById);
 router.get('/music/:filename', verifyToken, downloadMusicFile);
 router.get('/image/:filename', verifyToken, downloadImageFile);
 router.delete('/image/:id', verifyToken, deleteImageFile);

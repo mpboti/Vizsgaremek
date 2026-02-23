@@ -4,7 +4,7 @@ export interface IAlbum {
     imageFileId: number | null;
     imageUrl: string | null;
     releaseDate: number | null;
-    artistId: number | null;
+    artistId: number;
 }
 
 export default class Album implements IAlbum {
@@ -13,7 +13,7 @@ export default class Album implements IAlbum {
     imageFileId: number | null;
     imageUrl: string | null;
     releaseDate: number | null;
-    artistId: number | null;
+    artistId: number;
 
     constructor(init: IAlbum) {
         this.id = init.id;

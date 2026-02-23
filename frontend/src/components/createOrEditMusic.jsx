@@ -5,16 +5,28 @@ import upload from "../assets/upload.png"
 import play from "../assets/play.png"
 import pause from "../assets/pause.png"
 import del from "../assets/bin.png"
-import { getUserData, logout, ip, setCurrentAlbumPicSetting, getMusicsData, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions } from "../data";
+import up from "../assets/up.png"
+import down from "../assets/down.png"
+import { getUserData, logout, ip, setCurrentAlbumPicSetting, getMusicsData, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function CreateOrEditMusic(){
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
-  const musicId = searchParams.get("id")
+  const musicId = searchParams.get("id");
+  const playlistId = searchParams.get("playlisId") || -1;
   const musicData = getMusicsData().find(elem=>elem.id==musicId);
   const [mus, setMus] = useState(null);
   const [playPic, setPlayPic] = useState(upload);
+  const [openArtist, setOpenArtist] = useState(false);
+  const [openAlbum, setOpenAlbum] = useState(false);
+  const [openPlaylist, setOpenPlaylist] = useState(false);
+  const [openMufaj, setOpenMufaj] = useState(false);
+  const [artistInput, setArtistInput] = useState(mode=="itunes"?"asd":"");
+  const [albumInput, setAlbumInput] = useState(mode=="itunes"?"asd":"");
+  const [mufajInput, setMufajInput] = useState(mode=="itunes"?"asd":"");
+  const [releaseInput, setReleaseInput] = useState(mode=="itunes"?"asd":"");
+  const [urlInput, setUrlInput] = useState(mode=="itunes"?"asd":"");
   const picOpener = useRef();
   const fileOpener = useRef();
   const [img, setImg] = useState(musicId?musicData.albumPic:defaultMusicPic);
@@ -87,6 +99,19 @@ export default function CreateOrEditMusic(){
         setPlayPic(upload);
     }
   }
+  async function getAlbum(albumId){
+    const res = await fetch(`http://${ip}/albums/${albumId}`);
+    const resData = await res.json();
+    if(resData.releaseDate!=null)
+      setReleaseInput(resData.releaseDate);
+    if(resData.imageFilePath!=null){
+      setUrlInput(resData.imageFilePath);
+      setImg(resData.imageFilePath)
+    }else if(resData.imageFileId!=null){
+      const response = await fetch(`http://${ip}/files/image/${resData.imageFileId}`)
+      setImg(`http://${ip}${(await response.json()).url}`);
+    }
+  }
 
   async function deleteMusic() {
     const confirmed = window.confirm("Biztos törölni akarod a zenét?");
@@ -119,36 +144,59 @@ export default function CreateOrEditMusic(){
       <Form method="post" className="settingForm">
         <h1>{mode=="create" || mode=="itunes"?"Zene létrehozása":"Zene módosítása"}</h1>
         <p>
-          <input type="text" name="cim" placeholder="Zene címe" defaultValue={mode=="itunes"?asd:""} required />
+          <input type="text" name="cim" placeholder="Zene címe" defaultValue={mode=="itunes"?asd:""} required/>
         </p>
-        <p>
-          <input type="text" name="eloado" placeholder="Előadó neve" defaultValue={mode=="itunes"?asd:""}/>
-        </p>
-        <p>
-          <input type="text" name="album" placeholder="Album neve" defaultValue={mode=="itunes"?asd:""}/>
-        </p>
+        <div className="downFlex">
+          <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true);}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+          <div className="selection" style={!openArtist ? {display: "none"} : {}}>
+            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist) => (
+              <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); }}>
+                {artist}
+              </div>
+            ))}
+          </div>
+        </div>
+        <p/>
+        <div className="downFlex">
+          <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true);}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+          <div className="selection" style={!openAlbum ? {display: "none"} : {}}>
+            {albumOptions.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
+              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false);getAlbum(albumOptions.ids[index]);}}>
+                {album}
+              </div>
+            ))}
+          </div>
+        </div>
+        <p/>
         <div className="justFlex2">
           <div className="numInputs">
-            <input type="number" name="releaseDate" placeholder="Album megjelenési éve" defaultValue={mode=="itunes"?asd:""}/>
+            <input type="number" name="releaseDate" placeholder="Album megjelenési éve" value={releaseInput} onChange={(e)=>setReleaseInput(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           </div>
           <div className="numInputs">
-            {playlistOptions.ids.map((option, index) => (
-              <label key={option} style={{ display: "block" }}>
-                <input
-                  type="checkbox"
-                  name="playlists"
-                  value={option}
-                />
-                {playlistOptions.playlists[index]}
-              </label>
+            <button type="button" onClick={() => setOpenPlaylist(!openPlaylist)} className="lenyiloGomb" >Lejátszási listák  <img src={openPlaylist?up:down} alt="Lejátszási listák ⬇" className="upDownImg"/></button>
+            <div className="selection" style={!openPlaylist ? {display: "none"} : {}}>
+              {playlistOptions.ids.map((option, index) => (
+                <label key={option} className="labelElem">
+                  <input type="checkbox" name="playlists" value={option} defaultChecked={option==playlistId}/>
+                  {playlistOptions.playlists[index]}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+        <p/>
+        <div className="downFlex">
+          <input type="text" name="mufaj" placeholder="Zene műfaja" value={mufajInput} onChange={(e) => {setMufajInput(e.target.value); setOpenMufaj(true);}} onFocus={() => setOpenMufaj(true)} onBlur={() => setTimeout(() => setOpenMufaj(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+          <div className="selection" style={!openMufaj ? {display: "none"} : {}}>
+            {mufajOptions.filter((elem) => elem.toLowerCase().includes(mufajInput.toLowerCase())).map((mufaj) => (
+              <div key={mufaj} className="labelElem" onMouseDown={() => { setMufajInput(mufaj); setOpenMufaj(false);  }}>
+                {mufaj}
+              </div>
             ))}
           </div>
         </div>
         <p>
-          <input type="text" name="mufaj" placeholder="Zene műfaja" defaultValue={mode=="itunes"?asd:""}/>
-        </p>
-        <p>
-          <input type="text" name="albumPic" placeholder="Album kép url" defaultValue={mode=="itunes"?asd:""} onChange={(e)=>openPic(true, e)}/>
+          <input type="text" name="albumPic" placeholder="Album kép url" value={urlInput} onChange={(e)=>{openPic(true, e);setUrlInput(e.target.value);}} autoComplete="off" autoCorrect="off" spellCheck="false"/>
         </p>
         <div className="justFlex">
           <div className="kepAlign">
@@ -191,9 +239,14 @@ export async function MusicAction({request}){
       const album = data.get("album");
       const releaseDate = data.get("releaseDate");
       const mufaj = data.get("mufaj");
+      const selectedPlaylists = data.getAll("playlists").map((e)=>e=parseInt(e));
+      if(album!="" && eloado== ""){
+        throw new Response.json({message: "Előadó nélkül ne hozz létre albumot."}, {status: 401});
+      }
+
 
       let artistId=null;
-      if(album){
+      if(eloado!="" && !artistOptions.artists.includes(eloado)){
         const createArtist = await fetch(`http://${ip}/artists`, {
           method: 'POST',
           headers: {
@@ -204,17 +257,17 @@ export async function MusicAction({request}){
         });
         const createArtistData = await createArtist.json();
         artistId=createArtistData.id;
-      }else if(artistOptions.artists.includes(eloado)){
-        artistId=artistOptions.ids[artistOptions.artists.findIndex(eloado)];
+      }else{
+        artistId=artistOptions.ids[artistOptions.artists.findIndex((e)=>e==eloado)];
       }
 
       let albumId = null
-      if(album){
+      if(album != "" && !albumOptions.albums.includes(album)){
         let albumBody = {};
-        if(releaseDate){
+        if(releaseDate!=""){
           albumBody = {
             name: album,
-            releaseDate: releaseDate
+            releaseDate: parseInt(releaseDate)
           }
         }else{
           albumBody = {
@@ -233,7 +286,7 @@ export async function MusicAction({request}){
             body: formData
           });
           const uploadPicData = await uploadPic.json();
-          albumBody = {...albumBody, artistId: uploadPicData.id};
+          albumBody = {...albumBody, imageFileId: uploadPicData.id};
         }
         const createAlbum = await fetch(`http://${ip}/albums/`, {
           method: 'POST',
@@ -241,15 +294,15 @@ export async function MusicAction({request}){
             'Content-Type': 'application/json',
             'x-access-token': getAuthToken()
           },
-          body: JSON.stringify(albumBody)
+          body: JSON.stringify({...albumBody, artistId: artistId})
         });
         if(!createAlbum.ok){
           throw new Response.json({message: "Nem sikerült az album létrehozása"}, {status: 422});
         }
         const createAlbumData = await createAlbum.json();
         albumId=createAlbumData.id;
-      }else if(artistOptions.artists.includes(album)){
-        albumId = artistOptions.ids[artistOptions.artists.findIndex(album)]
+      }else{
+        albumId = albumOptions.ids[albumOptions.albums.findIndex((e)=>e==album)]
       }
 
       if(mode!="edit"){
@@ -266,17 +319,20 @@ export async function MusicAction({request}){
           musicBody={...musicBody, albumId: albumId}
         }
         const formData = new FormData();
-        formData.append("file", currentAlbumPicSetting);
+        formData.append("file", uploadedMusicFile);
         formData.append("userId", userData.id);
 
         const uploadMusic = await fetch(`http://${ip}/files/music`, {
           method: 'POST',
+          headers: {
+            'x-access-token': getAuthToken()
+          },
           body: formData
         });
         const uploadMusicData = await uploadMusic.json();
         musicBody = {...musicBody, musicFileId: uploadMusicData.id};
 
-        const createMusic = await fetch(`http://${ip}/musics/`, {
+        const createMusic = await fetch(`http://${ip}/musics`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -285,7 +341,16 @@ export async function MusicAction({request}){
           body: JSON.stringify(musicBody)
         });
         const createMusicData = await createMusic.json();
-        createMusicData.id
+        for(const selectedId of selectedPlaylists){
+          await fetch(`http://${ip}/playlists/addMusic`,{
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify({playlistId: selectedId, musicId: createMusicData.id})
+          })
+        }
       }else{
         /*
         if(Object.keys(bodyData).length > 0){
@@ -306,8 +371,13 @@ export async function MusicAction({request}){
         }
         */
       }
-      await loadPlaylist();
-      return redirect("/");
+      if(selectedPlaylists[0]){
+        await loadPlaylist(selectedPlaylists[0]);
+        return redirect(`/playlist?id=${selectedPlaylists[0]}`);
+      }else{
+        await loadPlaylists(userData.id);
+        return redirect("/");
+      }
     }catch(err){
         console.log(err.message);
     }

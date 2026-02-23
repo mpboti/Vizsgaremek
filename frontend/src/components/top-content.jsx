@@ -66,7 +66,7 @@ export default function TopContent() {
                     <div className="keresomezo">
                         <div className="keresokeret">
                             <Link to="/search" className="keresGomb"><img src={search} alt="kereses" className="topGombokImg" /></Link>
-                            <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown}></input>
+                            <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown} autoComplete="off" autoCorrect="off" spellCheck="false"/>
                         </div>
                     </div>
                 </div>

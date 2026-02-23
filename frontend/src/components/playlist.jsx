@@ -71,7 +71,7 @@ export default function Playlist() {
             megjelenes={item.megjelenes} 
             mufaj={item.mufaj}/>
           )}
-          {(isEdit || playlistData.musics.length==0)&&logedIn?<tr className="zeneSor addContaner" onClick={()=>{navigate("/addMusic?mode=create")}}><td className="addRow" colSpan={phone?4:6}><img className="addRowImg" src={add} alt="Hozzáadás" /></td></tr>:undefined}
+          {(isEdit || playlistData.musics.length==0)&&logedIn?<tr className="zeneSor addContaner" onClick={()=>{navigate(`/addMusic?mode=create&playlisId=${playlistData.id}`)}}><td className="addRow" colSpan={phone?4:6}><img className="addRowImg" src={add} alt="Hozzáadás" /></td></tr>:undefined}
         </tbody>
       </table>
     </div>

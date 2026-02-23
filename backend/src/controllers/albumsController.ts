@@ -48,9 +48,10 @@ export async function createAlbum(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try  {
-        const [results] = await conn.query("INSERT INTO albums (id, name, imageFilePath, artistId) VALUES (null, ?, ?, ?)", [album.name, album.imageUrl, album.artistId]);
+        const [results] = await conn.query("INSERT INTO albums (id, name, releaseDate, imageFilePath, artistId) VALUES (null, ?, ?, ?, ?)", [album.name, album.releaseDate, album.imageUrl, album.artistId]);
         res.status(201).json({ message: "Album created successfully.", id: results.insertId });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Internal server error." });
     }
     return;

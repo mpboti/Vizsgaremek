@@ -48,7 +48,7 @@ export default function Setting() {
       <Form method="post" className="settingForm">
         <h1>Beállítások</h1>
             <p>
-              <input id="username" type="text" name="username" placeholder="Felhasználó név" defaultValue={userData.name} required/>
+              <input id="username" type="text" name="username" placeholder="Felhasználó név" defaultValue={userData.name} required autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>
             <div className="rangeFlex">
               <p className="rangeCim">Zenék közti átfedés:</p>
@@ -59,13 +59,13 @@ export default function Setting() {
               </p>
             </div>
             <p>
-              <input id="email" type="email" name="email" placeholder="Email" defaultValue={userData.email} required/>
+              <input id="email" type="email" name="email" placeholder="Email" defaultValue={userData.email} required autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>
             <p>
-              <input id="password" type="password" name="password" placeholder="password"/>
+              <input id="password" type="password" name="password" placeholder="password" autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>
             <p>
-              <input id="newpassword" type="password" name="newpassword" placeholder="New password"/>
+              <input id="newpassword" type="password" name="newpassword" placeholder="New password" autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>
             <div className="justFlex">
               <div className="kepAlign">

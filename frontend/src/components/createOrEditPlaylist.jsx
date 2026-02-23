@@ -46,7 +46,7 @@ export default function CreateOrEditPlaylist(){
     <Form method="post" className="authForm">
       <h1>{!playlistId?"Lejátszási lista létrehozása":"Lejátszási lista szerkesztése"}</h1>
       <p>
-        <input type="text" name="playlistCim" placeholder="Lejátszási lista címe" defaultValue={playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).name:""} required />
+        <input type="text" name="playlistCim" placeholder="Lejátszási lista címe" defaultValue={playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).name:""} required/>
       </p>
       <p>
         <input ref={fileOpener} type="file" onChange={(e)=>openPic(true, e)} accept="image/*" style={{ display: "none" }}/>

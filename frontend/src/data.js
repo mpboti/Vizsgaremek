@@ -184,12 +184,14 @@ export async function loadArtistOptions(){
     try{
         const res = await fetch(`http://${ip}/artists`);
         const resData = await res.json();
-        for(var elem of resData){
-            artistOptions.artists.push(elem.name)
-            artistOptions.push(elem.id);
+        for(const elem of resData){
+            if(!artistOptions.ids.includes(elem.id)){
+                artistOptions.artists.push(elem.name)
+                artistOptions.ids.push(elem.id);
+            }
         } 
-    }catch{
-
+    }catch(err){
+        console.log(err)
     }
 }
 
@@ -199,13 +201,16 @@ export async function loadAlbumOptions(){
     try{
         const res = await fetch(`http://${ip}/albums`);
         const resData = await res.json();
-        for(var elem of resData){
-            albumOptions.albums.push(elem.name)
-            albumOptions.ids.push(elem.id);
+        for(const elem of resData){
+            if(!albumOptions.ids.includes(elem.id)){
+                albumOptions.albums.push(elem.name)
+                albumOptions.ids.push(elem.id);
+            }
         } 
-    }catch{
-
+    }catch(err){
+        console.log(err)
     }
+    console.log(albumOptions)
 }
 
 export let mufajOptions = [];
@@ -214,12 +219,12 @@ export async function loadMufajOptions(){
     try{
         const res = await fetch(`http://${ip}/musics`);
         const resData = await res.json();
-        for(var elem of resData){
+        for(const elem of resData){
             if(!mufajOptions.includes(elem.mufaj))
                 mufajOptions.push(elem.mufaj);
         }
-    }catch{
-
+    }catch(err){
+        console.log(err)
     }
 }
 
@@ -235,10 +240,11 @@ export async function loadPlaylistOptions(){
         });
         const resData = await res.json();
         for(const elem of resData){
-            playlistOptions.playlists.push(elem.name)
-            playlistOptions.ids.push(elem.id);
+            if(!playlistOptions.ids.includes(elem.id)){
+                playlistOptions.playlists.push(elem.name);
+                playlistOptions.ids.push(elem.id);
+            }
         } 
-        console.log(playlistOptions)
     }catch(err){
         console.log(err)
     }

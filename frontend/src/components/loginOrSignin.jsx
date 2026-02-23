@@ -11,13 +11,13 @@ export default function LoginOrSignin(){
             <h1>{isLogin ? 'Bejelentkezés' : 'Regisztráció'}</h1>
             {!isLogin &&
             <p>
-              <input id="username" type="text" name="username" placeholder="Felhasználó név" required />
+              <input id="username" type="text" name="username" placeholder="Felhasználó név" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>}
             <p>
-              <input id="email" type="email" name="email" placeholder="Email" required />
+              <input id="email" type="email" name="email" placeholder="Email" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>
             <p>
-              <input id="password" type="password" name="password" placeholder="Password" required />
+              <input id="password" type="password" name="password" placeholder="Password" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
             </p>
             <div>
               <Link to={`?mode=${isLogin ? 'signup' : 'login'}`} className="loginFormButton">

@@ -72,6 +72,7 @@ div.justFlex2{
 }
 
 div.numInputs{
+    position: relative;
     flex: 1;
     padding: 0;
     margin: 0;
@@ -82,6 +83,63 @@ div.numInputs{
 div.numInputs input{
     width: 100%;
     box-sizing: border-box;
+}
+
+button.lenyiloGomb{
+    font-size: 20px;
+    padding: 9px;
+    border-radius: 10px;
+    background-color: #1a1de3db;
+    border: none;
+    color: white;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+div.selection{
+    font-size: 20px;
+    background-color: #22237ecb;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    border-radius: 5px;
+    margin-top: 5px;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.labelElem{
+    display: flex;
+    padding: 8px;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: auto;
+    padding-right: auto;
+}
+
+.labelElem:hover{
+    background-color: #3133a8cb;
+}
+
+label.labelElem input{
+    width: 20px;
+    margin-left: 10px;
+}
+
+img.upDownImg{
+    height: 50px;
+    width: 50px;
+    margin-top: -10px;
+    margin-bottom: -20px;
 }
 
 Form.authForm{
@@ -198,8 +256,23 @@ Form div.rangeFlex p.rangeP{
     display: flex;
     justify-content: center;
     align-items: center;
-
 }
+Form div.downFlex{
+    position: relative;
+    width: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 0px;
+}
+Form div.downFlex input{
+    width: 100%;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
 
 @media screen and (max-width: 1300px){
     img.uploadAlbumCover{
@@ -214,6 +287,9 @@ Form div.rangeFlex p.rangeP{
     Form input, Form div.rangeFlex, div.justFlex, div.justFlex2{
         width: 60%;
     }
+    Form div.downFlex{
+        width: 60%;
+    }
 }
 
 @media screen and (max-width: 900px){
@@ -226,6 +302,9 @@ Form div.rangeFlex p.rangeP{
 
 @media screen and (max-width: 600px){
     Form input, Form div.rangeFlex, div.justFlex, div.justFlex2{
+        width: 90%;
+    }
+    Form div.downFlex{
         width: 90%;
     }
 }

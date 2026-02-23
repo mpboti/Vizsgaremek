@@ -5,7 +5,6 @@ export interface IMusicFile {
     path: string;
     size: number;
     mimeType: string;
-    userId: number;
 }
 
 export interface IMulterFile {
@@ -24,14 +23,12 @@ export class MusicFile implements IMusicFile {
     path: string;
     size: number;
     mimeType: string;
-    userId: number;
 
-    constructor(file: IMulterFile, userId: number) {
+    constructor(file: IMulterFile) {
         this.name = file.originalname;
         this.path = file.path;
         this.size = file.size;
         this.mimeType = file.mimetype;
-        this.userId = userId;
     }
 
     async saveToDatabase() {
@@ -39,8 +36,8 @@ export class MusicFile implements IMusicFile {
         try {
             await conn.beginTransaction();
             let [results] = await conn.query(
-                'INSERT INTO music_files (id, fileName, filePath, fileSize, mimeType, userId) VALUES (null, ?, ?, ?, ?, ?)',
-                [this.name, this.path, this.size, this.mimeType, this.userId]
+                'INSERT INTO music_files (id, fileName, filePath, fileSize, mimeType) VALUES (null, ?, ?, ?, ?)',
+                [this.name, this.path, this.size, this.mimeType]
             );
             if (results.affectedRows === 0) {
                 throw new Error("Failed to save music file to database.");
