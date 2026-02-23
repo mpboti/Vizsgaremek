@@ -27,6 +27,7 @@ export default function CreateOrEditMusic(){
   const [mufajInput, setMufajInput] = useState(mode=="itunes"?"asd":"");
   const [releaseInput, setReleaseInput] = useState(mode=="itunes"?"asd":"");
   const [urlInput, setUrlInput] = useState(mode=="itunes"?"asd":"");
+  const [albums, setAlbums] = useState(albumOptions);
   const picOpener = useRef();
   const fileOpener = useRef();
   const [img, setImg] = useState(musicId?musicData.albumPic:defaultMusicPic);
@@ -99,6 +100,27 @@ export default function CreateOrEditMusic(){
         setPlayPic(upload);
     }
   }
+  async function albumFiltering(artistId) {
+    try{
+      let tempAlbums = {ids: [], albums:[]};
+      const res = await fetch(`http://${ip}/albums`);
+      const resData = await res.json();
+      for(const elem of resData){
+        if(!tempAlbums.ids.includes(elem.id) && elem.artistId==artistId){
+          tempAlbums.albums.push(elem.name);
+          tempAlbums.ids.push(elem.id);
+        }
+      }
+      setAlbums(tempAlbums);
+    }catch(err){
+      console.log(err)
+    }
+    setAlbumInput("");
+    if(urlInput!="");
+      setImg(defaultMusicPic);
+    setUrlInput("");
+  }
+
   async function getAlbum(albumId){
     const res = await fetch(`http://${ip}/albums/${albumId}`);
     const resData = await res.json();
@@ -147,10 +169,10 @@ export default function CreateOrEditMusic(){
           <input type="text" name="cim" placeholder="Zene címe" defaultValue={mode=="itunes"?asd:""} required/>
         </p>
         <div className="downFlex">
-          <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true);}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+          <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true); setAlbums(albumOptions)}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openArtist ? {display: "none"} : {}}>
-            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist) => (
-              <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); }}>
+            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist, index) => (
+              <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[index])}}>
                 {artist}
               </div>
             ))}
@@ -160,8 +182,8 @@ export default function CreateOrEditMusic(){
         <div className="downFlex">
           <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true);}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openAlbum ? {display: "none"} : {}}>
-            {albumOptions.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
-              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false);getAlbum(albumOptions.ids[index]);}}>
+            {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
+              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false);getAlbum(albums.ids[index]);}}>
                 {album}
               </div>
             ))}

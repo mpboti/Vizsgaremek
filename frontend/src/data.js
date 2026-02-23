@@ -210,7 +210,6 @@ export async function loadAlbumOptions(){
     }catch(err){
         console.log(err)
     }
-    console.log(albumOptions)
 }
 
 export let mufajOptions = [];
