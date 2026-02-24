@@ -104,12 +104,12 @@ export default function Kereses(){
             Lejátszási Listák
           </button>
           <button className={selected === 2 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(true); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
+          onClick={() => {setIsUser(false); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
           setSelected(2); setMicroSelected(0);}}>
             Előadók
           </button>
           <button className={selected === 3 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(true); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
+          onClick={() => {setIsUser(false); setIsMusic(true); setIsItunes(false); setIsDifferent(true);
           setSelected(3); setMicroSelected(0);}}>
             Albumok
           </button>
@@ -152,17 +152,15 @@ export default function Kereses(){
           <tbody>
             {data.map((item, index) => 
               <RowGenerator 
-              key={index}
-              phone={phone}
-              kep={item.kep} 
-              cim={item.cim} 
-              eloado={item.eloado} 
-              album={item.album} 
-              megjelenes={item.megjelenes} 
-              mufaj={item.mufaj}
-              isItunes={isItunes}
-              id={item.id}
-              firstPlay={firstPlay}/>
+                key={index}
+                phone={phone}
+                kep={item.imageUrl} 
+                cim={item.name} 
+                eloado={item.artistName} 
+                album={item.albumName} 
+                megjelenes={item.releaseDate} 
+                mufaj={item.mufaj}
+              />
             )}
           </tbody>
         </table>

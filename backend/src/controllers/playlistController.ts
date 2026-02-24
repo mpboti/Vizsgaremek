@@ -240,3 +240,49 @@ export async function updatePlaylist(req: Request, res: Response) {
         return;
     }
 };
+
+export async function updatePlaylistPosition(req: Request, res: Response){
+    if(!req.body) {
+        return res.status(400).json({ message: "Request body is missing." });
+    }
+    const playlistId: number = parseInt(req.body.playlistId as string)
+    if (isNaN(playlistId)) {
+        return res.status(400).json({ message: "Invalid playlist id." });
+    }
+    const musicId: number = parseInt(req.body.musicId as string)
+    if (isNaN(musicId)) {
+        return res.status(400).json({ message: "Invalid music id." });
+    }
+    const newPos: number = parseInt(req.body.position as string)
+    if (isNaN(musicId)) {
+        return res.status(400).json({ message: "Invalid position." });
+    }
+
+    const conn = config.connection;
+    try {
+        const originalPos = conn.query("SELECT position FROM playlist_musics WHERE playlistId = ? AND musicId = ?", [playlistId, musicId])
+        if (newPos === originalPos){
+            res.status(404).json({ message: "The position is unchanged." })
+            return;
+        } if (newPos > originalPos){ // moving it backwards
+            const [updatees] = conn.query("SELECT * FROM playlist_music WHERE playlistId = ? AND position < ? AND position >= ?", [playlistId, newPos, originalPos]);
+            for (let i = 0; i < updatees.length; i++){
+                const updateeNewPos = updatees[i].position - 1;
+                conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [updateeNewPos, updatees[i].playlistId, updatees[i].musicId]);
+            }
+            conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [newPos, playlistId, musicId]);
+        } else { //moving it forwards
+            const [updatees] = conn.query("SELECT * FROM playlist_music WHERE playlistId = ? AND position > ? AND position <= ?", [playlistId, newPos, originalPos]);
+            for (let i = 0; i < updatees.length; i++){
+                const updateeNewPos = updatees[i].position + 1;
+                conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [updateeNewPos, updatees[i].playlistId, updatees[i].musicId]);
+            }
+            conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [newPos, playlistId, musicId]);
+        }
+        res.status(200).json({ message: "Playlist updated." })
+    } catch{
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+    return;
+}

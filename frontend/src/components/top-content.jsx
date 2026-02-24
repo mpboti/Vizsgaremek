@@ -11,7 +11,7 @@ import Player from "./player";
 import enter from '../assets/enter.png';
 
 export default function TopContent() {
-    const szoveg = useRef();
+    const szoveg = useRef("");
     const userData = getUserData();
 
     useEffect(()=>{
@@ -21,10 +21,13 @@ export default function TopContent() {
       }
     },[])
     
-    function GetText() {
-        if (0 < szoveg.current.value.length) {
-            return szoveg.current.value;
+    function getText() {
+        if(szoveg.current.value){
+            if (0 < szoveg.current.value.length) {
+                navigate(`/search?text=${szoveg.current.value}`);;
+            } 
         }
+        
     }
 
     const navigate = useNavigate();
@@ -38,7 +41,7 @@ export default function TopContent() {
 
     function keyDown(e){
         if(e.key==="Enter"){
-            navigate("/search");
+            navigate(`/search?text=${e.target.value}`);
         }
     }
 
@@ -65,7 +68,7 @@ export default function TopContent() {
                     </div>
                     <div className="keresomezo">
                         <div className="keresokeret">
-                            <Link to="/search" className="keresGomb"><img src={search} alt="kereses" className="topGombokImg" /></Link>
+                            <button onClick={getText} className="keresGomb"><img src={search} alt="kereses" className="topGombokImg" /></button>
                             <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown} autoComplete="off" autoCorrect="off" spellCheck="false"/>
                         </div>
                     </div>

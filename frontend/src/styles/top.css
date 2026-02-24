@@ -64,7 +64,7 @@ div.keresokeret{
 input.searchText{
     background-color: transparent;
     font-size: 25px;
-    width: 370px;
+    width: 360px;
     border: none;
     outline: none;
     vertical-align: top;
@@ -131,7 +131,7 @@ table{
     }
     input.searchText{
         font-size: 20px;
-        width: 210px;
+        width: 200px;
         padding-top: 9px;
     }
     div.keresokeret{

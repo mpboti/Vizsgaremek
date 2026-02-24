@@ -105,7 +105,7 @@ DELIMITER $$
 CREATE FUNCTION pwd_encrypt(pwd VARCHAR(100))
 RETURNS VARCHAR(255) DETERMINISTIC
 BEGIN
-    RETURN SHA2(CONCAT(pwd,'poopastinka'),256);
+    RETURN SHA2(CONCAT(pwd, 'poopastinka'),256);
 END $$
 
 /*We check if the email and password match*/

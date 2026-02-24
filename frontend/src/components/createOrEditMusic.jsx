@@ -121,6 +121,13 @@ export default function CreateOrEditMusic(){
     setUrlInput("");
   }
 
+  function clearAlbum(){
+    setReleaseInput("");
+    if(urlInput!="");
+      setImg(defaultMusicPic);
+    setUrlInput("");
+  }
+
   async function getAlbum(albumId){
     const res = await fetch(`http://${ip}/albums/${albumId}`);
     const resData = await res.json();
@@ -132,6 +139,11 @@ export default function CreateOrEditMusic(){
     }else if(resData.imageFileId!=null){
       const response = await fetch(`http://${ip}/files/image/${resData.imageFileId}`)
       setImg(`http://${ip}${(await response.json()).url}`);
+    }
+    if(resData.artistId!=null){
+      const artist = await fetch(`http://${ip}/artists/${resData.artistId}`);
+      const artistData = await artist.json();
+      setArtistInput(artistData.name);
     }
   }
 
@@ -166,10 +178,10 @@ export default function CreateOrEditMusic(){
       <Form method="post" className="settingForm">
         <h1>{mode=="create" || mode=="itunes"?"Zene létrehozása":"Zene módosítása"}</h1>
         <p>
-          <input type="text" name="cim" placeholder="Zene címe" defaultValue={mode=="itunes"?asd:""} required/>
+          <input type="text" name="cim" placeholder="Zene címe" defaultValue={mode=="itunes"?"asd":""} required/>
         </p>
         <div className="downFlex">
-          <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true); setAlbums(albumOptions)}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+          <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true); setAlbums(albumOptions);}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openArtist ? {display: "none"} : {}}>
             {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist, index) => (
               <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[index])}}>
@@ -180,10 +192,10 @@ export default function CreateOrEditMusic(){
         </div>
         <p/>
         <div className="downFlex">
-          <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true);}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+          <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true); clearAlbum()}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openAlbum ? {display: "none"} : {}}>
             {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
-              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false);getAlbum(albums.ids[index]);}}>
+              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albums.ids[index]);}}>
                 {album}
               </div>
             ))}
@@ -297,7 +309,7 @@ export async function MusicAction({request}){
           }
         }
         if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic){
-          albumBody = {...albumBody, imageUrl: currentAlbumPicUrl};
+          albumBody = {...albumBody, imageFilePath: currentAlbumPicUrl};
         }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic){
           const formData = new FormData();
           formData.append("file", currentAlbumPicSetting);
@@ -323,8 +335,50 @@ export async function MusicAction({request}){
         }
         const createAlbumData = await createAlbum.json();
         albumId=createAlbumData.id;
+      }else if(album != "" && albumOptions.albums.includes(album)){
+        albumId = albumOptions.ids[albumOptions.albums.findIndex((e)=>e==album)];
+        let isDifferent = false;
+        let albumBody = {};
+        const albumRes = await fetch(`http://${ip}/albums/${albumId}`)
+        const albumData = await albumRes.json();
+
+        if(releaseDate!="" && albumData.releaseDate == null){
+          albumBody = {
+            releaseDate: parseInt(releaseDate)
+          }
+          isDifferent=true;
+        }
+        if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic && albumData.imageFilePath == null){
+          albumBody = {...albumBody, imageFilePath: currentAlbumPicUrl};
+          isDifferent=true;
+        }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic && albumData.imageFileId == null){
+          const formData = new FormData();
+          formData.append("file", currentAlbumPicSetting);
+          formData.append("userId", userData.id);
+        
+          const uploadPic = await fetch(`http://${ip}/files/image`, {
+            method: 'POST',
+            body: formData
+          });
+          const uploadPicData = await uploadPic.json();
+          albumBody = {...albumBody, imageFileId: uploadPicData.id};
+          isDifferent = true;
+        }
+        if(isDifferent){
+          const editAlbum = await fetch(`http://${ip}/albums/${albumId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify(albumBody)
+          });
+          if(!editAlbum.ok){
+            throw new Response.json({message: "Nem sikerült az album módosítása"}, {status: 422});
+          }
+        }
       }else{
-        albumId = albumOptions.ids[albumOptions.albums.findIndex((e)=>e==album)]
+        albumId = albumOptions.ids[albumOptions.albums.findIndex((e)=>e==album)];
       }
 
       if(mode!="edit"){

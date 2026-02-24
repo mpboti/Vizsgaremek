@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { getAllPlaylists, getPlaylistById, createPlaylist, addMusicToPlaylist, removeMusicFromPlaylist, deletePlaylist, updatePlaylist, getPlaylistByUserId } from '../controllers/playlistController';
+import { getAllPlaylists, getPlaylistById, createPlaylist, addMusicToPlaylist, removeMusicFromPlaylist, deletePlaylist, updatePlaylist, getPlaylistByUserId, updatePlaylistPosition } from '../controllers/playlistController';
 import verifyToken from "../middleware/auth";
 
 const router: Router = express.Router();
@@ -11,6 +11,7 @@ router.post('/', verifyToken, createPlaylist);
 router.post('/addMusic', verifyToken, addMusicToPlaylist);
 router.delete('/removeMusic', verifyToken, removeMusicFromPlaylist);
 router.delete('/:id', verifyToken, deletePlaylist);
+router.put('/updateplaylistpos/:playlistId&:musicId&:newPos', verifyToken, updatePlaylistPosition)
 router.put('/:id', verifyToken, updatePlaylist);
 
 export default router;

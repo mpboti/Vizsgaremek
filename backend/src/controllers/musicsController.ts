@@ -24,15 +24,175 @@ export async function getMusicById(req: Request, res: Response) {
     if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid music ID." });
     }
-
+    
     const conn = await config.connection;
 
     try {
+        let ertek = {};
         const [results] = await conn.query("SELECT * FROM musics WHERE id = ?", [id]);
         if (results.length === 0) {
             return res.status(404).json({ message: "Music not found." });
         }
-        res.status(200).json(results[0]);
+        ertek={id: results[0].id, name: results[0].name, mufaj: results[0].mufaj}
+        if(results[0].artistId!=null){
+            const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", results[0].artistId);
+            if(results2.length == 0){
+                return res.status(404).json({ message: "Artist not found." });
+            }
+            ertek = {...ertek, artistName: results2[0].name};
+        }
+        if(results[0].albumId!=null){
+            const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", results[0].albumId);
+            if(results2.length == 0){
+                return res.status(404).json({ message: "Album not found." });
+            }
+            if(results2[0].imageFileId != null){
+                const [results3] = await conn.query("SELECT * FROM albums WHERE id = ?", results2[0].imageFileId);
+                if(results3[0] == 0){
+                    return res.status(404).json({ message: "Album pic not found." });
+                }
+                ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
+            }else if(results2[0].imageFilePath != null){
+                ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+            }else{
+                ertek = {...ertek, imageUrl: null};
+            }
+            ertek = {...ertek, albumName: results2[0].name};
+            ertek = {...ertek, releaseDate: results2[0].releaseDate};
+        }
+        const [results2] = await conn.query("SELECT fileName, mimeType, filePath FROM music_files WHERE id = ?", results[0].musicFileId);
+        if(results2.length == 0){
+            return res.status(404).json({ message: "Music file not found." });
+        }
+        ertek = {...ertek, musicUrl: (results2[0].filePath).slice(config.baseDir.length)}
+        res.status(200).json(ertek);
+        return;
+    } catch (error) {
+        console.error("Error fetching music:", error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+};
+
+export async function getMusicbyPlaylistId(req: Request, res: Response) {
+    const id: number = parseInt(req.params.id as string, 10);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid music ID." });
+    }
+    
+    const conn = await config.connection;
+
+    try {
+        const [resultsList] = await conn.query("SELECT position, musicId FROM playlist_musics WHERE playlistId = ?", [id]);
+        let ertekek = [];
+        for(const i of resultsList){
+            let ertek : any = {position: i.position};
+            const [results] = await conn.query("SELECT * FROM musics WHERE id = ?", [i.musicId]);
+            if (results.length === 0) {
+                return res.status(404).json({ message: "Music not found." });
+            }
+            ertek={id: results[0].id, name: results[0].name, mufaj: results[0].mufaj, uploaderId: results[0].uploaderId}
+            if(results[0].artistId!=null){
+                const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", results[0].artistId);
+                if(results2.length == 0){
+                    return res.status(404).json({ message: "Artist not found." });
+                }
+                ertek = {...ertek, artistName: results2[0].name};
+            }
+            if(results[0].albumId!=null){
+                const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", results[0].albumId);
+                if(results2.length == 0){
+                    return res.status(404).json({ message: "Album not found." });
+                }
+                if(results2[0].imageFileId != null){
+                    const [results3] = await conn.query("SELECT * FROM albums WHERE id = ?", results2[0].imageFileId);
+                    if(results3[0] == 0){
+                        return res.status(404).json({ message: "Album pic not found." });
+                    }
+                    ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
+                }else if(results2[0].imageFilePath != null){
+                    ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+                }else{
+                    ertek = {...ertek, imageUrl: null};
+                }
+                ertek = {...ertek, albumName: results2[0].name};
+                ertek = {...ertek, releaseDate: results2[0].releaseDate};
+            }
+            const [results2] = await conn.query("SELECT fileName, mimeType, filePath FROM music_files WHERE id = ?", results[0].musicFileId);
+            if(results2.length == 0){
+                return res.status(404).json({ message: "Music file not found." });
+            }
+            ertek = {...ertek, musicUrl: (results2[0].filePath).slice(config.baseDir.length)}
+            ertekek.push(ertek);
+        }
+        if (ertekek.length === 0){
+            res.status(404).json({ message: "No musics found." })
+        }
+        ertekek = ertekek.sort((a, b) => a.position - b.position)
+        res.status(200).json(ertekek);
+        return;
+    } catch (error) {
+        console.error("Error fetching music:", error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+};
+
+export async function getMusicByUserId(req: Request, res: Response) {
+    const id: number = parseInt(req.params.id as string, 10);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid music ID." });
+    }
+    
+    const conn = await config.connection;
+
+    try {
+        const [resultsList] = await conn.query("SELECT * FROM musics WHERE uploaderId = ?", [id]);
+        if (resultsList.length === 0) {
+            return res.status(404).json({ message: "Music not found." });
+        }
+        let ertekek = [];
+        for(const i of resultsList){
+            let ertek = {};
+            
+            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId}
+            if(i.artistId!=null){
+                const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
+                if(results2.length == 0){
+                    return res.status(404).json({ message: "Artist not found." });
+                }
+                ertek = {...ertek, artistName: results2[0].name};
+            }
+            if(i.albumId!=null){
+                const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", i.albumId);
+                if(results2.length == 0){
+                    return res.status(404).json({ message: "Album not found." });
+                }
+                if(results2[0].imageFileId != null){
+                    const [results3] = await conn.query("SELECT * FROM albums WHERE id = ?", results2[0].imageFileId);
+                    if(results3[0] == 0){
+                        return res.status(404).json({ message: "Album pic not found." });
+                    }
+                    ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
+                }else if(results2[0].imageFilePath != null){
+                    ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+                }else{
+                    ertek = {...ertek, imageUrl: null};
+                }
+                ertek = {...ertek, albumName: results2[0].name};
+                ertek = {...ertek, releaseDate: results2[0].releaseDate};
+            }
+            const [results2] = await conn.query("SELECT fileName, mimeType, filePath FROM music_files WHERE id = ?", i.musicFileId);
+            if(results2.length == 0){
+                return res.status(404).json({ message: "Music file not found." });
+            }
+            ertek = {...ertek, musicUrl: (results2[0].filePath).slice(config.baseDir.length)}
+            ertekek.push(ertek);
+        }
+        if (ertekek.length === 0){
+            res.status(404).json({ message: "No musics found." })
+        }
+        res.status(200).json(ertekek);
         return;
     } catch (error) {
         console.error("Error fetching music:", error);

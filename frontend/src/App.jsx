@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import './App.css';
 import TopContent from "./components/top-content";
-import MainPage from "./components/MainPage";
+import MainPage, { mainPageLoader } from "./components/MainPage";
 import Playlist, { PlaylistLoader } from "./components/playlist";
 import Kereses from "./components/kereses";
 import ErrorNotFound from "./basics/ErrorNotFound";
@@ -15,7 +15,7 @@ function App() {
   const router = createBrowserRouter([
     {path: "/", element: <TopContent />, errorElement: <ErrorNotFound/>,
     children: [
-      {path: "/", element: <MainPage />},
+      {path: "/", element: <MainPage />, loader: mainPageLoader},
       {path: "/playlist", element: <Playlist />, loader: PlaylistLoader},
       {path: "/search", element: <Kereses />},
       {path: "/auth", element: <LoginOrSignin />, action: LoginAction},

@@ -63,7 +63,7 @@ td.albumCover{
 td.gombok{
     text-align: right;
     padding-right: 20px;
-    width: 380px;
+    width: fit-content;
 }
 
 img.zeneGombokImg{
@@ -133,7 +133,6 @@ th{
 @media screen and (max-width: 1300px){
     td.gombok{
         text-align: right;
-        width: 210px;
         padding-right: 10px;
         margin: 10px;
     }
@@ -252,9 +251,6 @@ th{
         flex-direction: column;
         align-items: center;
         text-align: center;
-    }
-    td.gombok{
-        width: 90px;
     }
     .lenyilo{
         border-radius: 7px;

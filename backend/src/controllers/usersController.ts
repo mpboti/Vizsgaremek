@@ -170,9 +170,7 @@ export async function updateUser(req: Request, res: Response) {
 
     const updateString = keys.map(key => {if(user[key]!=null && user[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
     const values = keys.map(key => {if(user[key]!=null && user[key]!="") return user[key]; else return null;}).filter(value => value !== null);
-    values.push(id); // For WHERE clause
-    console.log("Update string: ", updateString);
-    console.log(req.body);
+    values.push(id);
     const conn = await config.connection;
     try {
         if(updateString.includes("pwd = ?")){

@@ -268,8 +268,48 @@ export function getMusicsData(){
     return musicsData;
 }
 
-export async function loadMusicsDataByPlaylistId(playlistId){
+export async function loadMusicsByPlaylistId(playlistId){
+    musicsData=[];
+    try{
+        const res = await fetch(`http://${ip}/musics/byplaylistid/${playlistId}`);
+        const resData = await res.json(res);
+        for(const elem of resData){
+            if(!musicsData.includes(elem.musicId)){
+                musicsData.push(elem);
+            }
+        }
+    }catch(err){
+        console.log(err);
+    }
+    const lattukMar = new Set();
+    musicsData = musicsData.filter(obj => {
+      const dupla = lattukMar.has(obj.id);
+      lattukMar.add(obj.id);
+      return !dupla;
+    });
+}
 
+export async function loadMusicsByUserId(userId){
+    musicsData=[];
+    try{
+        const res = await fetch(`http://${ip}/musics/byuserid/${userId}`);
+        const resData = await res.json(res);
+        let i=0
+        for(const elem of resData){
+            if(!musicsData.includes(elem.musicId)){
+                i++
+                musicsData.push({...elem, position: i});
+            }
+        }
+    }catch(err){
+        console.log(err);
+    }
+    const lattukMar = new Set();
+    musicsData = musicsData.filter(obj => {
+      const dupla = lattukMar.has(obj.id);
+      lattukMar.add(obj.id);
+      return !dupla;
+    });
 }
 
 export let currentMusicData = null;

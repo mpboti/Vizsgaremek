@@ -2,7 +2,7 @@ import { useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
-import { getMusicsData, getPlaylistData, getUserData, ip, loadMusicsDataByPlaylistId, loadPlaylist, loadPlaylists, logedIn } from '../data'
+import { getMusicsData, getPlaylistData, getUserData, loadPlaylist, logedIn, loadMusicsByPlaylistId } from '../data'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import pencil from "../assets/pencil.png"
 import repeat from "../assets/repeat.png"
@@ -12,11 +12,14 @@ import add from "../assets/add.png"
 
 export default function Playlist() {
   const [searchParams] = useSearchParams();
+  const playlistId = searchParams.get("id");
   const userData = getUserData();
   const playlistData = getPlaylistData();
   const musicsData = getMusicsData();
   const [isEdit, setIsEdit] = useState(false);
   const navigate = useNavigate();
+  if(playlistId!=playlistData.id)
+    navigate("/");
 
   const [phone, setPhone] = useState(false);
   function sizer(){
@@ -64,11 +67,11 @@ export default function Playlist() {
             <RowGenerator 
             key={index}
             phone={phone}
-            kep={item.kep} 
-            cim={item.cim} 
-            eloado={item.eloado} 
-            album={item.album} 
-            megjelenes={item.megjelenes} 
+            kep={item.imageUrl} 
+            cim={item.name} 
+            eloado={item.artistName} 
+            album={item.albumName} 
+            megjelenes={item.releaseDate} 
             mufaj={item.mufaj}/>
           )}
           {(isEdit || playlistData.musics.length==0)&&logedIn?<tr className="zeneSor addContaner" onClick={()=>{navigate(`/addMusic?mode=create&playlisId=${playlistData.id}`)}}><td className="addRow" colSpan={phone?4:6}><img className="addRowImg" src={add} alt="Hozzáadás" /></td></tr>:undefined}
@@ -81,5 +84,5 @@ export default function Playlist() {
 export async function PlaylistLoader({request}){
   const playlistId = new URL(request.url).searchParams.get("id")
   await loadPlaylist(playlistId);
-  await loadMusicsDataByPlaylistId(playlistId);
+  await loadMusicsByPlaylistId(playlistId);
 }
