@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Form, redirect, useSearchParams } from "react-router-dom";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
 import upload from "../assets/upload.png"
@@ -7,7 +7,7 @@ import pause from "../assets/pause.png"
 import del from "../assets/bin.png"
 import up from "../assets/up.png"
 import down from "../assets/down.png"
-import { getUserData, logout, ip, setCurrentAlbumPicSetting, getMusicsData, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions } from "../data";
+import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function CreateOrEditMusic(){
@@ -15,22 +15,23 @@ export default function CreateOrEditMusic(){
   const mode = searchParams.get("mode");
   const musicId = searchParams.get("id");
   const playlistId = searchParams.get("playlisId") || -1;
-  const musicData = getMusicsData().find(elem=>elem.id==musicId);
+
+  const musicData = currentMusicData;
   const [mus, setMus] = useState(null);
   const [playPic, setPlayPic] = useState(upload);
   const [openArtist, setOpenArtist] = useState(false);
   const [openAlbum, setOpenAlbum] = useState(false);
   const [openPlaylist, setOpenPlaylist] = useState(false);
   const [openMufaj, setOpenMufaj] = useState(false);
-  const [artistInput, setArtistInput] = useState(mode=="itunes"?"asd":"");
-  const [albumInput, setAlbumInput] = useState(mode=="itunes"?"asd":"");
-  const [mufajInput, setMufajInput] = useState(mode=="itunes"?"asd":"");
-  const [releaseInput, setReleaseInput] = useState(mode=="itunes"?"asd":"");
-  const [urlInput, setUrlInput] = useState(mode=="itunes"?"asd":"");
+  const [artistInput, setArtistInput] = useState((mode=="itunes" || mode=="edit") && musicData.artistName?musicData.artistName:"");
+  const [albumInput, setAlbumInput] = useState((mode=="itunes" || mode=="edit") && musicData.albumName?musicData.albumName:"");
+  const [mufajInput, setMufajInput] = useState((mode=="itunes" || mode=="edit") && musicData.mufaj?musicData.mufaj:"");
+  const [releaseInput, setReleaseInput] = useState((mode=="itunes" || mode=="edit") && musicData.releaseDate?musicData.releaseDate:"");
+  const [urlInput, setUrlInput] = useState((mode=="itunes" || mode=="edit") && musicData.imageUrl?musicData.imageUrl:"");
   const [albums, setAlbums] = useState(albumOptions);
   const picOpener = useRef();
   const fileOpener = useRef();
-  const [img, setImg] = useState(musicId?musicData.albumPic:defaultMusicPic);
+  const [img, setImg] = useState(musicId && musicData.imageUrl?musicData.imageUrl:defaultMusicPic);
 
   async function openPic(isFinal, e){
     if(!isFinal){
@@ -151,17 +152,13 @@ export default function CreateOrEditMusic(){
     const confirmed = window.confirm("Biztos törölni akarod a zenét?");
     if (!confirmed)
       return;
-    /*
-    if(playlistData?.listaPicId != null && playlistId){
-      console.log(playlistData.listaPicId)
-      await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
-        method:"DELETE",
-        headers:{
-          'x-access-token': getAuthToken()
-        }
-      })
-    }
-    await fetch(`http://${ip}/playlists/${playlistId}`, {
+    await fetch(`http://${ip}/files/music/${musicId}`, {
+      method:"DELETE",
+      headers:{
+        'x-access-token': getAuthToken()
+      }
+    });
+    await fetch(`http://${ip}/musics/${playlistId}`, {
       method:"DELETE",
       headers:{
         'Content-Type': 'application/json',
@@ -169,22 +166,20 @@ export default function CreateOrEditMusic(){
       },
       body: JSON.stringify({userId: localStorage.getItem("userId")})
     });
-    loadPlaylists(getUserData().id);
-    window.location.href = "/";
-    */
+    window.location.href = parseInt(playlistId)==-1?"/":`/playlist?id=${playlistId}`;
   }
   return(
     <div className="settingPage">
       <Form method="post" className="settingForm">
         <h1>{mode=="create" || mode=="itunes"?"Zene létrehozása":"Zene módosítása"}</h1>
         <p>
-          <input type="text" name="cim" placeholder="Zene címe" defaultValue={mode=="itunes"?"asd":""} required/>
+          <input type="text" name="cim" placeholder="Zene címe" defaultValue={(mode=="itunes" || mode=="edit") && musicData.name?musicData.name:""} required/>
         </p>
         <div className="downFlex">
           <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true); setAlbums(albumOptions);}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openArtist ? {display: "none"} : {}}>
-            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist, index) => (
-              <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[index])}}>
+            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist) => (
+              <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[artistOptions.artists.indexOf(artist)])}}>
                 {artist}
               </div>
             ))}
@@ -194,8 +189,8 @@ export default function CreateOrEditMusic(){
         <div className="downFlex">
           <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true); clearAlbum()}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openAlbum ? {display: "none"} : {}}>
-            {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
-              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albums.ids[index]);}}>
+            {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album) => (
+              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albumOptions.ids[albumOptions.albums.indexOf(album)]);}}>
                 {album}
               </div>
             ))}
@@ -211,7 +206,7 @@ export default function CreateOrEditMusic(){
             <div className="selection" style={!openPlaylist ? {display: "none"} : {}}>
               {playlistOptions.ids.map((option, index) => (
                 <label key={option} className="labelElem">
-                  <input type="checkbox" name="playlists" value={option} defaultChecked={option==playlistId}/>
+                  <input type="checkbox" name="playlists" value={option} defaultChecked={mode=="edit"?checkedPlaylistOptions.ids[checkedPlaylistOptions.ids.indexOf(option)]==option:option==playlistId}/>
                   {playlistOptions.playlists[index]}
                 </label>
               ))}
@@ -238,7 +233,8 @@ export default function CreateOrEditMusic(){
             <img src={img} className="uploads" onClick={(e)=>openPic(false, e)}/>
           </div>
           <div className="kepAlign">
-            <input ref={fileOpener} type="file" name="file" id="file" onChange={(e)=>openFile(true, e)} accept="audio/*" style={{ display: "none" }} required/>
+            {mode=="edit"?<input ref={fileOpener} type="file" name="file" id="file" onChange={(e)=>openFile(true, e)} accept="audio/*" style={{ display: "none" }} />:
+            <input ref={fileOpener} type="file" name="file" id="file" onChange={(e)=>openFile(true, e)} accept="audio/*" style={{ display: "none" }} required/>}
             <img src={playPic} className="uploads" onClick={(e)=>fileChecker(e)}/>
           </div>
         </div>
@@ -385,13 +381,13 @@ export async function MusicAction({request}){
         if(!uploadedMusicFile)
           throw new Response.json({message: "Tölts fel filet!"}, {status: 401})
         let musicBody={name: cim, uploaderId: userData.id}
-        if(mufaj){
+        if(mufaj!=""){
           musicBody={...musicBody, mufaj: mufaj}
         }
-        if(artistId){
+        if(artistId!=null){
           musicBody={...musicBody, artistId: artistId}
         }
-        if(albumId){
+        if(albumId!=null){
           musicBody={...musicBody, albumId: albumId}
         }
         const formData = new FormData();
@@ -428,24 +424,94 @@ export async function MusicAction({request}){
           })
         }
       }else{
-        /*
-        if(Object.keys(bodyData).length > 0){
-          const res = await fetch(`http://${ip}/users/${userData.id}`, {
+        const searchParams = new URL(request.url).searchParams
+        let updateBody={name: cim, uploaderId: userData.id};
+        const playlists = await fetch(`http://${ip}/playlists/getPlaylistsByIds`,{
+          method:"POST",
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': getAuthToken()
+          },
+          body: JSON.stringify({userId: searchParams.get("userId"), musicId: searchParams.get("id")})
+        })
+        const resData1 = await playlists.json();
+        const tomb = resData1.playlists.map((elem)=>elem.id)
+        if(resData1.isThere){
+          for(const selectedId of playlistOptions.ids){
+            if(selectedPlaylists.includes(selectedId) && !tomb.includes(selectedId)){
+              await fetch(`http://${ip}/playlists/addMusic`,{
+                method: "POST",
+                headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': getAuthToken()
+                },
+                body: JSON.stringify({playlistId: selectedId, musicId: searchParams.get("id")})
+              })
+            }else if(!selectedPlaylists.includes(selectedId) && tomb.includes(selectedId)){
+              await fetch(`http://${ip}/playlists/removeMusic`,{
+                method: "DELETE",
+                headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': getAuthToken()
+                },
+                body: JSON.stringify({playlistId: selectedId, musicId: searchParams.get("id")})
+              })
+            }
+          }
+        }else{
+          for(const selectedId of selectedPlaylists){
+            await fetch(`http://${ip}/playlists/addMusic`,{
+              method: "POST",
+              headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+              },
+              body: JSON.stringify({playlistId: selectedId, musicId: searchParams.get("id")})
+            })
+          }
+        }
+        if(uploadedMusicFile!=null){
+          await fetch(`http://${ip}/files/music/${searchParams.get("id")}`, {
+            method:"DELETE",
+            headers:{
+              'x-access-token': getAuthToken()
+            }
+          });
+
+          const formData = new FormData();
+          formData.append("file", uploadedMusicFile);
+          formData.append("userId", userData.id);
+
+          const uploadMusic = await fetch(`http://${ip}/files/music`, {
+            method: 'POST',
+            headers: {
+              'x-access-token': getAuthToken()
+            },
+            body: formData
+          });
+          const uploadMusicData = await uploadMusic.json();
+          updateBody = {...updateBody, musicFileId: uploadMusicData.id};
+        }
+        
+        if(mufaj!=""){
+          updateBody={...updateBody, mufaj: mufaj}
+        }
+        if(artistId!=null){
+          updateBody={...updateBody, artistId: artistId}
+        }
+        if(albumId!=null){
+          updateBody={...updateBody, albumId: albumId}
+        }
+        if(Object.keys(updateBody).length > 0){
+          const res = await fetch(`http://${ip}/musics/${searchParams.get("id")}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               'x-access-token': getAuthToken()
             },
-            body: JSON.stringify(bodyData)
+            body: JSON.stringify(updateBody)
           });
-          if(res.status == 200){
-            await loadData();
-          }else{
-            const err = await res.json();
-            throw new Response.json(err, {status: res.status});
-          }
         }
-        */
       }
       if(selectedPlaylists[0]){
         await loadPlaylist(selectedPlaylists[0]);
@@ -460,17 +526,27 @@ export async function MusicAction({request}){
 }
 
 export async function MusicAddLoader({request}){
-    const token = getAuthToken();
-    if(!token || token == "EXPIRED"){
-      logout();
-    }
-    const params = new URL(request.url).searchParams
-    const mode = params.get("mode")
-    if(mode=="itunes" || mode=="edit"){
-      await loadCurrentMusicData(params.get("id"))
-    }
-    await loadArtistOptions();
-    await loadAlbumOptions();
-    await loadMufajOptions();
-    await loadPlaylistOptions();
+  //uploadedMusicFile=null;
+  const userData = getUserData()
+  const token = getAuthToken();
+  if(!token || token == "EXPIRED"){
+    logout();
+  }
+  const searchParams = new URL(request.url).searchParams
+  if(searchParams.get("userId")!=undefined && searchParams.get("userId")!=userData.id){
+    window.location.href = "/";
+  }
+  const mode = searchParams.get("mode")
+  if(mode=="itunes"){
+    await loadCurrentMusicData(searchParams.get("id"))
+  }else if(mode=="edit"){
+    if(searchParams.get("userId")==undefined)
+      window.location.href = "/";
+    await loadCurrentMusicData(searchParams.get("id"))
+    await loadCheckedPlaylists(searchParams.get("userId"), searchParams.get("id"))
+  }
+  await loadArtistOptions();
+  await loadAlbumOptions();
+  await loadMufajOptions();
+  await loadPlaylistOptions();
 }

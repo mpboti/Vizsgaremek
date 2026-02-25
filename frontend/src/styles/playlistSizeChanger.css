@@ -73,13 +73,6 @@ img.zeneGombokImg{
     border-radius: 10px;
 }
 
-img.zeneGombokImgk{
-    width: 50px;
-    height: 50px;
-    padding: 7px;
-    border-radius: 10px;
-}
-
 img.zeneAlbumCover{
     width: 100px;   
     height: 100px;
@@ -132,7 +125,6 @@ th{
 
 @media screen and (max-width: 1300px){
     td.gombok{
-        text-align: right;
         padding-right: 10px;
         margin: 10px;
     }
@@ -165,6 +157,9 @@ th{
         font-size: 12px;
         padding-bottom: 0px;
         margin-bottom: 0px;
+    }
+    td.mufaj p, td.megjelenes p, td.album p{
+        font-size: 15px;
     }
     p.cimClass{
         font-size: 15px;
@@ -258,7 +253,7 @@ th{
         position: absolute;
         right: 32px;
     }
-    img.zeneGombokImgk{
+    img.zeneGombokImg{
         width: 25px;
         height: 25px;
         margin-left: -5px;

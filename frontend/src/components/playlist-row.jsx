@@ -6,8 +6,12 @@ import add from "../assets/add.png"
 import list from "../assets/list.png"
 import play from "../assets/play.png"
 import defaultMusicPic from "../assets/defaultMusicPic.PNG"
+import pencil from "../assets/pencil.png"
+import { useNavigate } from 'react-router-dom'
 
-export default function RowGenerator({phone, kep, cim, eloado, album, megjelenes, mufaj}){
+export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
+    const navigate = useNavigate();
+
     const [lenyil, setLenyil] = useState(false)
     function sizeClose(){
         setLenyil(false)
@@ -30,11 +34,11 @@ export default function RowGenerator({phone, kep, cim, eloado, album, megjelenes
                         <button onClick={()=>setLenyil(false)} className="zeneGombok"><img src={dots} alt="menu" className="zeneGombokImg"/></button>
                         <button className="zeneGombok" id="play"><img src={play} alt="lejátszás" className="zeneGombokImg"/></button><br/>
                         <div className="lenyilo">
-                            <button className="zeneGombok" id="download" onClick={()=>setLenyil(false)}><img src={download} alt="letöltés" className="zeneGombokImgk"/></button>
-                            <button className="zeneGombok" id="download" onClick={()=>setLenyil(false)}><img src={download} alt="letöltés" className="zeneGombokImgk"/></button>
-                            <button className="zeneGombok" id="report" onClick={()=>setLenyil(false)}><img src={report} alt="jelentés" className="zeneGombokImgk"/></button>
-                            <button className="zeneGombok" id="add" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImgk"/></button>
-                            <button className="zeneGombok" id="list" onClick={()=>setLenyil(false)}><img src={list} alt="műsorra fűzés" className="zeneGombokImgk"/></button>
+                            <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>
+                            <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>
+                            <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>
+                            <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>
+                            <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                         </div>
                     </td>
                 }
@@ -51,14 +55,14 @@ export default function RowGenerator({phone, kep, cim, eloado, album, megjelenes
                 </td>
                 <td className="album"><p>{album}</p></td>
                 <td className="megjelenes"><p>{megjelenes}</p></td>
-                <td className="mufaj"><p>{mufaj}</p></td>
+                <td className="mufaj"><p>{mufaj.substring(0,15)}</p></td>
                 <td className="gombok">
-                    <button className="zeneGombok" id="download"><img src={download} alt="letöltés" className="zeneGombokImg"/></button>
-                    <button className="zeneGombok" id="download"><img src={download} alt="letöltés" className="zeneGombokImg"/></button>
-                    <button className="zeneGombok" id="report"><img src={report} alt="jelentés" className="zeneGombokImg"/></button>
-                    <button className="zeneGombok" id="add"><img src={add} alt="listához adás" className="zeneGombokImg"/></button>
-                    <button className="zeneGombok" id="list"><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
-                    <button className="zeneGombok" id="play"><img src={play} alt="lejátszás" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" onClick={()=>navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" ><img src={download} alt="letöltés" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" ><img src={report} alt="jelentés" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" ><img src={add} alt="listához adás" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" ><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" ><img src={play} alt="lejátszás" className="zeneGombokImg"/></button>
                 </td>
             </tr>
         );

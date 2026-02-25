@@ -76,7 +76,7 @@ export function logout(){
   clearUserData();
   playlistsData=[];
   window.location.href = "/";
-  //Navigate("/");
+  //navigate("/");
 }
 
 //playlists betöltés és egyéb dolgai
@@ -249,23 +249,41 @@ export async function loadPlaylistOptions(){
     }
 }
 
+export let checkedPlaylistOptions = {ids: [], playlists:[]};
+export async function loadCheckedPlaylists(userId, musicId){
+    checkedPlaylistOptions = {ids: [], playlists:[]};
+    try{
+        const playlists = await fetch(`http://${ip}/playlists/getPlaylistsByIds`,{
+            method:"POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify({userId: userId, musicId: musicId})
+        })
+        const resData = await playlists.json();
+        for(const elem of resData.playlists){
+            if(!checkedPlaylistOptions.ids.includes(elem.id)){
+                checkedPlaylistOptions.playlists.push(elem.name);
+                checkedPlaylistOptions.ids.push(elem.id);
+            }
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
 
 //a zenék betöltése
-/*
-{
-    kep:"https://i.scdn.co/image/ab67616d00001e02bf01be99811cc56b3ef90fb7",
-    cim:"asszonygyilkosság",
-    eloado:"csaknekedkislány",
-    album:"na ná babám",
-    megjelenes:2015,
-    mufaj:"Rock"
-},
-*/
-
-
 export let musicsData = [];
 export function getMusicsData(){
     return musicsData;
+}
+
+export let currentMusicData = {};
+export async function loadCurrentMusicData(id){
+    const res = await fetch(`http://${ip}/musics/${id}`)
+    const resData = await res.json();
+    currentMusicData = resData;
 }
 
 export async function loadMusicsByPlaylistId(playlistId){
@@ -312,9 +330,6 @@ export async function loadMusicsByUserId(userId){
     });
 }
 
-export let currentMusicData = null;
-export async function loadCurrentMusicData(id){
-    currentMusicData = musicsData[id]
-}
+
 await loadData();
 await loadPlaylists(userData.id);

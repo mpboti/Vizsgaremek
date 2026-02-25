@@ -289,15 +289,15 @@ export async function updateMusic(req: Request, res: Response) {
     
     const body = req.body as Partial<IMusic>;
     const music: any = new Music(body as IMusic);
-    const allowedFields = ["name", "albumId", "artistId", "musicFileId", "uploaderId"];
+    const allowedFields = ["name", "albumId", "artistId", "musicFileId", "uploaderId", "mufaj"];
     const keys = Object.keys(body).filter(key => allowedFields.includes(key));
 
     if (keys.length === 0) {
         return res.status(400).json({ message: "No valid fields to update." });
     }
 
-    const updateString = keys.map(key => `${key} = ?`).join(", ");
-    const values = keys.map(key => (music)[key]);
+    const updateString = keys.map(key => {if(music[key]!=null && music[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
+    const values = keys.map(key => {if(music[key]!=null && music[key]!="") return music[key]; else return null;}).filter(value => value !== null);
     values.push(id);
 
     const conn = await config.connection;

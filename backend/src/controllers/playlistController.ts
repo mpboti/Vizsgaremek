@@ -88,6 +88,34 @@ export async function getPlaylistById(req: Request, res: Response) {
     return;
 };
 
+export async function getPlaylistsByUserIdAndMusicId(req: Request, res: Response) {
+    const userId: number = parseInt(req.body.userId as string);
+    const musicId: number = parseInt(req.body.musicId as string);
+    if (isNaN(userId) || isNaN(musicId)) {
+        return res.status(400).json({ message: "Invalid playlist ID or music ID." });
+    }
+    const conn = await config.connection;
+    try  {
+        const [results] = await conn.query("SELECT id, name FROM playlists WHERE ownerId = ?", [userId]);
+        if (results.length === 0) {
+            res.status(200).json({isThere: false});
+            return;
+        }
+        let ertekek : any = {isThere: true, playlists: []}
+        for(const elem of results){
+            const [results] = await conn.query("SELECT playlistId FROM playlist_musics WHERE playlistId = ? AND musicId = ?", [elem.id, musicId]);
+            if (results.length > 0) {
+                ertekek.playlists.push({id: elem.id, name: elem.name})
+            }
+        }
+        res.status(200).json(ertekek);
+        return;
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+};
+
 export async function createPlaylist(req: Request, res: Response) {
     if(!req.body) {
         return res.status(400).json({ message: "Request body is missing." });
@@ -149,8 +177,8 @@ export async function addMusicToPlaylist(req: Request, res: Response) {
 };
 
 export async function removeMusicFromPlaylist(req: Request, res: Response) {
-    const playlistId: number = parseInt(req.params.playlistId as string);
-    const musicId: number = parseInt(req.params.musicId as string);
+    const playlistId: number = parseInt(req.body.playlistId as string);
+    const musicId: number = parseInt(req.body.musicId as string);
     if (isNaN(playlistId) || isNaN(musicId)) {
         return res.status(400).json({ message: "Invalid playlist ID or music ID." });
     }
@@ -266,27 +294,27 @@ export async function updatePlaylistPosition(req: Request, res: Response){
             return;
         } if (newPos > originalPos){ // moving it backwards
             const [updatees] = conn.query("SELECT * FROM playlist_music WHERE playlistId = ? AND position < ? AND position >= ?", [playlistId, newPos, originalPos]);
-            conn.query("BEGIN TRAN")
+            conn.query("BEGIN TRAN");
             for (let i = 0; i < updatees.length; i++){
                 const updateeNewPos = updatees[i].position - 1;
                 conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [updateeNewPos, updatees[i].playlistId, updatees[i].musicId]);
             }
             conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [newPos, playlistId, musicId]);
-            conn.query("COMMIT TRAN")
+            conn.query("COMMIT TRAN");
         } else { //moving it forwards
             const [updatees] = conn.query("SELECT * FROM playlist_music WHERE playlistId = ? AND position > ? AND position <= ?", [playlistId, newPos, originalPos]);
-            conn.query("BEGIN TRAN")
+            conn.query("BEGIN TRAN");
             for (let i = 0; i < updatees.length; i++){
                 const updateeNewPos = updatees[i].position + 1;
                 conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [updateeNewPos, updatees[i].playlistId, updatees[i].musicId]);
             }
             conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [newPos, playlistId, musicId]);
-            conn.query("COMMIT TRAN")
+            conn.query("COMMIT TRAN");
         }
         res.status(200).json({ message: "Playlist updated." })
     } catch{
         res.status(500).json({ message: "Internal server error." });
-        conn.query("ROLLBACK TRAN")
+        conn.query("ROLLBACK TRAN");
     }
     return;
 }

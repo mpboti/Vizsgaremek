@@ -66,6 +66,8 @@ export default function Playlist() {
           musicsData.map((item, index) => 
             <RowGenerator 
             key={index}
+            id={item.id}
+            userId={item.uploaderId}
             phone={phone}
             kep={item.imageUrl} 
             cim={item.name} 
