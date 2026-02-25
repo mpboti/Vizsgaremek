@@ -266,23 +266,27 @@ export async function updatePlaylistPosition(req: Request, res: Response){
             return;
         } if (newPos > originalPos){ // moving it backwards
             const [updatees] = conn.query("SELECT * FROM playlist_music WHERE playlistId = ? AND position < ? AND position >= ?", [playlistId, newPos, originalPos]);
+            conn.query("BEGIN TRAN")
             for (let i = 0; i < updatees.length; i++){
                 const updateeNewPos = updatees[i].position - 1;
                 conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [updateeNewPos, updatees[i].playlistId, updatees[i].musicId]);
             }
             conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [newPos, playlistId, musicId]);
+            conn.query("COMMIT TRAN")
         } else { //moving it forwards
             const [updatees] = conn.query("SELECT * FROM playlist_music WHERE playlistId = ? AND position > ? AND position <= ?", [playlistId, newPos, originalPos]);
+            conn.query("BEGIN TRAN")
             for (let i = 0; i < updatees.length; i++){
                 const updateeNewPos = updatees[i].position + 1;
                 conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [updateeNewPos, updatees[i].playlistId, updatees[i].musicId]);
             }
             conn.query("UPDATE playlist_music SET position = ? WHERE playlistId = ? AND musicId = ?", [newPos, playlistId, musicId]);
+            conn.query("COMMIT TRAN")
         }
         res.status(200).json({ message: "Playlist updated." })
     } catch{
         res.status(500).json({ message: "Internal server error." });
-        return;
+        conn.query("ROLLBACK TRAN")
     }
     return;
 }
