@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import "../styles/top.css";
-import { Link, Outlet } from "react-router-dom";
-import { getUserData, logedIn, logout } from '../data';
+import { Link, Outlet, useSearchParams } from "react-router-dom";
+import { getUserData, logedIn, logout, searchMusics } from '../data';
 import { useNavigate } from "react-router-dom";
 import { getAuthToken } from "../auth";
 import back from '../assets/back.png';
@@ -11,6 +11,8 @@ import Player from "./player";
 import enter from '../assets/enter.png';
 
 export default function TopContent() {
+    const [searchParams] = useSearchParams();
+    const text = searchParams.get("text");
     const szoveg = useRef("");
     const userData = getUserData();
 
@@ -21,7 +23,7 @@ export default function TopContent() {
       }
     },[])
     
-    function getText() {
+    async function getText() {
         if(szoveg.current.value){
             if (0 < szoveg.current.value.length) {
                 navigate(`/search?text=${szoveg.current.value}`);;
@@ -39,7 +41,7 @@ export default function TopContent() {
         }
     };
 
-    function keyDown(e){
+    async function keyDown(e){
         if(e.key==="Enter"){
             navigate(`/search?text=${e.target.value}`);
         }
@@ -69,7 +71,7 @@ export default function TopContent() {
                     <div className="keresomezo">
                         <div className="keresokeret">
                             <button onClick={getText} className="keresGomb"><img src={search} alt="kereses" className="topGombokImg" /></button>
-                            <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+                            <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown} defaultValue={text?text:""} autoComplete="off" autoCorrect="off" spellCheck="false"/>
                         </div>
                     </div>
                 </div>
@@ -88,7 +90,7 @@ export default function TopContent() {
                 </div>
             </div>
             <Outlet />
-            {/*<Player />*/}
+            <Player />
         </>
         
     );

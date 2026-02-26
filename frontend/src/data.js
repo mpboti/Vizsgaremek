@@ -3,7 +3,7 @@ import defaultProfilePic from "./assets/defaultUserPic.png";
 import defaultPlaylistPic from "./assets/defaultPlaylistPic.png";
 import defaultMusicPic from "./assets/defaultMusicPic.png";
 
-
+export let isItunes = false;
 export let logedIn = false;
 export const ip = "localhost:3000"
 
@@ -285,6 +285,10 @@ export async function loadCurrentMusicData(id){
     const resData = await res.json();
     currentMusicData = resData;
 }
+export async function loadCurrentITunesMusicData(text, id){
+    await searchITunes(text);
+    currentMusicData=musicsData.find((e)=>e.id==id);
+}
 
 export async function loadMusicsByPlaylistId(playlistId){
     musicsData=[];
@@ -293,9 +297,11 @@ export async function loadMusicsByPlaylistId(playlistId){
         const resData = await res.json(res);
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
+                elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push(elem);
             }
         }
+        isItunes=false;
     }catch(err){
         console.log(err);
     }
@@ -308,6 +314,8 @@ export async function loadMusicsByPlaylistId(playlistId){
 }
 
 export async function loadMusicsByUserId(userId){
+    if(userId==-1)
+        return;
     musicsData=[];
     try{
         const res = await fetch(`http://${ip}/musics/byuserid/${userId}`);
@@ -316,9 +324,11 @@ export async function loadMusicsByUserId(userId){
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
                 i++
+                elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push({...elem, position: i});
             }
         }
+        isItunes=false;
     }catch(err){
         console.log(err);
     }
@@ -328,6 +338,94 @@ export async function loadMusicsByUserId(userId){
       lattukMar.add(obj.id);
       return !dupla;
     });
+}
+
+//keresés metódusok
+export async function searchITunes(text){
+  try {
+    const response = await fetch(`https://itunes.apple.com/search?term=${text}&media=music&limit=50`);
+    const resData = await response.json();
+    console.log(resData);
+    musicsData=[];
+    let i = -50;
+    for(const element of resData.results){
+      musicsData.push({
+        id: i++,
+        uploaderId: userData.id,
+        imageUrl: element.artworkUrl100,
+        name: element.trackName,
+        artistName: element.artistName,
+        albumName: element.collectionName?element.collectionName:"-",
+        releaseDate: element.releaseDate?element.releaseDate.split("-")[0]:"-",
+        mufaj: element.primaryGenreName,
+        musicUrl: element.previewUrl
+      })
+    };
+    isItunes=true;
+  }catch(e){
+    console.log(e.message);
+  }
+  console.log(musicsData)
+}
+
+export async function searchMusics(text, endpoint) {
+    musicsData=[];
+    try{
+        const response = await fetch(`http://${ip}/search/${endpoint}?name=${text}`);
+        const resData = await response.json();
+        let i=0
+        for(const elem of resData){
+            if(!musicsData.includes(elem.musicId)){
+                i++
+                elem.musicUrl=`http://${ip}`+elem.musicUrl;
+                musicsData.push({...elem, position: i});
+            }
+        };
+        isItunes=false;
+    }catch(err){
+        console.log(err);
+        musicsData=[];
+    }
+    const lattukMar = new Set();
+    musicsData = musicsData.filter(obj => {
+      const dupla = lattukMar.has(obj.id);
+      lattukMar.add(obj.id);
+      return !dupla;
+    });
+}
+
+export async function searchPlaylists(text, endpoint){
+    playlistsData = [];
+    try{
+        const response = await fetch(`http://${ip}/search/${endpoint}?name=${text}`);
+        const resData = await response.json();
+        playlistsData = resData.map(elem => ({
+            id: elem.id,
+            name: elem.name,
+            userName: elem.username,
+            listaPicId: elem.playlistPicId,
+            listaPic: elem.url
+        }));
+        for (const elem of playlistsData) {
+            if (elem.listaPic != null) {
+                elem.listaPic = `http://${ip}` + elem.listaPic;
+            }else{
+                elem.listaPic = defaultPlaylistPic;
+            }
+        }
+        isItunes=false;
+    }catch(err){
+        playlistsData = [];
+        console.log(err);
+    }
+    console.log(playlistsData)
+    const lattukMar = new Set();
+    playlistsData = playlistsData.filter(obj => {
+      const dupla = lattukMar.has(obj.id);
+      lattukMar.add(obj.id);
+      return !dupla;
+    });
+    console.log(playlistsData)
 }
 
 

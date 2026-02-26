@@ -12,13 +12,14 @@ import repeat from "../assets/repeat.png";
 import report from "../assets/report.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
+import defaultMusicPic from "../assets/defaultMusicPic.png"
+import { playingData } from "../playerLogic";
 
 export default function Player() {
-    const data = localStorage.getItem("playing");
-    const hosszValue = data[2].hossz;
-    const hossz = data[2].hossz;
+    const hosszValue = "0:00";
+    const hossz = "0:00";
     const current = "0:00";
-    const isPrev = true; //data[0].prev!= null;
+    const isPrev = true;
     const [muteButt, setMuteButt] = useState(volumeIcon2);
     function VolumeChange(event) {
         const volume = event.target.value;
@@ -38,11 +39,11 @@ export default function Player() {
         <div className="player">
             <div className="playerData">
                 <div>
-                    <img src={data[2].kep} alt="album kép" className="playerAlbumPic"/>
+                    <img src={playingData.imageUrl?playingData.imageUrl:defaultMusicPic} alt="album kép" className="playerAlbumPic"/>
                 </div>
                 <div className="playerCimEloado">
-                    <p className="playerSong">{data[2].cim}</p>
-                    <p className="playerArtist">{data[2].eloado}</p>
+                    <p className="playerSong">{playingData.cim}</p>
+                    <p className="playerArtist">{playingData.eloado}</p>
                 </div>
             </div>
             <div className="playerSliders">

@@ -10,8 +10,19 @@ import LoginOrSignin, { LoginAction } from "./components/loginOrSignin";
 import CreateOrEditPlaylist, { PlaylistAction } from "./components/createOrEditPlaylist";
 import Setting, { SettingAction } from "./components/setting";
 import CreateOrEditMusic, { MusicAction, MusicAddLoader } from "./components/createOrEditMusic";
+import { useEffect } from "react";
+import { logout } from "./data";
+import { getAuthToken } from "./auth";
 
 function App() {
+  useEffect(()=>{
+    function loading(){
+      if(getAuthToken() == "EXPIRED"){
+        logout();
+      }
+    }
+    loading();
+  },[])
   const router = createBrowserRouter([
     {path: "/", element: <TopContent />, errorElement: <ErrorNotFound/>,
     children: [

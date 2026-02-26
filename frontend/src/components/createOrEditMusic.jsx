@@ -7,7 +7,7 @@ import pause from "../assets/pause.png"
 import del from "../assets/bin.png"
 import up from "../assets/up.png"
 import down from "../assets/down.png"
-import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists } from "../data";
+import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists, loadCurrentITunesMusicData } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function CreateOrEditMusic(){
@@ -241,8 +241,8 @@ export default function CreateOrEditMusic(){
         <p>
         </p>
         <div>
-          <button className="loginFormButton" type="submit">{mode=="edit"?"Módosítása":"Létrehoz"}</button>
           {mode=="edit"?<button className="loginFormButton logoutButton" onClick={deleteMusic} type="button">Végleges törlés</button>:undefined}
+          <button className="loginFormButton" type="submit">{mode=="edit"?"Módosítása":"Létrehoz"}</button>
         </div>
       </Form>
     </div>
@@ -538,7 +538,7 @@ export async function MusicAddLoader({request}){
   }
   const mode = searchParams.get("mode")
   if(mode=="itunes"){
-    await loadCurrentMusicData(searchParams.get("id"))
+    await loadCurrentITunesMusicData(localStorage.getItem("searchText"), searchParams.get("id"))
   }else if(mode=="edit"){
     if(searchParams.get("userId")==undefined)
       window.location.href = "/";

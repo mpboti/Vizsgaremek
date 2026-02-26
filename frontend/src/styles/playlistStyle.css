@@ -29,6 +29,15 @@ td:last-child, th:last-child{
 
 td.cimEloado{
     width: auto;
+    max-width: 300px;
+}
+
+td.album{
+    max-width: 200px;
+}
+
+td.mufaj{
+    max-width: 150px;
 }
 
 td.mainAlbumCover{

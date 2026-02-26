@@ -40,7 +40,7 @@ export default function MainPage() {
                 </button>
             </div>
             }
-            {userData.id > -1 && musicsData.length > 0 && !isPlaylists &&
+            {userData.id > -1 && !isPlaylists &&
             <table style={{paddingTop:"40px"}}>
               <thead>
                   <tr className="tableHeader">
