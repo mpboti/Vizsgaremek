@@ -4,12 +4,13 @@ import { logout, currentProfilePicSetting, getUserData, setCurrentProfilePicSett
 import { useState, useRef } from "react";
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/forms.css";
+import { loadSettings, settingData } from "../playerLogic";
 
 
 
 export default function Setting() {
   const userData = getUserData();
-  const [fadeValue, setFadeValue] = useState(localStorage.getItem("fadeValue") || 0);
+  const [fadeValue, setFadeValue] = useState(settingData.fadeValue || 0);
   const fileOpener = useRef();
   const [img, setImg] = useState(userData.userPic);
   
@@ -21,10 +22,22 @@ export default function Setting() {
         setCurrentProfilePicSetting(e.target.files[0]);
     }
   }
-  function FadeChange(event) {
-        const value = event.target.value;
-        localStorage.setItem("fadeValue", value);
-        setFadeValue(value);
+  function fadeChange(event) {
+    const value = event.target.value;
+    setFadeValue(value);
+  }
+
+  async function fadeChanged(event){
+    const value = event.target.value;
+    await fetch(`http://${ip}/settings/${userData.id}`,{
+      method:"PUT",
+      headers:{
+        'Content-Type': 'application/json',
+        'x-access-token': getAuthToken()
+      },
+      body: JSON.stringify({fadeValue: value})
+    });
+    loadSettings()
   }
 
   async function deleteUser(){
@@ -54,7 +67,7 @@ export default function Setting() {
               <p className="rangeCim">Zenék közti átfedés:</p>
               <p className="rangeP">
                 <span className="rangeSpan">00:{fadeValue<10?"0"+fadeValue:fadeValue || 0}</span>
-                <input id="fadeValue" type="range" min="0" max="15" defaultValue={fadeValue} className="range" onChange={FadeChange}/>
+                <input id="fadeValue" type="range" min="0" max="15" defaultValue={fadeValue} className="range" onChange={fadeChange} onMouseUp={fadeChanged}/>
                 <span className="rangeValue">00:15</span>
               </p>
             </div>

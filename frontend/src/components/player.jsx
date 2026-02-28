@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 //import { } from "../data";
 import "../styles/player.css";
 import volumeIcon0 from "../assets/volume 0.png";
@@ -7,22 +7,62 @@ import volumeIcon2 from "../assets/volume 2.png";
 import volumeIcon3 from "../assets/volume 3.png";
 import previous from "../assets/previos.png";
 import play from "../assets/play.png";
+import pause from "../assets/pause.png";
 import next from "../assets/next.png";
 import repeat from "../assets/repeat.png";
-import report from "../assets/report.png";
+import repeatFill from "../assets/repeat fill.png";
+import repeatOneFill from "../assets/repeat_fill_one.png";
+import random from "../assets/randomizer_empty.png";
+import randomFill from "../assets/randomizer fill.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
-import { playingData } from "../playerLogic";
+import { isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setIsLoopList, setIsOneLoop, setIsSetValue, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { getUserData, ip } from "../data";
+import { getAuthToken } from "../auth";
 
 export default function Player() {
-    const hosszValue = "0:00";
-    const hossz = "0:00";
-    const current = "0:00";
-    const isPrev = true;
+    function hosszCalculate(){
+        let t=Math.round(playingMusic.duration);
+        let g=Math.round(playingMusic.duration/60-(0.5/60*59));
+        t=t-g*60;
+        let h = "";
+        if(t<10){h=0};
+        return g+":"+h+t
+    }
+    const [hosszValue, setHosszValue] = useState(10);
+    const [currentValue, setCurrentValue] = useState(0);
+    const hossz = hosszCalculate()!="NaN:NaN"?hosszCalculate():"0:00";
+    const [current, setCurrent] = useState("0:00");
+    const [isPrev, setIsPrev] = useState(true);
     const [muteButt, setMuteButt] = useState(volumeIcon2);
-    function VolumeChange(event) {
-        const volume = event.target.value;
+    const [playPic, setPlayPic] = useState(play);
+    const [repeatPic, setRepeatPic] = useState(repeat);
+    const [randomPic, setRandomPic] = useState(random);
+    const [cim, setCim] = useState("not loaded");
+    const [eloado, setEloado] = useState("not loaded");
+    const [volume, setVolume] = useState(settingData.volume);
+
+    useEffect(()=>{
+        setInterval(()=>{
+            if(playingData=={}){
+                setIsPrev(false);
+            }else{
+                setIsPrev(true);
+            }
+            if(!isSetValue){
+                setCurrentValue(Math.round(playingMusic.currentTime));
+            }
+            let t=Math.round(playingMusic.currentTime);
+            let g=Math.round(playingMusic.currentTime/60-(0.5/60*59));
+            t=t-g*60;
+            let h="";
+            if(t<10){h=0};
+            setCurrent(g+":"+h+t);
+            if(playingMusic.currentTime>=playingMusic.duration-settingData.fadeValue)
+                nextMusic();
+            setHosszValue(Math.round(playingMusic.duration).toString());
+        },500);
         if (volume == 0) {
             setMuteButt(volumeIcon0);
         } else if (volume < 33) {
@@ -32,7 +72,101 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
+        const changeBack = playerChange(() => {
+            if(isPlaying){
+                setPlayPic(pause);
+            }else{
+                setPlayPic(play);
+            }
+            setCim(playingData.name);
+            setEloado(playingData.artistName);
+        });
+        return changeBack;
+    },[])
+
+    function playOrPause(){
+        if(isUploadPlay){
+            if(isPlaying){
+                uploadPause();
+                setPlayPic(play);
+            }else{
+                uploadPlay(null);
+                setPlayPic(pause);
+            }
+        }else{
+            if(isPlaying){
+                pauseById(playingData.id);
+                setPlayPic(play);
+            }else{
+                playById(playingData.id);
+                setPlayPic(pause);
+            }
+        }
+        
     }
+    async function muteOrUnmute(){
+        if(muteButt==volumeIcon0){
+            await loadSettings();
+            if (settingData.volume == 0) {
+                setMuteButt(volumeIcon0);
+            } else if (settingData.volume < 33) {
+                setMuteButt(volumeIcon1);
+            } else if (settingData.volume < 66) {
+                setMuteButt(volumeIcon2);
+            } else {
+                setMuteButt(volumeIcon3);
+            }
+            setVolume(settingData.volume);
+            updateVolume(settingData.volume);
+        }else{
+            setMuteButt(volumeIcon0);
+            setVolume(0);
+            updateVolume(0);
+        }
+    }
+
+    async function VolumeChange(event) {
+        const currentVolume = event.target.value;
+        setVolume(currentVolume);
+        if (currentVolume == 0) {
+            setMuteButt(volumeIcon0);
+        } else if (currentVolume < 33) {
+            setMuteButt(volumeIcon1);
+        } else if (currentVolume < 66) {
+            setMuteButt(volumeIcon2);
+        } else {
+            setMuteButt(volumeIcon3);
+        }
+        updateVolume(currentVolume);
+    }
+
+    async function setVolumeToSetting(){
+        await fetch(`http://${ip}/settings/${getUserData().id}`,{
+            method:"PUT",
+            headers:{
+                'Content-Type': 'application/json',
+                'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify({volume: volume})
+        });
+        loadSettings();
+    }
+
+    function repeatFunc(){
+        console.log(isLoopList);
+        if(!isLoopList){
+            setRepeatPic(repeatFill)
+            setIsLoopList(true);
+        }else if(!isOneLoop){
+            setRepeatPic(repeatOneFill);
+            setIsOneLoop(true);
+        }else{
+            setRepeatPic(repeat)
+            setIsLoopList(false);
+            setIsOneLoop(false);
+        };
+    }
+
     return (
         <>
         {isPrev && (
@@ -42,25 +176,25 @@ export default function Player() {
                     <img src={playingData.imageUrl?playingData.imageUrl:defaultMusicPic} alt="album kép" className="playerAlbumPic"/>
                 </div>
                 <div className="playerCimEloado">
-                    <p className="playerSong">{playingData.cim}</p>
-                    <p className="playerArtist">{playingData.eloado}</p>
+                    <p className="playerSong">{cim}</p>
+                    <p className="playerArtist">{eloado}</p>
                 </div>
             </div>
             <div className="playerSliders">
                 <span className="timeElapsed">{current}</span>
-                <input type="range" min="0" max={hosszValue} defaultValue="0" className="timeSlider"/>
+                <input type="range" min="0" max={hosszValue} value={currentValue} onChange={(e)=>{setCurrentValue(e.target.value);}} onMouseDown={()=>{setIsSetValue(true); isUploadPlay?playingMusic.pause():sliderPause()}} onMouseUp={()=>{setIsSetValue(false);isUploadPlay?playingMusic.play():sliderPlay()}} onInput={(e)=>{playingMusic.currentTime=e.target.value;}} className="timeSlider"/>
                 <span className="timeTotal">{hosszValue!=null ? hossz : "0:00"}</span>
-                <button className="muteButton"><img src={muteButt} alt="Mute" className="muteImg"/></button>
-                <input type="range" min="0" max="100" defaultValue="50" className="volumeSlider" onChange={VolumeChange}/>
+                <button className="muteButton" onClick={muteOrUnmute}><img src={muteButt} alt="Mute" className="muteImg"/></button>
+                <input type="range" min="0" max="100" value={volume} className="volumeSlider" onChange={VolumeChange} onMouseUp={setVolumeToSetting}/>
             </div>
             <div className="playerControls">
                 <button className="controlButton"><img src={add} alt="Hozzáadás" className="controlImg"/></button>
                 <button className="controlButton"><img src={download} alt="Letöltés" className="controlImg"/></button>
-                <button className="controlButton"><img src={report} alt="Jelentés" className="controlImg"/></button>
-                <button className="controlButton"><img src={repeat} alt="Ismétlés" className="controlImg"/></button>
-                <button className="controlButton"><img src={previous} alt="Előző" className="controlImg"/></button>
-                <button className="controlButton"><img src={play} alt="Lejátszás" className="controlImg"/></button>
-                <button className="controlButton"><img src={next} alt="Következő" className="controlImg"/></button>
+                <button className="controlButton" onClick={()=>{randomize();isRandomized?setRandomPic(randomFill):setRandomPic(random)}}><img src={randomPic} alt="Jelentés" className="controlImg"/></button>
+                <button className="controlButton" onClick={repeatFunc}><img src={repeatPic} alt="Ismétlés" className="controlImg"/></button>
+                <button className="controlButton" onClick={prevMusic}><img src={previous} alt="Előző" className="controlImg"/></button>
+                <button className="controlButton" onClick={playOrPause}><img src={playPic} alt="Lejátszás" className="controlImg"/></button>
+                <button className="controlButton" onClick={nextMusic}><img src={next} alt="Következő" className="controlImg"/></button>
             </div>
         </div>
         )}

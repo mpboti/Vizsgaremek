@@ -128,6 +128,7 @@ th{
     td.gombok{
         padding-right: 10px;
         margin: 10px;
+        min-width: 220px;
     }
     td.albumCover{
         margin-left: 10px;
@@ -238,6 +239,9 @@ th{
 }
 
 @media screen and (max-width: 800px){
+    td.gombok{
+        min-width: 70px;
+    }
     img.albumCoverImg{
         margin-bottom: -25px;
         width: 300px;

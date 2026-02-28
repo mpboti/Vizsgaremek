@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { getPlaylistsData, getUserData, loadMusicsByUserId, logedIn, musicsData} from "../data";
+import { getPlaylistsData, getUserData, loadMusicsByUserId, loadPlaylists, logedIn, musicsData} from "../data";
 import '../styles/mainPage.css';
 import add from '../assets/add.png';
 import play from '../assets/play.png';
@@ -29,6 +29,7 @@ export default function MainPage() {
             
             {userData.id == -1 && <Link to="/auth?mode=login" className="pleaseLogin">Jelentkezz be</Link>}
             {userData.id > -1 &&
+            <div className="keresesMenu">
             <div className="musicOrPlaylistFlex">
                 <button className={!isPlaylists ? "microSelected" : "musicOrPlaylistButton"} 
                 onClick={()=>{ setIsPlaylist(false)}}>
@@ -38,6 +39,7 @@ export default function MainPage() {
                 onClick={()=>{setIsPlaylist(true);}}>
                   Lejátszási listák
                 </button>
+            </div>
             </div>
             }
             {userData.id > -1 && !isPlaylists &&
@@ -99,5 +101,6 @@ export default function MainPage() {
 }
 
 export async function mainPageLoader(){
-    await loadMusicsByUserId(getUserData().id);
+  await loadMusicsByUserId(getUserData().id);
+  await loadPlaylists(getUserData().id);
 }

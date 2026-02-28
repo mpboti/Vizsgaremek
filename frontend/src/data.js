@@ -4,8 +4,13 @@ import defaultPlaylistPic from "./assets/defaultPlaylistPic.png";
 import defaultMusicPic from "./assets/defaultMusicPic.png";
 
 export let isItunes = false;
+export let isNew = true;
 export let logedIn = false;
 export const ip = "localhost:3000"
+
+export function setIsNew(boo){
+    isNew=boo;
+}
 
 //user data kezelés betöltés és setting
 export let currentProfilePicSetting = defaultProfilePic;
@@ -88,6 +93,7 @@ export function setCurrentPlaylistPicSetting(pic){
 let playlistsData=[];
 export async function loadPlaylists(userId){
     currentPlaylistPicSetting=defaultPlaylistPic;
+    playlistsData = [];
     if(userId == -1) {
         playlistsData = [];
         return;
@@ -99,15 +105,7 @@ export async function loadPlaylists(userId){
             'x-access-token': getAuthToken()
         }
     });
-    if (!response.ok) {
-        console.error("failed to fetch playlists", response.status, response.statusText);
-        playlistsData = [];
-        return;
-    }
-
     const resData = await response.json();
-    
-
     if (response.status != 300) {
         playlistsData = resData.map(elem => ({
             id: elem.id,
@@ -288,6 +286,7 @@ export async function loadCurrentMusicData(id){
 export async function loadCurrentITunesMusicData(text, id){
     await searchITunes(text);
     currentMusicData=musicsData.find((e)=>e.id==id);
+    currentAlbumPicUrl=currentMusicData.imageUrl;
 }
 
 export async function loadMusicsByPlaylistId(playlistId){
@@ -311,6 +310,7 @@ export async function loadMusicsByPlaylistId(playlistId){
       lattukMar.add(obj.id);
       return !dupla;
     });
+    isNew=true;
 }
 
 export async function loadMusicsByUserId(userId){
@@ -338,6 +338,7 @@ export async function loadMusicsByUserId(userId){
       lattukMar.add(obj.id);
       return !dupla;
     });
+    isNew=true;
 }
 
 //keresés metódusok
@@ -345,12 +346,13 @@ export async function searchITunes(text){
   try {
     const response = await fetch(`https://itunes.apple.com/search?term=${text}&media=music&limit=50`);
     const resData = await response.json();
-    console.log(resData);
     musicsData=[];
-    let i = -50;
+    console.log(resData)
+    let i = -resData.results.length;
     for(const element of resData.results){
       musicsData.push({
         id: i++,
+        position: i+resData.results.length,
         uploaderId: userData.id,
         imageUrl: element.artworkUrl100,
         name: element.trackName,
@@ -366,6 +368,7 @@ export async function searchITunes(text){
     console.log(e.message);
   }
   console.log(musicsData)
+  isNew=true;
 }
 
 export async function searchMusics(text, endpoint) {
@@ -392,6 +395,7 @@ export async function searchMusics(text, endpoint) {
       lattukMar.add(obj.id);
       return !dupla;
     });
+    isNew=true;
 }
 
 export async function searchPlaylists(text, endpoint){
@@ -418,14 +422,12 @@ export async function searchPlaylists(text, endpoint){
         playlistsData = [];
         console.log(err);
     }
-    console.log(playlistsData)
     const lattukMar = new Set();
     playlistsData = playlistsData.filter(obj => {
       const dupla = lattukMar.has(obj.id);
       lattukMar.add(obj.id);
       return !dupla;
     });
-    console.log(playlistsData)
 }
 
 

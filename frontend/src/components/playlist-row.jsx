@@ -1,17 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import dots from "../assets/dots.png"
 import download from "../assets/download.png"
 import report from "../assets/report.png"
 import add from "../assets/add.png"
 import list from "../assets/list.png"
 import play from "../assets/play.png"
-import pause from "../assets/pause.png"
 import defaultMusicPic from "../assets/defaultMusicPic.PNG"
 import pencil from "../assets/pencil.png"
 import playing from "../assets/playing.png"
 import { useNavigate } from 'react-router-dom'
 import { getUserData, isItunes, logedIn, musicsData } from '../data'
-import { isPlaying, pauseById, playById, playingData } from '../playerLogic'
+import { isPlaying, pauseById, playById, playingData, playButtonChange } from '../playerLogic'
 
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
     const navigate = useNavigate();
@@ -19,8 +18,24 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
     const isAdmin = false;
     const userData = getUserData()
     const [playPic, setPlayPic] = useState(play);
-
     const [lenyil, setLenyil] = useState(false)
+    const [currentPlayingId, setCurrentPlayingId] = useState(null);
+    const [currentIsPlaying, setCurrentIsPlaying] = useState(false);
+    
+    useEffect(() => {
+        if (currentIsPlaying && currentPlayingId === id || playingData.id==id && isPlaying) {
+            setPlayPic(playing);
+        } else {
+            setPlayPic(play);
+        }
+
+        const changeBack = playButtonChange(({ isPlaying, playingData }) => {
+            setCurrentIsPlaying(isPlaying);
+            setCurrentPlayingId(playingData?.id);
+        });
+        return changeBack;
+    }, [currentIsPlaying, currentPlayingId, id]);
+
     function sizeClose(){
         setLenyil(false)
     }
@@ -28,11 +43,11 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
 
     async function playOrPause(){
         if(!isPlaying || isPlaying && playingData.id!=id){
-            playById(id);
-            setPlayPic(pause);
+            await playById(id);
+            setPlayPic(playing); 
         }else{
-            pauseById(id);
-            setPlayPic(play);
+            await pauseById(id);
+            setPlayPic(play); 
         }
     }
 
@@ -53,18 +68,18 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                     
                     <td className="gombok">
                         <button onClick={()=>setLenyil(false)} className="zeneGombok"><img src={dots} alt="menu" className="zeneGombokImg"/></button>
-                        <button className="zeneGombok" id="play" onClick={playById}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button><br/>
+                        <button className="zeneGombok" id="play" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button><br/>
                         {onlyAdd?
+                        <div className="lenyilo">
+                            {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
+                            <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=itunes&id=${id}&userId=${userId}`)}}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
+                        </div>:
                         <div className="lenyilo">
                             {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
                             <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
-                        </div>:
-                        <div className="lenyilo">
-                            {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
-                            <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=itunes&id=${id}&userId=${userId}`)}}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                         </div>
                         }
                     </td>

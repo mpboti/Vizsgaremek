@@ -43,7 +43,9 @@ export default function TopContent() {
 
     async function keyDown(e){
         if(e.key==="Enter"){
-            navigate(`/search?text=${e.target.value}`);
+            if (0 < e.target.value.length) {
+                navigate(`/search?text=${e.target.value}`);
+            }
         }
     }
 

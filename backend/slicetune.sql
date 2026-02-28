@@ -91,7 +91,7 @@ CREATE TABLE playlist_musics (
 
 CREATE TABLE user_settings(
     userId INT PRIMARY KEY,
-    volume INT NOT NULL DEFAULT 0.5,
+    volume INT NOT NULL DEFAULT 50,
     fadeValue INT NOT NULL DEFAULT 0,
     lastMusicId INT NULL,
     lastPlaylistId INT NULL,

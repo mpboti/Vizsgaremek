@@ -9,6 +9,7 @@ import up from "../assets/up.png"
 import down from "../assets/down.png"
 import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists, loadCurrentITunesMusicData } from "../data";
 import { getAuthToken } from "../auth";
+import { uploadPause, uploadPlay } from "../playerLogic";
 
 export default function CreateOrEditMusic(){
   const [searchParams] = useSearchParams();
@@ -89,11 +90,11 @@ export default function CreateOrEditMusic(){
     if(playPic==upload)
         openFile(false, e);
     else if(playPic==play){ 
-        mus.play();
+        uploadPlay(mus);
         mus.addEventListener("ended",() =>{mus.load(); setPlayPic(play);} )
         setPlayPic(pause)
     } else if(playPic==pause){ 
-        mus.pause();
+        uploadPause();
         setPlayPic(del);
     }else{
         setMus(null);
@@ -539,6 +540,7 @@ export async function MusicAddLoader({request}){
   const mode = searchParams.get("mode")
   if(mode=="itunes"){
     await loadCurrentITunesMusicData(localStorage.getItem("searchText"), searchParams.get("id"))
+
   }else if(mode=="edit"){
     if(searchParams.get("userId")==undefined)
       window.location.href = "/";

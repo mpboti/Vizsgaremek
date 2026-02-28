@@ -115,38 +115,38 @@ export default function Kereses(){
       <div className="keresesMenu">
         <div className="keresesMenuFlex">
           <button className={selected === 0 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(false); setIsMusic(true); setSelected(0); readMusicByName();}}>
+          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(0); await readMusicByName();}}>
             Zenék
           </button>
           <button className={selected === 1 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(false); setIsMusic(false); setSelected(1); readPlaylistsByName();}}>
+          onClick={async () => {setIsUser(false); setIsMusic(false); setSelected(1); await readPlaylistsByName();}}>
             Lejátszási Listák
           </button>
           <button className={selected === 2 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(false); setIsMusic(true); setSelected(2); readMusicByArtist();}}>
+          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(2); await readMusicByArtist();}}>
             Előadók
           </button>
           <button className={selected === 3 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(false); setIsMusic(true); setSelected(3); readMusicByAlbum();}}>
+          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(3); await readMusicByAlbum();}}>
             Albumok
           </button>
           <button className={selected === 4 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(true); setIsMusic(true); setSelected(4); readMusicByUsername();}}>
+          onClick={async () => {setIsUser(true); setIsMusic(true); setSelected(4); await readMusicByUsername();}}>
             Felhasználók
           </button>
           <button className={selected === 5 ? "selected" : "keresesMenuButtons"} 
-          onClick={() => {setIsUser(false); setIsMusic(true); setSelected(5); readITunes();}}>
+          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(5); await readITunes();}}>
             Hozzáadás
           </button>
         </div>
         {isUser?
           <div className="musicOrPlaylistFlex">
             <button className={isMusic ? "microSelected" : "musicOrPlaylistButton"} 
-            onClick={()=>{ setIsMusic(true); readMusicByUsername();}}>
+            onClick={async ()=>{ setIsMusic(true); await readMusicByUsername();}}>
               Zenék
             </button>
             <button className={!isMusic ? "microSelected" : "musicOrPlaylistButton"} 
-            onClick={()=>{ setIsMusic(false); readPlaylistsByUsername();}}>
+            onClick={async ()=>{ setIsMusic(false); await readPlaylistsByUsername();}}>
               Lejátszási listák
             </button>
           </div>
