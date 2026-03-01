@@ -82,9 +82,7 @@ export default function MainPage() {
                         </div>
                     </Link>
                     <div className="listaButtons">
-                        <Link to={`/editPlaylist?id=${elem.id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>
-                        <button className="mainListButtons"><img src={random} alt="Random" className="listaButtonImg"/></button>
-                        <button className="mainListButtons"><img src={list} alt="List" className="listaButtonImg"/></button>
+                        {logedIn && elem.ownerId == userData.id && <Link to={`/editPlaylist?id=${elem.id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>}
                         <button className="mainListButtons"><img src={play} alt="Lejátszás" className="listaButtonImg"/></button>
                     </div>
                 </div>

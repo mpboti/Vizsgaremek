@@ -46,6 +46,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     pwd VARCHAR(255) NOT NULL,
     imageFileId INT NULL,
+    isAdmin BOOLEAN DEFAULT false,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (imageFileId) REFERENCES image_files(id) ON DELETE SET NULL
 );
@@ -71,8 +72,11 @@ CREATE TABLE playlists (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     ownerId INT NOT NULL,
+    position INT NULL,
     playlistPicId INT NULL,
+    playlistPicUrl VARCHAR NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (id, position),
     FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (playlistPicId) REFERENCES image_files(id) ON DELETE SET NULL
 );

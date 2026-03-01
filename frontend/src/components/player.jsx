@@ -17,7 +17,7 @@ import randomFill from "../assets/randomizer fill.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
-import { isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setIsLoopList, setIsOneLoop, setIsSetValue, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { isLoaded, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
 import { getUserData, ip } from "../data";
 import { getAuthToken } from "../auth";
 
@@ -34,7 +34,7 @@ export default function Player() {
     const [currentValue, setCurrentValue] = useState(0);
     const hossz = hosszCalculate()!="NaN:NaN"?hosszCalculate():"0:00";
     const [current, setCurrent] = useState("0:00");
-    const [isPrev, setIsPrev] = useState(true);
+    const [isPrev, setIsPrev] = useState(false);
     const [muteButt, setMuteButt] = useState(volumeIcon2);
     const [playPic, setPlayPic] = useState(play);
     const [repeatPic, setRepeatPic] = useState(repeat);
@@ -45,11 +45,6 @@ export default function Player() {
 
     useEffect(()=>{
         setInterval(()=>{
-            if(playingData=={}){
-                setIsPrev(false);
-            }else{
-                setIsPrev(true);
-            }
             if(!isSetValue){
                 setCurrentValue(Math.round(playingMusic.currentTime));
             }
@@ -73,6 +68,11 @@ export default function Player() {
             setMuteButt(volumeIcon3);
         }
         const changeBack = playerChange(() => {
+            if(isLoaded){
+                setIsPrev(false);
+            }else{
+                setIsPrev(true);
+            }
             if(isPlaying){
                 setPlayPic(pause);
             }else{
@@ -80,6 +80,7 @@ export default function Player() {
             }
             setCim(playingData.name);
             setEloado(playingData.artistName);
+            
         });
         return changeBack;
     },[])
@@ -96,14 +97,15 @@ export default function Player() {
         }else{
             if(isPlaying){
                 pauseById(playingData.id);
+                setIsLoad(false);
                 setPlayPic(play);
             }else{
                 playById(playingData.id);
                 setPlayPic(pause);
             }
         }
-        
     }
+
     async function muteOrUnmute(){
         if(muteButt==volumeIcon0){
             await loadSettings();
@@ -152,6 +154,15 @@ export default function Player() {
         loadSettings();
     }
 
+    function timeChange(){
+        let t=Math.round(playingMusic.currentTime);
+        let g=Math.round(playingMusic.currentTime/60-(0.5/60*59));
+        t=t-g*60;
+        let h="";
+        if(t<10){h=0};
+        setCurrent(g+":"+h+t);
+    }
+
     function repeatFunc(){
         console.log(isLoopList);
         if(!isLoopList){
@@ -182,7 +193,7 @@ export default function Player() {
             </div>
             <div className="playerSliders">
                 <span className="timeElapsed">{current}</span>
-                <input type="range" min="0" max={hosszValue} value={currentValue} onChange={(e)=>{setCurrentValue(e.target.value);}} onMouseDown={()=>{setIsSetValue(true); isUploadPlay?playingMusic.pause():sliderPause()}} onMouseUp={()=>{setIsSetValue(false);isUploadPlay?playingMusic.play():sliderPlay()}} onInput={(e)=>{playingMusic.currentTime=e.target.value;}} className="timeSlider"/>
+                <input type="range" min="0" max={hosszValue} value={currentValue} onChange={(e)=>{setCurrentValue(e.target.value);timeChange()}} onMouseDown={()=>{setIsSetValue(true); isUploadPlay?playingMusic.pause():sliderPause()}} onMouseUp={()=>{setIsSetValue(false);isUploadPlay?playingMusic.play():sliderPlay()}} onInput={(e)=>{playingMusic.currentTime=e.target.value;}} className="timeSlider"/>
                 <span className="timeTotal">{hosszValue!=null ? hossz : "0:00"}</span>
                 <button className="muteButton" onClick={muteOrUnmute}><img src={muteButt} alt="Mute" className="muteImg"/></button>
                 <input type="range" min="0" max="100" value={volume} className="volumeSlider" onChange={VolumeChange} onMouseUp={setVolumeToSetting}/>

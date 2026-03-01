@@ -43,8 +43,6 @@ export default function Playlist() {
             <p className="mufajok">műfajok: <span className="lowerMufajok">{playlistData.mufajok}</span></p>
             <p className="listaGombtarto">
               {logedIn && userData.id==playlistData.ownerId?<button className={isEdit?"listaGombok editing":"listaGombok"} onClick={()=>isEdit?setIsEdit(false):setIsEdit(true)}><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>:undefined}
-              <button className="listaGombok"><img src={repeat} alt="ismétlés" className="listaGombokImg"/></button>
-              <button className="listaGombok"><img src={randomizer} alt="random" className="listaGombokImg"/></button>
               <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
             </p>
           </div>

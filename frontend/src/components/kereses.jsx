@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/kereses.css"
-import { getMusicsData, getPlaylistsData, searchITunes, searchMusics, searchPlaylists,} from "../data";
+import { getMusicsData, getPlaylistsData, getUserData, logedIn, searchITunes, searchMusics, searchPlaylists,} from "../data";
 import { Link, useSearchParams } from "react-router-dom";
 import RowGenerator from "./playlist-row";
 import play from '../assets/play.png';
@@ -191,9 +191,7 @@ export default function Kereses(){
                       </div>
                   </Link>
                   <div className="listaButtons">
-                      <Link to={`/editPlaylist?id=${elem.id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>
-                      <button className="mainListButtons"><img src={random} alt="Random" className="listaButtonImg"/></button>
-                      <button className="mainListButtons"><img src={list} alt="List" className="listaButtonImg"/></button>
+                      {logedIn && elem.ownerId == getUserData().id && <Link to={`/editPlaylist?id=${elem.id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>}
                       <button className="mainListButtons"><img src={play} alt="Lejátszás" className="listaButtonImg"/></button>
                   </div>
               </div>

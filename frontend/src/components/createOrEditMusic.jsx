@@ -538,7 +538,7 @@ export async function MusicAddLoader({request}){
     window.location.href = "/";
   }
   const mode = searchParams.get("mode")
-  if(mode=="itunes"){
+  if(mode=="itunes" && Object.keys(currentMusicData).length == 0){
     await loadCurrentITunesMusicData(localStorage.getItem("searchText"), searchParams.get("id"))
 
   }else if(mode=="edit"){

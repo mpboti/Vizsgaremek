@@ -4,13 +4,14 @@ import download from "../assets/download.png"
 import report from "../assets/report.png"
 import add from "../assets/add.png"
 import list from "../assets/list.png"
+import listFill from "../assets/list fill.png"
 import play from "../assets/play.png"
 import defaultMusicPic from "../assets/defaultMusicPic.PNG"
 import pencil from "../assets/pencil.png"
 import playing from "../assets/playing.png"
 import { useNavigate } from 'react-router-dom'
 import { getUserData, isItunes, logedIn, musicsData } from '../data'
-import { isPlaying, pauseById, playById, playingData, playButtonChange } from '../playerLogic'
+import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById } from '../playerLogic'
 
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
     const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
     const isAdmin = false;
     const userData = getUserData()
     const [playPic, setPlayPic] = useState(play);
+    const [preferPic, setPreferPic] = useState(list);
     const [lenyil, setLenyil] = useState(false)
     const [currentPlayingId, setCurrentPlayingId] = useState(null);
     const [currentIsPlaying, setCurrentIsPlaying] = useState(false);
@@ -28,8 +30,12 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
         } else {
             setPlayPic(play);
         }
-
-        const changeBack = playButtonChange(({ isPlaying, playingData }) => {
+        if(preferData.length!=0 && preferData.some((e)=>e.id==id)){
+            setPreferPic(listFill);
+        }else{
+            setPreferPic(list);
+        }
+        const changeBack = playButtonChange(() => {
             setCurrentIsPlaying(isPlaying);
             setCurrentPlayingId(playingData?.id);
         });
@@ -42,12 +48,24 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
     window.addEventListener("resize", sizeClose)
 
     async function playOrPause(){
+        setIsLoad(true);
         if(!isPlaying || isPlaying && playingData.id!=id){
             await playById(id);
             setPlayPic(playing); 
         }else{
             await pauseById(id);
             setPlayPic(play); 
+        }
+    }
+
+    async function preferFunc(){
+        if(!preferData.some((e)=>e.id==id)){
+            await setPreferById(id);
+            setPreferPic(listFill);
+        }
+        else{
+            await removePreferById(id);
+            setPreferPic(list);
         }
     }
 
@@ -79,7 +97,7 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
-                            <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
+                            <button className="zeneGombok" onClick={()=>{setLenyil(false); preferFunc()}}><img src={preferPic} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                         </div>
                         }
                     </td>
@@ -109,7 +127,7 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                     {logedIn && <button className="zeneGombok" ><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" ><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" ><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
-                    <button className="zeneGombok" ><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
+                    <button className="zeneGombok" onClick={preferFunc}><img src={preferPic} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                     <button className="zeneGombok" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button>
                 </td>}
             </tr>
