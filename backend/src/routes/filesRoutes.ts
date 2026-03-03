@@ -8,8 +8,8 @@ router.post('/music', verifyToken, uploadMusicFile);
 router.post('/image', uploadImageFile);
 router.get('/image', verifyToken, getImageFileList);
 router.get('/image/:id', getImageFileById);
-router.get('/music/:filename', verifyToken, downloadMusicFile);
-router.get('/image/:filename', verifyToken, downloadImageFile);
+router.get('/musicDownload/:id', verifyToken, downloadMusicFile);
+router.get('/imageDownload/:id', verifyToken, downloadImageFile);
 router.delete('/image/:id', verifyToken, deleteImageFile);
 router.delete('/music/:id', verifyToken, deleteMusicFile);
 

@@ -2,12 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { getPlaylistsData, getUserData, loadMusicsByUserId, loadPlaylists, logedIn, musicsData} from "../data";
 import '../styles/mainPage.css';
 import add from '../assets/add.png';
-import play from '../assets/play.png';
-import pencil from '../assets/pencil.png';
-import random from '../assets/randomizer_empty.png';
-import list from '../assets/list.png';
 import { useState } from "react";
 import RowGenerator from "./playlist-row";
+import PlaylistShow from "./playlist-show";
 
 export default function MainPage() {
     const userData = getUserData();
@@ -24,9 +21,9 @@ export default function MainPage() {
     }
     sizer()
     window.addEventListener("resize", sizer)
+
     return(
         <div className="mainPage">
-            
             {userData.id == -1 && <Link to="/auth?mode=login" className="pleaseLogin">Jelentkezz be</Link>}
             {userData.id > -1 &&
             <div className="keresesMenu">
@@ -73,19 +70,14 @@ export default function MainPage() {
               </tbody>
             </table>
             }
-            {userData.id > -1 && playlists.length > 0 && isPlaylists &&playlists.map((elem, index)=>(
-                <div className="row" key={index}>
-                    <Link to={`/playlist?id=${elem.id}`} className="row-link" >
-                        <div className="listaInfo">
-                            <span className="mainKepSpan"><img src={elem.listaPic} alt="album kép" className="mainKep"/></span>
-                            <span className="mainCimSpan"><p className="mainCim">{elem.name}</p><p className="creator">{elem.userName}</p></span>
-                        </div>
-                    </Link>
-                    <div className="listaButtons">
-                        {logedIn && elem.ownerId == userData.id && <Link to={`/editPlaylist?id=${elem.id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>}
-                        <button className="mainListButtons"><img src={play} alt="Lejátszás" className="listaButtonImg"/></button>
-                    </div>
-                </div>
+            {userData.id > -1 && playlists.length > 0 && isPlaylists &&playlists.map((elem)=>(
+              <PlaylistShow key={elem.id}
+              id={elem.id} 
+              listaPic={elem.listaPic} 
+              name={elem.name} 
+              userName={elem.userName} 
+              ownerId={elem.ownerId}
+              />
             ))}
             {userData.id > -1 && isPlaylists &&
             <Link to="/editplaylist" className="botRow-link">

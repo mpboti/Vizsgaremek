@@ -17,8 +17,8 @@ import randomFill from "../assets/randomizer fill.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
-import { isLoaded, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
-import { getUserData, ip } from "../data";
+import { firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setFirstLoad, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { doDownload, getUserData, ip, logedIn } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function Player() {
@@ -34,14 +34,28 @@ export default function Player() {
     const [currentValue, setCurrentValue] = useState(0);
     const hossz = hosszCalculate()!="NaN:NaN"?hosszCalculate():"0:00";
     const [current, setCurrent] = useState("0:00");
-    const [isPrev, setIsPrev] = useState(false);
     const [muteButt, setMuteButt] = useState(volumeIcon2);
     const [playPic, setPlayPic] = useState(play);
     const [repeatPic, setRepeatPic] = useState(repeat);
     const [randomPic, setRandomPic] = useState(random);
-    const [cim, setCim] = useState("not loaded");
-    const [eloado, setEloado] = useState("not loaded");
+    const [cim, setCim] = useState(playingData?.name?playingData.name:"not loaded");
+    const [eloado, setEloado] = useState(playingData?.artistName?playingData.artistName:"not loaded");
     const [volume, setVolume] = useState(settingData.volume);
+
+   function volumeSet(currentVolume){
+        setVolume(currentVolume);
+        if (currentVolume == 0) {
+            setMuteButt(volumeIcon0);
+        } else if (currentVolume < 33) {
+            setMuteButt(volumeIcon1);
+        } else if (currentVolume < 66) {
+            setMuteButt(volumeIcon2);
+        } else {
+            setMuteButt(volumeIcon3);
+        }
+        setMusicVolume(currentVolume);
+        updateVolume(currentVolume);
+    }
 
     useEffect(()=>{
         setInterval(()=>{
@@ -67,12 +81,39 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
-        const changeBack = playerChange(() => {
-            if(isLoaded){
-                setIsPrev(false);
-            }else{
-                setIsPrev(true);
+        function handleKeyDown(e){
+            switch (e.key) {
+                case " ":
+                    e.preventDefault();
+                        playOrPause();
+                    break;
+                
+                case "ArrowRight":
+                    e.preventDefault();
+                    if(playingMusic.duration>playingMusic.currentTime)
+                        playingMusic.currentTime += 5;
+                    break;
+                
+                case "ArrowLeft":
+                    e.preventDefault();
+                    if(playingMusic.currentTime>=5)
+                        playingMusic.currentTime -= 5;
+                    break;
+
+                case "ArrowUp":
+                    e.preventDefault();
+                    if(musicVolume+1<100)
+                        volumeSet(musicVolume+2);
+                    break;
+
+                case "ArrowDown":
+                    e.preventDefault();
+                    if(musicVolume-1>0)
+                        volumeSet(musicVolume-2);
+                    break;
             }
+        }
+        const changeBack = playerChange(() => {
             if(isPlaying){
                 setPlayPic(pause);
             }else{
@@ -80,10 +121,51 @@ export default function Player() {
             }
             setCim(playingData.name);
             setEloado(playingData.artistName);
+            window.addEventListener("keydown", handleKeyDown);
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: playingData.name,
+                    artist: playingData.artistName,
+                    album: playingData.albumName,
+                    artwork: [
+                        {
+                            src: playingData.imageUrl,
+                            sizes: "512x512",
+                            type: "image/*",
+                        },
+                    ],
+                });
+                navigator.mediaSession.setActionHandler("play", () => {
+                    playOrPause();
+                });
             
+                navigator.mediaSession.setActionHandler("pause", () => {
+                    playOrPause();
+                });
+            
+                navigator.mediaSession.setActionHandler("previoustrack", () => {
+                    prevMusic();
+                });
+            
+                navigator.mediaSession.setActionHandler("nexttrack", () => {
+                    nextMusic();
+                });
+            
+                navigator.mediaSession.setActionHandler("seekbackward", () => {
+                    if(playingMusic.currentTime>=5)
+                        playingMusic.currentTime -= 5;
+                });
+            
+                navigator.mediaSession.setActionHandler("seekforward", () => {
+                    if(playingMusic.duration>playingMusic.currentTime)
+                        playingMusic.currentTime += 5;
+                });
+            }
         });
-        return changeBack;
+        return ()=>{changeBack();window.removeEventListener("keydown", handleKeyDown);};
     },[])
+
+    
 
     function playOrPause(){
         if(isUploadPlay){
@@ -143,15 +225,17 @@ export default function Player() {
     }
 
     async function setVolumeToSetting(){
-        await fetch(`http://${ip}/settings/${getUserData().id}`,{
-            method:"PUT",
-            headers:{
-                'Content-Type': 'application/json',
-                'x-access-token': getAuthToken()
-            },
-            body: JSON.stringify({volume: volume})
-        });
-        loadSettings();
+        if(logedIn){
+            await fetch(`http://${ip}/settings/${getUserData().id}`,{
+                method:"PUT",
+                headers:{
+                    'Content-Type': 'application/json',
+                    'x-access-token': getAuthToken()
+                },
+                body: JSON.stringify({volume: volume})
+            });
+            loadSettings();
+        }
     }
 
     function timeChange(){
@@ -180,7 +264,7 @@ export default function Player() {
 
     return (
         <>
-        {isPrev && (
+        {settingData.lastMusicId && (
         <div className="player">
             <div className="playerData">
                 <div>
@@ -199,8 +283,8 @@ export default function Player() {
                 <input type="range" min="0" max="100" value={volume} className="volumeSlider" onChange={VolumeChange} onMouseUp={setVolumeToSetting}/>
             </div>
             <div className="playerControls">
-                <button className="controlButton"><img src={add} alt="Hozzáadás" className="controlImg"/></button>
-                <button className="controlButton"><img src={download} alt="Letöltés" className="controlImg"/></button>
+                {logedIn && <button className="controlButton"><img src={add} alt="Hozzáadás" className="controlImg"/></button>}
+                {logedIn && <button className="controlButton" onClick={()=>doDownload(playingData.id)}><img src={download} alt="Letöltés" className="controlImg"/></button>}
                 <button className="controlButton" onClick={()=>{randomize();isRandomized?setRandomPic(randomFill):setRandomPic(random)}}><img src={randomPic} alt="Jelentés" className="controlImg"/></button>
                 <button className="controlButton" onClick={repeatFunc}><img src={repeatPic} alt="Ismétlés" className="controlImg"/></button>
                 <button className="controlButton" onClick={prevMusic}><img src={previous} alt="Előző" className="controlImg"/></button>

@@ -175,3 +175,7 @@ export async function SettingAction({request}){
       console.log(err.message);
   }
 }
+
+export function SettingLoader(){
+  loadSettings();
+}

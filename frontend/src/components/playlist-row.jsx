@@ -10,7 +10,7 @@ import defaultMusicPic from "../assets/defaultMusicPic.PNG"
 import pencil from "../assets/pencil.png"
 import playing from "../assets/playing.png"
 import { useNavigate } from 'react-router-dom'
-import { getUserData, isItunes, logedIn, musicsData } from '../data'
+import { doDownload, getUserData, isItunes, logedIn } from '../data'
 import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById } from '../playerLogic'
 
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
@@ -38,6 +38,11 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
         const changeBack = playButtonChange(() => {
             setCurrentIsPlaying(isPlaying);
             setCurrentPlayingId(playingData?.id);
+            if(preferData.length!=0 && preferData.some((e)=>e.id==id)){
+                setPreferPic(listFill);
+            }else{
+                setPreferPic(list);
+            }
         });
         return changeBack;
     }, [currentIsPlaying, currentPlayingId, id]);
@@ -81,20 +86,20 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                 {!lenyil?
                     <td className="gombok">
                         <button onClick={()=>setLenyil(true)} className="zeneGombok"><img src={dots} alt="menu" className="zeneGombokImg"/></button>
-                        <button className="zeneGombok" id="play"><img src={play} alt="lejátszás" className="zeneGombokImg"/></button>
+                        <button className="zeneGombok" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button>
                     </td>:
                     
                     <td className="gombok">
                         <button onClick={()=>setLenyil(false)} className="zeneGombok"><img src={dots} alt="menu" className="zeneGombokImg"/></button>
-                        <button className="zeneGombok" id="play" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button><br/>
+                        <button className="zeneGombok" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button><br/>
                         {onlyAdd?
                         <div className="lenyilo">
-                            {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
-                            <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=itunes&id=${id}&userId=${userId}`)}}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
+                            {logedIn && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=itunes&id=${id}&userId=${userId}`)}}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
+                            <button className="zeneGombok" onClick={()=>{setLenyil(false)}}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                         </div>:
                         <div className="lenyilo">
                             {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
-                            {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
+                            {logedIn && <button className="zeneGombok" onClick={()=>{setLenyil(false);doDownload(id)}}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
                             <button className="zeneGombok" onClick={()=>{setLenyil(false); preferFunc()}}><img src={preferPic} alt="műsorra fűzés" className="zeneGombokImg"/></button>
@@ -124,7 +129,7 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                 </td>:
                 <td className="gombok">
                     {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
-                    {logedIn && <button className="zeneGombok" ><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
+                    {logedIn && <button className="zeneGombok" onClick={()=>doDownload(id)} ><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" ><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" ><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
                     <button className="zeneGombok" onClick={preferFunc}><img src={preferPic} alt="műsorra fűzés" className="zeneGombokImg"/></button>

@@ -2,6 +2,7 @@ import { Form, Link, useSearchParams, redirect} from "react-router-dom";
 import "../styles/forms.css";
 import { setUserData, ip, loadData, loadPlaylists, getUserData } from "../data";
 import { getAuthToken } from "../auth";
+import { loadLastMusic, loadSettings } from "../playerLogic";
 
 export default function LoginOrSignin(){
     const [searchParams] = useSearchParams();
@@ -94,6 +95,8 @@ export async function LoginAction({request}){
     
     await loadData();
     await loadPlaylists(getUserData().id);
+    await loadSettings();
+    await loadLastMusic();
     return redirect('/');
   } catch (error) {
     console.error("Error during authentication:", error);

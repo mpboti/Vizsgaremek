@@ -4,6 +4,7 @@ import { uploadMusicMiddleware, uploadImageMiddleware } from "../middleware/uplo
 import { ImageFile } from "../classes/imageFile";
 import { MusicFile } from "../classes/musicFile";
 import { safeUnlink } from "../utils/fileUtils";
+import path from "path";
 
 export async function getMusicFileList (_req: Request, res: Response) {
     const conn = await config.connection;
@@ -118,16 +119,16 @@ export async function uploadImageFile(req: Request, res: Response) {
 }
 
 export async function downloadMusicFile(req: Request, res: Response) {
-    const fileName = req.params.id as string;
-    const filePath = config.baseDir + '/uploads/musics/';
+    const id = req.params.id as string;
     const conn = await config.connection;
     try {
-        const [ressults] = await conn.query("SELECT * FROM music_files WHERE id = ?", [fileName]);
+        const [ressults] = await conn.query("SELECT * FROM music_files WHERE id = ?", [id]);
         if (ressults.length === 0) {
             res.status(404).json({ message: "Music file not found." });
             return;
         }
-        res.download(filePath + fileName, fileName, (err) => {
+        res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+        res.download(path.resolve(ressults[0].filePath), ressults[0].fileName, (err) => {
             if (err) {
                 console.error("Error downloading music file:", err);
                 res.status(500).json({ message: "Internal server error." });

@@ -27,6 +27,8 @@ div.playerSliders {
     align-items: center;
     color: white;
     gap: 8px;
+    margin-left: auto;
+    margin-right: 0px;
 }
 
 .muteButton {
@@ -43,7 +45,6 @@ div.playerSliders {
 div.playerControls {
     display: flex;
     align-items: center;
-    margin-left: auto;
     gap: 8px;
     margin-right: 17px;
     color: white;
@@ -129,6 +130,11 @@ img.muteImg {
         align-items: center;
     }
     div.playerControls {
+        display: flex;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    div.playerSliders{
         display: flex;
         margin-left: auto;
         margin-right: auto;

@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import "../styles/kereses.css"
-import { getMusicsData, getPlaylistsData, getUserData, logedIn, searchITunes, searchMusics, searchPlaylists,} from "../data";
-import { Link, useSearchParams } from "react-router-dom";
+import { getMusicsData, getPlaylistsData, searchITunes, searchMusics, searchPlaylists,} from "../data";
+import { useSearchParams } from "react-router-dom";
 import RowGenerator from "./playlist-row";
-import play from '../assets/play.png';
-import random from '../assets/randomizer_empty.png';
-import list from '../assets/list.png';
-import pencil from "../assets/pencil.png"
+import PlaylistShow from "./playlist-show";
 
 export default function Kereses(){
   const [searchParams] = useSearchParams();
@@ -182,20 +179,15 @@ export default function Kereses(){
         </table>
       :
         <div>
-          {playlistsData.map((elem, index)=>(
-              <div className="row" key={index}>
-                  <Link to={`/playlist?id=${elem.id}`} className="row-link" >
-                      <div className="listaInfo">
-                          <span className="mainKepSpan"><img src={elem.listaPic} alt="album kép" className="mainKep"/></span>
-                          <span className="mainCimSpan"><p className="mainCim">{elem.name}</p><p className="creator">{elem.userName}</p></span>
-                      </div>
-                  </Link>
-                  <div className="listaButtons">
-                      {logedIn && elem.ownerId == getUserData().id && <Link to={`/editPlaylist?id=${elem.id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>}
-                      <button className="mainListButtons"><img src={play} alt="Lejátszás" className="listaButtonImg"/></button>
-                  </div>
-              </div>
-            ))}
+          {playlistsData.length > 0 && playlistsData.map((elem)=>(
+            <PlaylistShow key={elem.id}
+            id={elem.id} 
+            listaPic={elem.listaPic} 
+            name={elem.name} 
+            userName={elem.userName} 
+            ownerId={elem.ownerId}
+            />
+          ))}
         </div>
       }
     </div>

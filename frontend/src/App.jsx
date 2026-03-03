@@ -8,7 +8,7 @@ import ErrorNotFound from "./basics/ErrorNotFound";
 import { createBrowserRouter } from "react-router-dom";
 import LoginOrSignin, { LoginAction } from "./components/loginOrSignin";
 import CreateOrEditPlaylist, { PlaylistAction } from "./components/createOrEditPlaylist";
-import Setting, { SettingAction } from "./components/setting";
+import Setting, { SettingAction, SettingLoader } from "./components/setting";
 import CreateOrEditMusic, { MusicAction, MusicAddLoader } from "./components/createOrEditMusic";
 import { useEffect } from "react";
 import { logout } from "./data";
@@ -31,7 +31,7 @@ function App() {
       {path: "/search", element: <Kereses />},
       {path: "/auth", element: <LoginOrSignin />, action: LoginAction},
       {path: "/editplaylist", element: <CreateOrEditPlaylist />, action: PlaylistAction },
-      {path: "/setting", element: <Setting />, action: SettingAction},
+      {path: "/setting", element: <Setting />, action: SettingAction, loader: SettingLoader},
       {path: "/addMusic", element: <CreateOrEditMusic/>, action: MusicAction, loader: MusicAddLoader}
     ]}
   ])

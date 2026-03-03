@@ -7,7 +7,7 @@ import pause from "../assets/pause.png"
 import del from "../assets/bin.png"
 import up from "../assets/up.png"
 import down from "../assets/down.png"
-import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists, loadCurrentITunesMusicData } from "../data";
+import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists, loadCurrentITunesMusicData, musicsData } from "../data";
 import { getAuthToken } from "../auth";
 import { uploadPause, uploadPlay } from "../playerLogic";
 
@@ -16,7 +16,6 @@ export default function CreateOrEditMusic(){
   const mode = searchParams.get("mode");
   const musicId = searchParams.get("id");
   const playlistId = searchParams.get("playlisId") || -1;
-
   const musicData = currentMusicData;
   const [mus, setMus] = useState(null);
   const [playPic, setPlayPic] = useState(upload);
@@ -527,7 +526,6 @@ export async function MusicAction({request}){
 }
 
 export async function MusicAddLoader({request}){
-  //uploadedMusicFile=null;
   const userData = getUserData()
   const token = getAuthToken();
   if(!token || token == "EXPIRED"){
@@ -538,9 +536,13 @@ export async function MusicAddLoader({request}){
     window.location.href = "/";
   }
   const mode = searchParams.get("mode")
-  if(mode=="itunes" && Object.keys(currentMusicData).length == 0){
-    await loadCurrentITunesMusicData(localStorage.getItem("searchText"), searchParams.get("id"))
-
+  if(mode=="itunes"){
+    
+    const id = parseInt(searchParams.get("id"));
+    const foundMusic = musicsData.find(e => e.id === id);
+    if (foundMusic)
+      localStorage.setItem("ItunesData", JSON.stringify(foundMusic));
+    await loadCurrentITunesMusicData(JSON.parse(localStorage.getItem("ItunesData")));
   }else if(mode=="edit"){
     if(searchParams.get("userId")==undefined)
       window.location.href = "/";

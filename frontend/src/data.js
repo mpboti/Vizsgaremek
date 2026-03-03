@@ -112,7 +112,8 @@ export async function loadPlaylists(userId){
             name: elem.name,
             userName: elem.username,
             listaPicId: elem.playlistPicId,
-            listaPic: elem.url
+            listaPic: elem.url,
+            ownerId: elem.ownerId
         }));
 
         for (const elem of playlistsData) {
@@ -283,9 +284,8 @@ export async function loadCurrentMusicData(id){
     const resData = await res.json();
     currentMusicData = resData;
 }
-export async function loadCurrentITunesMusicData(text, id){
-    await searchITunes(text);
-    currentMusicData=musicsData.find((e)=>e.id==id);
+export async function loadCurrentITunesMusicData(datas){
+    currentMusicData=datas;
     currentAlbumPicUrl=currentMusicData.imageUrl;
 }
 
@@ -339,6 +339,36 @@ export async function loadMusicsByUserId(userId){
       return !dupla;
     });
     isNew=true;
+}
+
+export async function doDownload(id){
+    const response = await fetch(`http://${ip}/musics/${id}`)
+    const responseData = await response.json();
+    const res = await fetch(`http://${ip}/files/musicDownload/${responseData.id}`,{
+        headers:{
+            'x-access-token': getAuthToken()
+        }
+    })
+    if (!res.ok) {
+      throw new Error("Download failed");
+    }
+    console.log([...res.headers.entries()]);
+    const contentDisposition = res.headers.get("Content-Disposition");
+    let filename = "download";
+
+    if (contentDisposition && contentDisposition.includes("filename=")) {
+        filename = contentDisposition.split("filename=")[1].replace(/"/g, "");
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
 }
 
 //keresés metódusok

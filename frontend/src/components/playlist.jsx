@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
 import { getMusicsData, getPlaylistData, getUserData, loadPlaylist, logedIn, loadMusicsByPlaylistId } from '../data'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import pencil from "../assets/pencil.png"
-import repeat from "../assets/repeat.png"
-import randomizer from "../assets/randomizer_empty.png"
-import play from "../assets/play.png"
-import add from "../assets/add.png"
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import pencil from "../assets/pencil.png";
+import list from "../assets/list.png";
+import listFill from "../assets/list fill.png";
+import play from "../assets/play.png";
+import pause from "../assets/pause.png";
+import add from "../assets/add.png";
+import { data, isPlaying, loadDataByPlaylistId, pauseById, playButtonChange, playById, playingData, playingPlaylistId, preferPlaylists, removePlaylistPreferId, setIsLoad, setPlaylistPreferId } from '../playerLogic.js'
 
 export default function Playlist() {
   const [searchParams] = useSearchParams();
@@ -18,6 +20,35 @@ export default function Playlist() {
   const musicsData = getMusicsData();
   const [isEdit, setIsEdit] = useState(false);
   const navigate = useNavigate();
+  const [preferPic, setPreferPic]= useState(list);
+  const [playPic, setPlayPic]= useState(play);
+
+  useEffect(() => {
+    if(preferPlaylists.some((e)=>e==playlistId)){
+      setPreferPic(listFill);
+    }else{
+      setPreferPic(list);
+    }
+    if(playlistId==playingPlaylistId && isPlaying){
+      setPlayPic(pause);
+    }else{
+      setPlayPic(play);
+    }
+    const changeBack = playButtonChange(() => {
+      if(preferPlaylists.some((e)=>e==playlistId)){
+        setPreferPic(listFill);
+      }else{
+        setPreferPic(list);
+      }
+      if(playlistId==playingPlaylistId && isPlaying){
+        setPlayPic(pause);
+      }else{
+        setPlayPic(play);
+      }
+    });
+    return changeBack;
+  }, []);
+
   if(playlistId!=playlistData.id)
     navigate("/");
 
@@ -30,6 +61,30 @@ export default function Playlist() {
   }
   sizer()
   window.addEventListener("resize", sizer)
+  
+  
+
+  async function playOrPauseList(){
+    if(playingPlaylistId!=playlistId){
+      await loadDataByPlaylistId(playlistId);
+      playById(data[0].id);
+    }else{
+      if(isPlaying){
+        pauseById(playingData.id);
+        setIsLoad(false);
+      }else{
+        playById(playingData.id);
+      }
+    }
+  }
+
+  async function preferFunc(){
+    if(!preferPlaylists.some((e)=>e==playlistId)){
+      await setPlaylistPreferId(playlistId);
+    }else{
+      await removePlaylistPreferId(playlistId);
+    }
+  }
   return (
     <div className="playlistContainer">
       <div>
@@ -43,7 +98,8 @@ export default function Playlist() {
             <p className="mufajok">műfajok: <span className="lowerMufajok">{playlistData.mufajok}</span></p>
             <p className="listaGombtarto">
               {logedIn && userData.id==playlistData.ownerId?<button className={isEdit?"listaGombok editing":"listaGombok"} onClick={()=>isEdit?setIsEdit(false):setIsEdit(true)}><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>:undefined}
-              <button className="listaGombok"><img src={play} alt="lejátszás" className="listaGombokImg"/></button>
+              <button className="listaGombok" onClick={()=>preferFunc()}><img src={preferPic} alt="List" className="listaGombokImg"/></button>
+              <button className="listaGombok" onClick={()=>playOrPauseList()}><img src={playPic} alt="lejátszás" className="listaGombokImg"/></button>
             </p>
           </div>
         </div>
