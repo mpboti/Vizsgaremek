@@ -63,7 +63,7 @@ export async function getPlaylistById(req: Request, res: Response) {
         const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, image_files.fileName, image_files.mimeType, image_files.filePath FROM playlists INNER JOIN image_files ON image_files.id = playlists.playlistPicId WHERE playlists.id = ?", [id]);
         const [musics] = await conn.query("SELECT musicId, position FROM playlist_musics WHERE playlistId = ?", [id]);
         if (results.length === 0) {
-            const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId FROM playlists WHERE id = ?", [id]);
+            const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicUrl FROM playlists WHERE id = ?", [id]);
             if (results2.length === 0) {
                 res.status(404).json({ message: "Playlist not found." });
                 return;
@@ -73,7 +73,11 @@ export async function getPlaylistById(req: Request, res: Response) {
                 res.status(404).json({ message: "User not found." });
                 return;
             }
-            res.status(200).json({...results2[0], url: null, musics: musics, ...username[0]});
+            if(results2[0].playlistPicUrl!=null){
+                res.status(200).json({...results2[0], url: results2[0].playlistPicUrl, musics: musics, ...username[0]});
+            }else{   
+                res.status(200).json({...results2[0], url: null, musics: musics, ...username[0]});
+            }
         }else{
             const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [results[0].ownerId]);
             if (username.length === 0) {

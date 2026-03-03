@@ -263,7 +263,7 @@ export async function searchMusicsByUsername(req: Request, res: Response){
 export async function searchPlaylistsByUsername(req: Request, res: Response){
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, users.username FROM playlists INNER JOIN users ON users.id = playlists.ownerId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
+        const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, playlists.playlistPicUrl, users.username FROM playlists INNER JOIN users ON users.id = playlists.ownerId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
             res.status(300).json({ message: "No playlists found for this user." });
