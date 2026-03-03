@@ -118,7 +118,9 @@ export async function loadPlaylists(userId){
 
         for (const elem of playlistsData) {
             if (elem.listaPic != null) {
-                elem.listaPic = `http://${ip}` + elem.listaPic;
+                if(!(elem.listaPic.startsWith("http://") || elem.listaPic.startsWith("https://"))){
+                    elem.listaPic = `http://${ip}` + elem.listaPic;
+                }
             }else{
                 elem.listaPic = defaultPlaylistPic;
             }
@@ -152,7 +154,7 @@ export async function loadPlaylist(playlistId){
         name: resData.name,
         userName: resData.username,
         listaPicId: resData.playlistPicId,
-        listaPic: resData?.url?`http://${ip}` + resData.url:defaultPlaylistPic,
+        listaPic: resData?.url?!(resData.url.startsWith("http://") || resData.url.startsWith("https://"))?`http://${ip}` + resData.url:resData.url:defaultPlaylistPic,
         musics: resData.musics.sort((a, b) => a.position - b.position),
         mufajok: ""
     }
@@ -163,6 +165,10 @@ export function getPlaylistData(){
 }
 
 //atribútomok mentése
+export let currentPlaylistPicUrl = null;
+export function setCurrentPlaylistPicUrl(url){
+    currentPlaylistPicUrl = url;
+}
 export let currentAlbumPicUrl = null;
 export function setCurrentAlbumPicUrl(url){
     currentAlbumPicUrl = url;
@@ -296,6 +302,9 @@ export async function loadMusicsByPlaylistId(playlistId){
         const resData = await res.json(res);
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
+                if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://")) && elem.imageUrl!=null){
+                    elem.imageUrl=`http://${ip}`+elem.imageUrl
+                }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push(elem);
             }
@@ -324,6 +333,9 @@ export async function loadMusicsByUserId(userId){
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
                 i++
+                if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://")) && elem.imageUrl!=null){
+                    elem.imageUrl=`http://${ip}`+elem.imageUrl
+                }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push({...elem, position: i});
             }
@@ -410,6 +422,9 @@ export async function searchMusics(text, endpoint) {
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
                 i++
+                if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://")) && elem.imageUrl!=null){
+                    elem.imageUrl=`http://${ip}`+elem.imageUrl
+                }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push({...elem, position: i});
             }
@@ -442,7 +457,9 @@ export async function searchPlaylists(text, endpoint){
         }));
         for (const elem of playlistsData) {
             if (elem.listaPic != null) {
-                elem.listaPic = `http://${ip}` + elem.listaPic;
+                if(!(elem.listaPic.startsWith("http://") || elem.listaPic.startsWith("https://"))){
+                    elem.listaPic = `http://${ip}` + elem.listaPic;
+                }
             }else{
                 elem.listaPic = defaultPlaylistPic;
             }

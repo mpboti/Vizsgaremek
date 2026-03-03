@@ -35,11 +35,13 @@ export async function getPlaylistByUserId(req: Request, res: Response) {
         }
         const atributes = new Array();
         for (const result of results){
-            if(result.playlistPicId==null){
-                atributes.push({ ...result, url: null, ...username[0]})
-            }else{
+            if(result.playlistPicId!=null){
                 const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
-                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length), ...username[0]})
+                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length), ...username[0]});
+            }else if(result.playlistPicUrl!=null){
+                atributes.push({ ...result, url: result.playlistPicUrl, ...username[0]});
+            }else{   
+                atributes.push({ ...result, url: null, ...username[0]})
             }
         }
         res.status(200).json(atributes);
@@ -128,8 +130,10 @@ export async function createPlaylist(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try  {
-        const [results] = await conn.query("INSERT INTO playlists (id, name, ownerId, playlistPicId) VALUES (null, ?, ?, ?)",
-        [playlist.name, playlist.creatorId, playlist.playlistPicId]);
+        const [playlists] = await conn.query("SELECT * FROM playlists WHERE ownerId = ?", [playlist.creatorId]);
+        playlist.position=playlists.length+1;
+        const [results] = await conn.query("INSERT INTO playlists (id, name, ownerId, playlistPicId, playlistPicUrl, position) VALUES (null, ?, ?, ?, ?, ?)",
+        [playlist.name, playlist.creatorId, playlist.playlistPicId, playlist.playlistPicUrl, playlist.position]);
         res.status(201).json({ message: "Playlist created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -245,24 +249,14 @@ export async function updatePlaylist(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try {
-        if(playlist.playlistPicId==null){
-            const [results] = await conn.query("UPDATE playlists SET name = ? WHERE id = ?", [playlist.name, id]);
-            if (results.affectedRows === 0) {
-                res.status(404).json({ message: "Playlist not found." });
-                return;
-            }
-            res.status(200).json({ message: "Playlist updated successfully." });
-            return;
-        }else{
-            const [results] = await conn.query("UPDATE playlists SET name = ?, playlistPicId = ? WHERE id = ?", [playlist.name, playlist.playlistPicId, id]);
-            if (results.affectedRows === 0) {
-                res.status(404).json({ message: "Playlist not found." });
-                return;
-            }
-            res.status(200).json({ message: "Playlist updated successfully." });
+        const [results] = await conn.query("UPDATE playlists SET name = ?, playlistPicId = ?, playlistPicUrl = ? WHERE id = ?", [playlist.name, playlist.playlistPicId, playlist.playlistPicUrl, id]);
+        if (results.affectedRows === 0) {
+            res.status(404).json({ message: "Playlist not found." });
             return;
         }
-        
+        console.log(req.body)
+        res.status(200).json({ message: "Playlist updated successfully." });
+        return;
     } catch (error) {
         res.status(500).json({ message: "Internal server error." });
         return;

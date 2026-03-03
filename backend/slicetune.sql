@@ -58,12 +58,12 @@ CREATE TABLE musics (
     mufaj VARCHAR(255) NULL,
     albumId INT NULL,
     artistId INT NULL,
-    musicFileId INT NOT NULL,
+    musicFileId INT NULL,
     uploaderId INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (albumId) REFERENCES albums(id) ON DELETE SET NULL,
     FOREIGN KEY (artistId) REFERENCES artists(id) ON DELETE SET NULL,
-    FOREIGN KEY (musicFileId) REFERENCES music_files(id) ON DELETE CASCADE,
+    FOREIGN KEY (musicFileId) REFERENCES music_files(id) ON DELETE SET NULL,
     FOREIGN KEY (uploaderId) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -74,7 +74,7 @@ CREATE TABLE playlists (
     ownerId INT NOT NULL,
     position INT NULL,
     playlistPicId INT NULL,
-    playlistPicUrl VARCHAR NULL,
+    playlistPicUrl VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (id, position),
     FOREIGN KEY (ownerId) REFERENCES users(id) ON DELETE CASCADE,
@@ -103,6 +103,15 @@ CREATE TABLE user_settings(
     FOREIGN KEY (lastMusicId) REFERENCES musics(id) ON DELETE SET NULL,
     FOREIGN KEY (lastPlaylistId) REFERENCES playlists(id) ON DELETE SET NULL
 );
+
+CREATE TABLE reports(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    message VARCHAR(255) NULL,
+    musicId INT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (musicId) REFERENCES musics(id) ON DELETE CASCADE
+)
 
 DELIMITER $$
 

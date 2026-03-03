@@ -25,7 +25,7 @@ export let playingPlaylistId = null;
 export let preferPlaylists = [];
 export let musicVolume = 50;
 
-export function setMusicVolume(boo){
+export async function setMusicVolume(boo){
     musicVolume=boo;
 }
 
@@ -99,14 +99,6 @@ async function loadData(zeneData, id){
         const resData = await res.json();
         data = [ resData ];
         const audio = new Audio(`http://${ip}`+resData.musicUrl);
-        audio.addEventListener("pause", ()=>{
-            if(audio.currentTime < audio.duration-settingData.fadeValue){
-                isPlaying=false;
-                changeEvent(chage => chage());
-                changeEvents.forEach(change => change());
-            }
-        });
-        audio.addEventListener("play", ()=>{isPlaying=true;changeEvent(chage => chage());changeEvents.forEach(change => change());});
         zenek = [audio];
     }
     await loadAudio(zenek[data.findIndex((e)=>e.id==id)]);
@@ -186,14 +178,6 @@ export async function loadLastMusic(){
         const res = await fetch(`http://${ip}/musics/${settingData.lastMusicId}`)
         const resData = await res.json();
         const audio = new Audio(resData.musicUrl);
-        audio.addEventListener("pause", ()=>{
-            if(audio.currentTime < audio.duration-settingData.fadeValue){
-                isPlaying=false;
-                changeEvent(chage => chage());
-                changeEvents.forEach(change => change());
-            }
-        });
-        audio.addEventListener("play", ()=>{isPlaying=true;changeEvent(chage => chage());changeEvents.forEach(change => change());});
         zenek = [audio];
         data = [resData];
         firstZenek = [audio];
@@ -216,7 +200,7 @@ async function loadVolume(){
     }
 }
 
-export function updateVolume(volume){
+export async function updateVolume(volume){
     settingData.volume=volume;
     musicVolume=volume;
     loadVolume();
@@ -227,14 +211,6 @@ export async function setPreferById(id){
     let element = musicsData.find(e => e.id == id) || firstData.find(e => e.id == id) || data.find(e => e.id == id);
     if(!element) return;
     const audio = new Audio(element.musicUrl);
-    audio.addEventListener("pause", ()=>{
-        if(audio.currentTime < audio.duration-settingData.fadeValue){
-            isPlaying=false;
-            changeEvent(chage => chage());
-            changeEvents.forEach(change => change());
-        }
-    });
-    audio.addEventListener("play", ()=>{isPlaying=true; changeEvent(chage => chage()); changeEvents.forEach(change => change());});
     audio.volume = musicVolume/100
     preferZenek.push(audio);
     preferData.push(element);
@@ -340,8 +316,9 @@ export async function playById(id){
         }
     }
     if(isNew && isLoad){
-        if(new Object(zenek) != {}){
-            for(let i = 0; i<zenek.length;i++){
+        
+        for(let i = 0; i<zenek.length;i++){
+            if(Object.keys(zenek[i]).length > 0){
                 zenek[i].pause();
                 zenek[i].load();
             }

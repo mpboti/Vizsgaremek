@@ -11,7 +11,7 @@ export async function searchMusicsByName(req: Request, res: Response) {
         let ertekek = [];
         for(const i of resultsList){
             let ertek = {};
-            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId}
+            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId, musicFileId: i.musicFileId}
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
@@ -73,11 +73,13 @@ export async function searchPlaylistsByName(req: Request, res: Response) {
                 res.status(300).json({ message: "User not found." });
                 return;
             }
-            if(result.playlistPicId==null){
-                atributes.push({ ...result, url: null, ...username[0]})
-            }else{
+            if(result.playlistPicId!=null){
                 const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
-                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length), ...username[0]})
+                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length), ...username[0]});
+            }else if(result.playlistPicUrl!=null){
+                atributes.push({ ...result, url: result.playlistPicUrl, ...username[0]});
+            }else{   
+                atributes.push({ ...result, url: null, ...username[0]})
             }
         }
         res.status(200).json(atributes);
@@ -99,7 +101,7 @@ export async function searchMusicsByArtist(req: Request, res: Response){
         let ertekek = [];
         for(const i of resultsList){
             let ertek = {};
-            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId}
+            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId, musicFileId: i.musicFileId}
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
@@ -155,7 +157,7 @@ export async function searchMusicsByAlbum(req: Request, res: Response){
         let ertekek = [];
         for(const i of resultsList){
             let ertek = {};
-            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId}
+            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId, musicFileId: i.musicFileId}
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
@@ -211,7 +213,7 @@ export async function searchMusicsByUsername(req: Request, res: Response){
         let ertekek = [];
         for(const i of resultsList){
             let ertek = {};
-            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId}
+            ertek={id: i.id, name: i.name, mufaj: i.mufaj, uploaderId: i.uploaderId, musicFileId: i.musicFileId}
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
@@ -269,11 +271,13 @@ export async function searchPlaylistsByUsername(req: Request, res: Response){
         }
         const atributes = new Array();
         for (const result of results){
-            if(result.playlistPicId==null){
-                atributes.push({ ...result, url: null})
-            }else{
+            if(result.playlistPicId!=null){
                 const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
-                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length)})
+                atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length)});
+            }else if(result.playlistPicUrl!=null){
+                atributes.push({ ...result, url: result.playlistPicUrl});
+            }else{   
+                atributes.push({ ...result, url: null});
             }
         }
         console.log(results)

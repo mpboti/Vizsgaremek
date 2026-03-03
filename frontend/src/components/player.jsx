@@ -42,7 +42,7 @@ export default function Player() {
     const [eloado, setEloado] = useState(playingData?.artistName?playingData.artistName:"not loaded");
     const [volume, setVolume] = useState(settingData.volume);
 
-   function volumeSet(currentVolume){
+   async function volumeSet(currentVolume){
         setVolume(currentVolume);
         if (currentVolume == 0) {
             setMuteButt(volumeIcon0);
@@ -81,11 +81,32 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
+        async function handleKeyUp(e){
+            const target = e.target;
+            if (target.tagName.toLowerCase() === "input" && target.type === "text") {
+                return;
+            }
+            if(e.key=="ArrowUp" || e.key=="ArrowDown") {
+                e.preventDefault();
+                await fetch(`http://${ip}/settings/${getUserData().id}`,{
+                    method:"PUT",
+                    headers:{
+                        'Content-Type': 'application/json',
+                        'x-access-token': getAuthToken()
+                    },
+                    body: JSON.stringify({volume: musicVolume})
+                });
+            }
+        }
         function handleKeyDown(e){
+            const target = e.target;
+            if (target.tagName.toLowerCase() === "input" && target.type === "text" || target.tagName.toLowerCase() === "textarea" ) {
+                return;
+            }
             switch (e.key) {
                 case " ":
                     e.preventDefault();
-                        playOrPause();
+                    playOrPause();
                     break;
                 
                 case "ArrowRight":
@@ -122,6 +143,7 @@ export default function Player() {
             setCim(playingData.name);
             setEloado(playingData.artistName);
             window.addEventListener("keydown", handleKeyDown);
+            window.addEventListener("keyup", handleKeyUp);
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: playingData.name,
@@ -162,7 +184,7 @@ export default function Player() {
                 });
             }
         });
-        return ()=>{changeBack();window.removeEventListener("keydown", handleKeyDown);};
+        return ()=>{changeBack();window.removeEventListener("keydown", handleKeyDown);window.removeEventListener("keyup", handleKeyUp);};
     },[])
 
     

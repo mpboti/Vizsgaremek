@@ -122,7 +122,12 @@ export async function downloadMusicFile(req: Request, res: Response) {
     const id = req.params.id as string;
     const conn = await config.connection;
     try {
-        const [ressults] = await conn.query("SELECT * FROM music_files WHERE id = ?", [id]);
+        const [fileIds] = await conn.query("SELECT musicFileId FROM musics WHERE id = ?", [id]);
+        if (fileIds.length === 0) {
+            res.status(404).json({ message: "Music file not found." });
+            return;
+        }
+        const [ressults] = await conn.query("SELECT * FROM music_files WHERE id = ?", [fileIds[0].musicFileId]);
         if (ressults.length === 0) {
             res.status(404).json({ message: "Music file not found." });
             return;

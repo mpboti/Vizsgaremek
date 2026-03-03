@@ -435,8 +435,8 @@ export async function MusicAction({request}){
           body: JSON.stringify({userId: searchParams.get("userId"), musicId: searchParams.get("id")})
         })
         const resData1 = await playlists.json();
-        const tomb = resData1.playlists.map((elem)=>elem.id)
         if(resData1.isThere){
+          const tomb = resData1.playlists.map((elem)=>elem.id)
           for(const selectedId of playlistOptions.ids){
             if(selectedPlaylists.includes(selectedId) && !tomb.includes(selectedId)){
               await fetch(`http://${ip}/playlists/addMusic`,{
@@ -471,7 +471,7 @@ export async function MusicAction({request}){
           }
         }
         if(uploadedMusicFile!=null){
-          await fetch(`http://${ip}/files/music/${searchParams.get("id")}`, {
+          await fetch(`http://${ip}/files/music/${currentMusicData.musicFileId}`, {
             method:"DELETE",
             headers:{
               'x-access-token': getAuthToken()
@@ -503,7 +503,7 @@ export async function MusicAction({request}){
           updateBody={...updateBody, albumId: albumId}
         }
         if(Object.keys(updateBody).length > 0){
-          const res = await fetch(`http://${ip}/musics/${searchParams.get("id")}`, {
+          await fetch(`http://${ip}/musics/${searchParams.get("id")}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -537,13 +537,14 @@ export async function MusicAddLoader({request}){
   }
   const mode = searchParams.get("mode")
   if(mode=="itunes"){
-    
+    setUploadedMusicFile(null);
     const id = parseInt(searchParams.get("id"));
     const foundMusic = musicsData.find(e => e.id === id);
     if (foundMusic)
       localStorage.setItem("ItunesData", JSON.stringify(foundMusic));
     await loadCurrentITunesMusicData(JSON.parse(localStorage.getItem("ItunesData")));
   }else if(mode=="edit"){
+    setUploadedMusicFile(null);
     if(searchParams.get("userId")==undefined)
       window.location.href = "/";
     await loadCurrentMusicData(searchParams.get("id"))

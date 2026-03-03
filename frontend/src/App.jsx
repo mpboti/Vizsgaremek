@@ -7,7 +7,7 @@ import Kereses from "./components/kereses";
 import ErrorNotFound from "./basics/ErrorNotFound";
 import { createBrowserRouter } from "react-router-dom";
 import LoginOrSignin, { LoginAction } from "./components/loginOrSignin";
-import CreateOrEditPlaylist, { PlaylistAction } from "./components/createOrEditPlaylist";
+import CreateOrEditPlaylist, { loadPlaylistCreate, PlaylistAction } from "./components/createOrEditPlaylist";
 import Setting, { SettingAction, SettingLoader } from "./components/setting";
 import CreateOrEditMusic, { MusicAction, MusicAddLoader } from "./components/createOrEditMusic";
 import { useEffect } from "react";
@@ -30,7 +30,7 @@ function App() {
       {path: "/playlist", element: <Playlist />, loader: PlaylistLoader},
       {path: "/search", element: <Kereses />},
       {path: "/auth", element: <LoginOrSignin />, action: LoginAction},
-      {path: "/editplaylist", element: <CreateOrEditPlaylist />, action: PlaylistAction },
+      {path: "/editplaylist", element: <CreateOrEditPlaylist />, action: PlaylistAction, loader: loadPlaylistCreate },
       {path: "/setting", element: <Setting />, action: SettingAction, loader: SettingLoader},
       {path: "/addMusic", element: <CreateOrEditMusic/>, action: MusicAction, loader: MusicAddLoader}
     ]}

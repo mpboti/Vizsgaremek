@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { Form, redirect, useSearchParams } from "react-router-dom";
 import defaultPlaylistPic from "../assets/defaultPlaylistPic.png"
-import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists } from "../data";
+import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists, currentPlaylistPicUrl, setCurrentPlaylistPicUrl } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function CreateOrEditPlaylist(){
@@ -11,14 +11,38 @@ export default function CreateOrEditPlaylist(){
   
   const fileOpener = useRef();
   const [img, setImg] = useState(playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).listaPic:defaultPlaylistPic);
+  const [urlInput, setUrlInput] = useState(playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).listaPic:"");
 
-  function openPic(isFinal, e){
+
+  async function openPic(isFinal, e){
     if(!isFinal){
       fileOpener.current.click();
+    }else if(e.target.type=="text"){
+      const checked = await new Promise((resolve) => {
+        const image = new Image();
+        
+        image.onload = () => resolve(true);
+        image.onerror = () => resolve(false);
+        
+        image.src = e.target.value;
+      });
+      if(checked){
+        setImg(e.target.value);
+        setCurrentPlaylistPicUrl(e.target.value);
+        setCurrentPlaylistPicSetting(defaultPlaylistPic);
+      }else {
+        if(currentPlaylistPicSetting == defaultPlaylistPic)
+          setImg(currentPlaylistPicSetting);
+        else
+          setImg(URL.createObjectURL(currentPlaylistPicUrl));
+        setCurrentPlaylistPicUrl(null);
+      }
     }else{
       setImg(URL.createObjectURL(e.target.files[0]));
       setCurrentPlaylistPicSetting(e.target.files[0]);
+      setCurrentPlaylistPicUrl(null);
     }
+    console.log(currentPlaylistPicSetting, currentPlaylistPicUrl)
   }
 
   async function deletePlaylist() {
@@ -49,6 +73,9 @@ export default function CreateOrEditPlaylist(){
         <input type="text" name="playlistCim" placeholder="Lejátszási lista címe" defaultValue={playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).name:""} required/>
       </p>
       <p>
+        <input type="text" name="playlistPic" placeholder="Lejátszási lista kép url" value={urlInput} onChange={(e)=>{openPic(true, e);setUrlInput(e.target.value);}} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+      </p>
+      <p>
         <input ref={fileOpener} type="file" onChange={(e)=>openPic(true, e)} accept="image/*" style={{ display: "none" }}/>
         <img src={img} className="uploadAlbumCover" onClick={(e)=>openPic(false, e)}/>
       </p>
@@ -59,7 +86,7 @@ export default function CreateOrEditPlaylist(){
     </Form>
   )
 }
-// /files/image/:id
+
 export async function PlaylistAction({request}){
   try{
     const url = new URL(request.url);
@@ -77,33 +104,46 @@ export async function PlaylistAction({request}){
     }
 
     let playlistPicId=null;
-    if((playlistId && currentPlaylistPicSetting != defaultPlaylistPic) || (!playlistId && currentPlaylistPicSetting != playlistData?.listaPic)){
-      if(playlistData?.listaPicId != null && playlistId){
-        console.log(playlistData.listaPicId)
-        await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
-          method:"DELETE",
-          headers:{
-            'x-access-token': getAuthToken()
+    let playlistPicUrl=null;
+    
+      try{
+        if(currentPlaylistPicUrl && currentPlaylistPicSetting == defaultPlaylistPic){
+          playlistPicUrl=data.get("playlistPic")
+        }else if(!currentPlaylistPicUrl && currentPlaylistPicSetting != defaultPlaylistPic){
+          if(playlistData?.listaPicId != null && playlistId){
+            console.log(playlistData.listaPicId)
+            await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
+              method:"DELETE",
+              headers:{
+                'x-access-token': getAuthToken()
+              }
+            })
           }
-        })
-      }
-      const formData = new FormData();
-      formData.append("file", currentPlaylistPicSetting);
-      formData.append("userId", userData.id);
-      const picUpload = await fetch(`http://${ip}/files/image`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const uploadData = await picUpload.json();
-      playlistPicId = uploadData.id;
+          const formData = new FormData();
+          formData.append("file", currentPlaylistPicSetting);
+          formData.append("userId", userData.id);
+          const picUpload = await fetch(`http://${ip}/files/image`, {
+            method: 'POST',
+            body: formData
+          });
+          const uploadData = await picUpload.json();
+          playlistPicId = uploadData.id;
+        }
+    }catch(err){
+      console.log(err);
     }
+    
 
-    const playlistUpdateData={
+    let playlistUpdateData={
       name: data.get("playlistCim"),
       creatorId: localStorage.getItem("userId"),
-      playlistPicId: playlistPicId
     }
+    if(playlistPicId!=null){
+      playlistUpdateData={...playlistUpdateData, playlistPicId: playlistPicId}
+    }else if(playlistPicUrl!=null){
+      playlistUpdateData={...playlistUpdateData, playlistPicUrl: playlistPicUrl}
+    }
+    
 
     if(!playlistId){
       const res = await fetch(`http://${ip}/playlists/`, {
@@ -133,4 +173,7 @@ export async function PlaylistAction({request}){
   }catch(err){
     console.log(err);
   }
+}
+export function loadPlaylistCreate(){
+  setCurrentPlaylistPicUrl(null);
 }
