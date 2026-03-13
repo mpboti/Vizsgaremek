@@ -72,3 +72,23 @@ export async function updateSettingsById(req: Request, res: Response) {
     }
     return;
 }
+
+export async function removePlaylistId(req: Request, res: Response){
+    const id: number = parseInt(req.params.id as string);
+    if(isNaN(id)){
+        res.status(400).json({ message: "Invalid user id." })
+    }
+    const conn = await config.connection;
+    try{
+        const [results] = await conn.query(`UPDATE user_settings SET lastPlaylistId = NULL WHERE userId = ?`, [id]);
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: "Setting not found." });
+        }
+        res.status(200).json({ message: "Settings updated successfully." });
+        return;
+    } catch (err){
+        console.error(err)
+        res.status(500).json({ message: "Internal server error." })
+    }
+    return;
+}

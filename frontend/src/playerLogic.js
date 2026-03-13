@@ -3,13 +3,9 @@ import { getUserData, ip, isNew, logedIn, musicsData, setIsNew } from "./data";
 
 //all load things
 export let firstLoad = true;
-let zenek = [];
 export let data = [];
-let firstZenek = [];
 let firstData = [];
 let noRepeatList = [];
-let noRepeatMusic = [];
-export let preferZenek = [];
 export let preferData = [];
 let isLoad = true
 export let playingData = {};
@@ -21,16 +17,13 @@ export let settingData = {};
 export let isOneLoop = false;
 export let isLoopList = false;
 export let isRandomized = false;
+export let firstPlay = true;
 export let playingPlaylistId = null;
 export let preferPlaylists = [];
 export let musicVolume = 50;
 
 export async function setMusicVolume(boo){
     musicVolume=boo;
-}
-
-export function setFirstLoad(boo){
-    firstLoad=boo;
 }
 
 export function setIsOneLoop(boo){
@@ -47,6 +40,10 @@ export function setIsLoopList(boo){
 
 export function setIsLoad(boo){
     isLoad = boo;
+}
+
+export async function setFirstPlay(boo){
+    firstPlay = boo;
 }
 
 const changeEvents = [];
@@ -66,20 +63,43 @@ export function playerChange(chage) {
     }
 }
 
+async function savePlaylistIdToSettings(playlistId){
+    if(playlistId==null){
+        await fetch(`http://${ip}/settings/removePlaylist/${getUserData().id}`,{
+            method:"PUT",
+            headers:{
+                'x-access-token': getAuthToken()
+            }
+        });
+    }else{
+        await fetch(`http://${ip}/settings/${getUserData().id}`,{
+            method:"PUT",
+            headers:{
+                'Content-Type': 'application/json',
+                'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify({lastPlaylistId: playlistId})
+        });
+    }
+    
+}
+
 function loadAudio(audio){
     return new Promise(resolve => {
         audio.addEventListener("canplaythrough", resolve, { once: true });
+        audio.currentTime=0;
     });
+    
 };
 
 async function loadData(zeneData, id){ 
     isPlaying = false; 
-    zenek = [];
     data = [];
-    firstZenek = [];
     firstData = [];
+    
 
-    for(const element of zeneData){ 
+    for(const element of zeneData){
+        
         data.push(element);
         const audio = new Audio(element.musicUrl);
         audio.addEventListener("pause", ()=>{
@@ -90,29 +110,30 @@ async function loadData(zeneData, id){
             }
         });
         audio.addEventListener("play", ()=>{isPlaying=true;changeEvent(chage => chage());changeEvents.forEach(change => change());});
-        zenek.push(audio)
-        firstZenek.push(audio);
+        if(element.playlistId){
+            playingPlaylistId=element.playlistId;
+            await savePlaylistIdToSettings(element.playlistId);
+            await loadSettings();
+        }else{
+            playingPlaylistId=null;
+            await savePlaylistIdToSettings(null);
+            await loadSettings();
+        }
         firstData.push(element);
     };
     if(!data.some((e)=>e.id==id)){
         const res = await fetch(`http://${ip}/musics/${id}`)
         const resData = await res.json();
-        data = [ resData ];
-        const audio = new Audio(`http://${ip}`+resData.musicUrl);
-        zenek = [audio];
+        data = [resData];
     }
-    await loadAudio(zenek[data.findIndex((e)=>e.id==id)]);
-    playingPlaylistId=null
     isLoad=true;
 }
 
 export async function loadDataByPlaylistId(id){
-    for(const zene of firstZenek)
-        zene.load();
+    playingMusic.pause();
+    playingMusic.currentTime = 0;
     isPlaying = false;
-    zenek = [];
     data = [];
-    firstZenek = [];
     firstData = [];
 
     let zeneData = [];
@@ -137,23 +158,12 @@ export async function loadDataByPlaylistId(id){
 
     for(const element of zeneData){ 
         data.push(element);
-        const audio = new Audio(element.musicUrl);
-        audio.addEventListener("pause", ()=>{
-            if(audio.currentTime < audio.duration-settingData.fadeValue){
-                isPlaying=false;
-                changeEvent(chage => chage());
-                changeEvents.forEach(change => change());
-            }
-        });
-        audio.addEventListener("play", ()=>{isPlaying=true;changeEvent(chage => chage());changeEvents.forEach(change => change());});
-        zenek.push(audio)
-        firstZenek.push(audio);
         firstData.push(element);
     };
     await loadVolume();
-    playingPlaylistId=id
+    playingPlaylistId = id;
+    savePlaylistIdToSettings(id);
     console.log(data);
-    await loadAudio(zenek[data.findIndex((e)=>e.id==zeneData[0].id)]);
     isLoad=false;
     return zeneData;
 }
@@ -165,39 +175,43 @@ export async function loadSettings(){
         }
     })
     const resData = await res.json();
+    if(resData.lastPlaylistId != null){
+        playingPlaylistId = resData.lastPlaylistId;
+    }else{
+        playingPlaylistId = null;
+    }
     settingData = resData;
     if(!resData.fadeValue)
         settingData.fadeValue=0;
-    if(!resData.volume)
+    if(!resData.volume){
         settingData.volume=50;
+    }
     musicVolume=settingData.volume;
 }
 await loadSettings();
 export async function loadLastMusic(){
-    if(settingData.lastMusicId){
-        const res = await fetch(`http://${ip}/musics/${settingData.lastMusicId}`)
-        const resData = await res.json();
-        const audio = new Audio(resData.musicUrl);
-        zenek = [audio];
-        data = [resData];
-        firstZenek = [audio];
-        firstData = [resData];
-        playingData = resData;
-        playingMusic = audio;
-    }
     if(settingData.lastPlaylistId){
         playingPlaylistId = settingData.lastPlaylistId;
     }
-    if(changeEvent)
-        changeEvent(chage => chage());
+    if(settingData.lastMusicId){
+        const res = await fetch(`http://${ip}/musics/${settingData.lastMusicId}`)
+        const resData = await res.json();
+        resData.musicUrl=`http://${ip}${resData.musicUrl}`
+        const audio = new Audio(resData.musicUrl);
+        data = [resData];
+        firstData = [resData];
+        playingData = resData;
+        playingMusic = audio;
+        loadVolume();
+        if(changeEvent)
+            changeEvent(chage => chage());
+    }
 }
 await loadLastMusic();
 
 
 async function loadVolume(){
-    for(let i = 0; i<zenek.length;i++){
-        zenek[i].volume = musicVolume/100
-    }
+    playingMusic.volume = musicVolume/100;
 }
 
 export async function updateVolume(volume){
@@ -212,9 +226,8 @@ export async function setPreferById(id){
     if(!element) return;
     const audio = new Audio(element.musicUrl);
     audio.volume = musicVolume/100
-    preferZenek.push(audio);
     preferData.push(element);
-    await loadAudio(preferZenek[preferData.findIndex((e)=>e.id==id)]);
+    await loadAudio(audio);
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());
 }
@@ -223,7 +236,6 @@ export async function removePreferById(id){
     const idx = preferData.findIndex(e => e.id == id);
     if(idx > -1){
         preferData.splice(idx, 1);
-        preferZenek.splice(idx, 1);
         changeEvents.forEach(change => change());
         if (changeEvent) changeEvent(chage => chage());
     }
@@ -251,12 +263,10 @@ export async function removePlaylistPreferId(id){
 
 //the functions of the player
 export function uploadPlay(mus){
-    for(let i = 0; i<zenek.length;i++){
-        zenek[i].pause();
-        zenek[i].load();
-    }
+    playingMusic.pause();
+    playingMusic.currentTime = 0;
     if(mus!=null)
-        playingMusic=mus;
+        playingMusic.src=mus.src;
     playingMusic.volume=musicVolume/100
     playingMusic.play();
     isPlaying=true;
@@ -290,11 +300,9 @@ export function sliderPlay(){
 }
 
 export async function playById(id){
-    if(isUploadPlay){
-        playingMusic.pause();
-        playingMusic.load();
-    }else{
+    if(!isUploadPlay){
         if(logedIn){
+            firstLoad=false;
             await fetch(`http://${ip}/settings/${getUserData().id}`,{
                 method:"PUT",
                 headers:{
@@ -309,37 +317,34 @@ export async function playById(id){
         }
     }
     isUploadPlay=false;
-    for(let i = 0; i<zenek.length;i++){
-        if(data[i].id!=playingData.id && data[data.findIndex((e)=>e.id==playingData.id)]?.id!=id || playingData?.id!=id && isNew){
-            zenek[i].pause();
-            zenek[i].load();
+    
+    if(firstPlay){
+        if(settingData.lastPlaylistId){
+            await loadDataByPlaylistId(settingData.lastPlaylistId);
+            await loadVolume();
         }
-    }
-    if(isNew && isLoad){
-        
-        for(let i = 0; i<zenek.length;i++){
-            if(Object.keys(zenek[i]).length > 0){
-                zenek[i].pause();
-                zenek[i].load();
-            }
-        }
-        console.log("asd")
+        firstPlay=false;
+    }else if(isNew && isLoad){
+        console.log("asd");
         await loadData(musicsData, id);
         await loadVolume();
+        await loadAudio(playingMusic);
         setIsNew(false);
     }else if(isLoad){
         noRepeatList=[]
-        noRepeatMusic=[]
         for(let i = 0; i < firstData.length; i++){
-            zenek[i]=firstZenek[i];
             data[i]=firstData[i];
         }
     }
     if(!(playingMusic.currentTime >= playingMusic.duration-settingData.fadeValue) && playingData?.id != data[data.findIndex((e)=>e.id==id)].id){
-        playingMusic.load();
+        playingMusic.pause();
+        playingMusic.currentTime = 0;
     }
-    playingData=data[data.findIndex((e)=>e.id==id)];
-    playingMusic=zenek[data.findIndex((e)=>e.id==id)];
+    if(playingMusic.src !== new Audio(data[data.findIndex((e)=>e.id==id)].musicUrl).src){
+        playingData=await data[data.findIndex((e)=>e.id==id)];
+        playingMusic.src=await data[data.findIndex((e)=>e.id==id)].musicUrl;
+    }
+    
     playingMusic.play();
     isPlaying=true;
     changeEvents.forEach(change => change());
@@ -347,105 +352,91 @@ export async function playById(id){
     isLoad=true;
 }
 
-export async function pauseById(id){
+export async function pauseById(){
     isUploadPlay=false;
-    zenek[data.findIndex((e)=>e.id==id)].pause();
+    playingMusic.pause();
     isPlaying=false;
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());
 }
 
+let switching = false;
 export async function nextMusic(){
-    isLoad=false;
-    if(!(playingMusic.currentTime >= playingMusic.duration-settingData.fadeValue)){
-        playingMusic.load();
-    }else{
-        playingMusic.volume=musicVolume/100/2;
-    }
-    if(isOneLoop){
-        playingMusic.play();
-        changeEvents.forEach(change => change());
-        changeEvent(chage => chage());
-    }else if(playingPlaylistId==null && preferPlaylists.length != 0){
-        await loadDataByPlaylistId(preferPlaylists[0]);
-        playById(data[0].id);
-        preferPlaylists.reverse();
-        preferPlaylists.pop();
-        preferPlaylists.reverse();
-    }else if(preferData.length!=0){
-        if(noRepeatList.some((e)=>e.id==playingData.id)){
-            noRepeatMusic = [...noRepeatMusic.slice(0, noRepeatList.findIndex((e)=>e.id==playingData.id)), ...noRepeatMusic.slice(noRepeatList.findIndex((e)=>e.id==playingData.id) + 1)];
-            noRepeatList = noRepeatList.filter((e)=>e.id!=playingData.id);
-        }
-        noRepeatList.push(playingData);
-        noRepeatMusic.push(playingMusic);
-        preferZenek[0].volume=musicVolume/100;
-        data.reverse();
-        zenek.reverse();
-        data.pop();
-        zenek.pop();
-        data.push(preferData[0]); 
-        zenek.push(preferZenek[0]);
-        data.reverse();
-        zenek.reverse();
-        playById(preferData[0].id);
-        preferData.reverse();
-        preferZenek.reverse();
-        preferData.pop();
-        preferZenek.pop();
-        preferData.reverse();
-        preferZenek.reverse();
-    }else{
-        if(playingData.id == data[data.length-1].id){
-            if(preferPlaylists.length != 0){
-                await loadDataByPlaylistId(preferPlaylists[0]);
-                playById(data[0].id);
-                preferPlaylists.reverse();
-                preferPlaylists.pop();
-                preferPlaylists.reverse();
-            }else if(isLoopList){
-                isLoad=true;
-                playById(firstData[0].id);
-            }else{
-                isPlaying=false;
-                changeEvents.forEach(change => change());
-                changeEvent(chage => chage());
-            }
+    if (switching) return;
+    switching = true;
+    try {
+        isLoad=false;
+        if(!(playingMusic.currentTime >= playingMusic.duration-settingData.fadeValue)){
+            playingMusic.pause();
+            playingMusic.currentTime = 0;
         }else{
+            const fadingMusic = new Audio(playingData.musicUrl);
+            fadingMusic.play();
+            fadingMusic.currentTime=playingMusic.currentTime;
+            fadingMusic.volume=musicVolume/100/3;
+            playingMusic.pause();
+            playingMusic.currentTime = 0;
+            playingMusic.volume=musicVolume/100;
+        }
+        if(isOneLoop){
+            playingMusic.play();
+            changeEvents.forEach(change => change());
+            changeEvent(chage => chage());
+        }else if(playingPlaylistId==null && preferPlaylists.length != 0){
+            await loadDataByPlaylistId(preferPlaylists[0]);
+            await playById(data[0].id);
+            preferPlaylists.shift();
+        }else if(preferData.length!=0){
             if(noRepeatList.some((e)=>e.id==playingData.id)){
-                noRepeatMusic = [...noRepeatMusic.slice(0, noRepeatList.findIndex((e)=>e.id==playingData.id)), ...noRepeatMusic.slice(noRepeatList.findIndex((e)=>e.id==playingData.id) + 1)];
                 noRepeatList = noRepeatList.filter((e)=>e.id!=playingData.id);
+            }
+            noRepeatList.push(playingData);
+            data.shift();
+            data.unshift(preferData[0]); 
+            await playById(preferData[0].id);
+            preferData.shift();
+        }else{
+            if(playingData.id == data[data.length-1].id){
+                if(preferPlaylists.length != 0){
+                    await loadDataByPlaylistId(preferPlaylists[0]);
+                    await playById(data[0].id);
+                    preferPlaylists.shift();
+                }else if(isLoopList){
+                    isLoad=true;
+                    await playById(data[0].id);
+                }else{
+                    isPlaying=false;
+                    playingMusic.addEventListener("ended", ()=> {playingMusic.pause(); playingMusic.currentTime = 0;});
+                    changeEvents.forEach(change => change());
+                    changeEvent(chage => chage());
+                }
             }else{
-                noRepeatList.push(playingData);
-                noRepeatMusic.push(playingMusic);
-                data.reverse();
-                zenek.reverse();
-                data.pop();
-                zenek.pop();
-                data.reverse();
-                zenek.reverse();
-                playById(data[data.findIndex((e)=>e.id==playingData.id)+1].id);
+                if(noRepeatList.some((e)=>e.id==playingData.id)){
+                    noRepeatList = noRepeatList.filter((e)=>e.id!=playingData.id);
+                }else{
+                    noRepeatList.push(playingData);
+                    data.shift();
+                    await playById(data[data.findIndex((e)=>e.id==playingData.id)+1].id);
+                }
             }
         }
+        changeEvent(chage => chage());
+    } finally {
+        switching = false;
     }
-    
 }
 
 export function prevMusic(){
     isLoad=false;
     if(noRepeatList.length != 0){
-        playingMusic.load();
-        data.reverse();
-        zenek.reverse();
-        data.push(noRepeatList[noRepeatList.length-1]);
-        zenek.push(noRepeatMusic[noRepeatList.length-1]);
-        data.reverse();
-        zenek.reverse();
+        playingMusic.pause();
+        playingMusic.currentTime = 0;
+        data.unshift(noRepeatList[noRepeatList.length-1]);
         noRepeatList.pop();
-        noRepeatMusic.pop();
         playById(data[data.findIndex((e)=>e.id==playingData.id)-1].id);
     }else{
-        playingMusic.load();
+        playingMusic.pause();
+        playingMusic.currentTime = 0;
         playingMusic.play();
     }
 }
@@ -454,27 +445,22 @@ export function prevMusic(){
 export function randomize(){
     if(!isRandomized){
         const perData = [playingData];
-        const perMusic = [playingMusic];
         for (let i = 1; i < data.length; i++) {
             let rnd = Math.floor(Math.random() * (data.length));
-            while(perMusic.includes(zenek[rnd])){
+            while(perData.includes(data[rnd])){
                 rnd = Math.floor(Math.random() * (data.length));
             }
             perData.push(data[rnd]);
-            perMusic.push(zenek[rnd]);
         }
         for(let i = 0; i < perData.length; i++){
             data[i]=perData[i];
-            zenek[i]=perMusic[i];
         }
         isRandomized=true;
     }else{
         data=[];
-        zenek=[];
-        for(let i = 0; i<firstZenek.length;i++){
+        for(let i = 0; i<firstData.length;i++){
             if(!noRepeatList.includes(firstData[i])){
                 data.push(firstData[i]);
-                zenek.push(firstZenek[i]);
             }
         }
         isRandomized=false;

@@ -11,7 +11,7 @@ import pencil from "../assets/pencil.png"
 import playing from "../assets/playing.png"
 import { useNavigate } from 'react-router-dom'
 import { doDownload, getUserData, isItunes, logedIn } from '../data'
-import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById } from '../playerLogic'
+import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById, data, setFirstPlay } from '../playerLogic'
 
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
     const navigate = useNavigate();
@@ -55,6 +55,8 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
     async function playOrPause(){
         setIsLoad(true);
         if(!isPlaying || isPlaying && playingData.id!=id){
+            if(!data.includes((e)=>e.id=id))
+                await setFirstPlay(false);
             await playById(id);
             setPlayPic(playing); 
         }else{

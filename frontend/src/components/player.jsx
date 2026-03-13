@@ -17,7 +17,7 @@ import randomFill from "../assets/randomizer fill.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
-import { firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setFirstLoad, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
 import { doDownload, getUserData, ip, logedIn } from "../data";
 import { getAuthToken } from "../auth";
 
@@ -40,7 +40,7 @@ export default function Player() {
     const [randomPic, setRandomPic] = useState(random);
     const [cim, setCim] = useState(playingData?.name?playingData.name:"not loaded");
     const [eloado, setEloado] = useState(playingData?.artistName?playingData.artistName:"not loaded");
-    const [volume, setVolume] = useState(settingData.volume);
+    const [volume, setVolume] = useState(musicVolume);
 
    async function volumeSet(currentVolume){
         setVolume(currentVolume);
@@ -53,8 +53,30 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
-        setMusicVolume(currentVolume);
+        console.log("volume change");
+        await setMusicVolume(currentVolume);
         updateVolume(currentVolume);
+    }
+    
+    function playOrPause(){
+        if(isUploadPlay){
+            if(isPlaying){
+                uploadPause();
+                setPlayPic(play);
+            }else{
+                uploadPlay(null);
+                setPlayPic(pause);
+            }
+        }else{
+            if(isPlaying){
+                pauseById();
+                setIsLoad(false);
+                setPlayPic(play);
+            }else{
+                playById(playingData.id);
+                setPlayPic(pause);
+            }
+        }
     }
 
     useEffect(()=>{
@@ -72,15 +94,6 @@ export default function Player() {
                 nextMusic();
             setHosszValue(Math.round(playingMusic.duration).toString());
         },500);
-        if (volume == 0) {
-            setMuteButt(volumeIcon0);
-        } else if (volume < 33) {
-            setMuteButt(volumeIcon1);
-        } else if (volume < 66) {
-            setMuteButt(volumeIcon2);
-        } else {
-            setMuteButt(volumeIcon3);
-        }
         async function handleKeyUp(e){
             const target = e.target;
             if (target.tagName.toLowerCase() === "input" && target.type === "text") {
@@ -103,6 +116,7 @@ export default function Player() {
             if (target.tagName.toLowerCase() === "input" && target.type === "text" || target.tagName.toLowerCase() === "textarea" ) {
                 return;
             }
+            setVolume(musicVolume);
             switch (e.key) {
                 case " ":
                     e.preventDefault();
@@ -125,12 +139,16 @@ export default function Player() {
                     e.preventDefault();
                     if(musicVolume+1<100)
                         volumeSet(musicVolume+2);
+                    else if(musicVolume<100)
+                        volumeSet(musicVolume+1);
                     break;
 
                 case "ArrowDown":
                     e.preventDefault();
                     if(musicVolume-1>0)
                         volumeSet(musicVolume-2);
+                    else if(musicVolume>0)
+                        volumeSet(musicVolume-1);
                     break;
             }
         }
@@ -139,6 +157,16 @@ export default function Player() {
                 setPlayPic(pause);
             }else{
                 setPlayPic(play);
+            }
+            setVolume(musicVolume);
+            if (musicVolume == 0) {
+                setMuteButt(volumeIcon0);
+            } else if (musicVolume < 33) {
+                setMuteButt(volumeIcon1);
+            } else if (musicVolume < 66) {
+                setMuteButt(volumeIcon2);
+            } else {
+                setMuteButt(volumeIcon3);
             }
             setCim(playingData.name);
             setEloado(playingData.artistName);
@@ -172,7 +200,7 @@ export default function Player() {
                 navigator.mediaSession.setActionHandler("nexttrack", () => {
                     nextMusic();
                 });
-            
+
                 navigator.mediaSession.setActionHandler("seekbackward", () => {
                     if(playingMusic.currentTime>=5)
                         playingMusic.currentTime -= 5;
@@ -182,6 +210,7 @@ export default function Player() {
                     if(playingMusic.duration>playingMusic.currentTime)
                         playingMusic.currentTime += 5;
                 });
+                
             }
         });
         return ()=>{changeBack();window.removeEventListener("keydown", handleKeyDown);window.removeEventListener("keyup", handleKeyUp);};
@@ -189,26 +218,7 @@ export default function Player() {
 
     
 
-    function playOrPause(){
-        if(isUploadPlay){
-            if(isPlaying){
-                uploadPause();
-                setPlayPic(play);
-            }else{
-                uploadPlay(null);
-                setPlayPic(pause);
-            }
-        }else{
-            if(isPlaying){
-                pauseById(playingData.id);
-                setIsLoad(false);
-                setPlayPic(play);
-            }else{
-                playById(playingData.id);
-                setPlayPic(pause);
-            }
-        }
-    }
+    
 
     async function muteOrUnmute(){
         if(muteButt==volumeIcon0){
@@ -270,7 +280,6 @@ export default function Player() {
     }
 
     function repeatFunc(){
-        console.log(isLoopList);
         if(!isLoopList){
             setRepeatPic(repeatFill)
             setIsLoopList(true);
@@ -286,7 +295,7 @@ export default function Player() {
 
     return (
         <>
-        {settingData.lastMusicId && (
+        {(settingData.lastMusicId || firstLoad == false) && (
         <div className="player">
             <div className="playerData">
                 <div>

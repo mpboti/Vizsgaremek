@@ -1,5 +1,4 @@
 DROP DATABASE IF EXISTS slicetune;
-
 CREATE DATABASE slicetune;
 USE slicetune;
 

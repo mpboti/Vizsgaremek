@@ -306,6 +306,7 @@ export async function loadMusicsByPlaylistId(playlistId){
                     elem.imageUrl=`http://${ip}`+elem.imageUrl
                 }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
+                elem.playlistId = parseInt(playlistId);
                 musicsData.push(elem);
             }
         }
