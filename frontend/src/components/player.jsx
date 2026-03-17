@@ -17,8 +17,8 @@ import randomFill from "../assets/randomizer fill.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
-import { firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
-import { doDownload, getUserData, ip, logedIn } from "../data";
+import { changeEvents, firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, selectingPlaylistId, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, setSelectingPlaylistId, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { checkedPlaylistOptions, doDownload, getUserData, ip, loadCheckedPlaylists, loadPlaylistOptions, logedIn, playlistOptions } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function Player() {
@@ -36,11 +36,12 @@ export default function Player() {
     const [current, setCurrent] = useState("0:00");
     const [muteButt, setMuteButt] = useState(volumeIcon2);
     const [playPic, setPlayPic] = useState(play);
-    const [repeatPic, setRepeatPic] = useState(repeat);
-    const [randomPic, setRandomPic] = useState(random);
+    const [repeatPic, setRepeatPic] = useState(isLoopList?isOneLoop?repeatOneFill:repeatFill:repeat);
+    const [randomPic, setRandomPic] = useState(isRandomized?randomFill:random);
     const [cim, setCim] = useState(playingData?.name?playingData.name:"not loaded");
     const [eloado, setEloado] = useState(playingData?.artistName?playingData.artistName:"not loaded");
     const [volume, setVolume] = useState(musicVolume);
+    const [openPlaylist, setOpenPlaylist] = useState(false);
 
    async function volumeSet(currentVolume){
         setVolume(currentVolume);
@@ -90,7 +91,7 @@ export default function Player() {
             let h="";
             if(t<10){h=0};
             setCurrent(g+":"+h+t);
-            if(playingMusic.currentTime>=playingMusic.duration-settingData.fadeValue)
+            if(playingMusic.currentTime>=playingMusic.duration-settingData.fadeValue && !isSetValue)
                 nextMusic();
             setHosszValue(Math.round(playingMusic.duration).toString());
         },500);
@@ -153,6 +154,8 @@ export default function Player() {
             }
         }
         const changeBack = playerChange(() => {
+            if(selectingPlaylistId!==-1)
+                setOpenPlaylist(false);
             if(isPlaying){
                 setPlayPic(pause);
             }else{
@@ -215,10 +218,6 @@ export default function Player() {
         });
         return ()=>{changeBack();window.removeEventListener("keydown", handleKeyDown);window.removeEventListener("keyup", handleKeyUp);};
     },[])
-
-    
-
-    
 
     async function muteOrUnmute(){
         if(muteButt==volumeIcon0){
@@ -293,6 +292,45 @@ export default function Player() {
         };
     }
 
+    async function playlistsSelection(){
+        await loadCheckedPlaylists(playingData.id);
+        await loadPlaylistOptions();
+        if(openPlaylist){
+            setOpenPlaylist(false);
+        }else{
+            setOpenPlaylist(true);
+        }
+        setSelectingPlaylistId(-1);
+        changeEvents.forEach(change => change());
+    }
+
+    async function playlistChanger(playlistId){
+        await loadCheckedPlaylists(playingData.id);
+        await loadPlaylistOptions();
+        if(!checkedPlaylistOptions.ids.includes(playlistId)){
+            await fetch(`http://${ip}/playlists/addMusic`,{
+              method: "POST",
+              headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+              },
+              body: JSON.stringify({playlistId: playlistId, musicId: playingData.id})
+            })
+        }else{
+           await fetch(`http://${ip}/playlists/removeMusic`,{
+              method: "DELETE",
+              headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+              },
+              body: JSON.stringify({playlistId: playlistId, musicId: playingData.id})
+            }) 
+        }
+        setOpenPlaylist(false);
+        setSelectingPlaylistId(-1);
+        changeEvents.forEach(change => change());
+    }
+
     return (
         <>
         {(settingData.lastMusicId || firstLoad == false) && (
@@ -314,13 +352,22 @@ export default function Player() {
                 <input type="range" min="0" max="100" value={volume} className="volumeSlider" onChange={VolumeChange} onMouseUp={setVolumeToSetting}/>
             </div>
             <div className="playerControls">
-                {logedIn && <button className="controlButton"><img src={add} alt="Hozzáadás" className="controlImg"/></button>}
+                {logedIn && <button className="controlButton" onClick={playlistsSelection}><img src={add} alt="Hozzáadás" className="controlImg"/></button>}
                 {logedIn && <button className="controlButton" onClick={()=>doDownload(playingData.id)}><img src={download} alt="Letöltés" className="controlImg"/></button>}
                 <button className="controlButton" onClick={()=>{randomize();isRandomized?setRandomPic(randomFill):setRandomPic(random)}}><img src={randomPic} alt="Jelentés" className="controlImg"/></button>
                 <button className="controlButton" onClick={repeatFunc}><img src={repeatPic} alt="Ismétlés" className="controlImg"/></button>
                 <button className="controlButton" onClick={prevMusic}><img src={previous} alt="Előző" className="controlImg"/></button>
                 <button className="controlButton" onClick={playOrPause}><img src={playPic} alt="Lejátszás" className="controlImg"/></button>
                 <button className="controlButton" onClick={nextMusic}><img src={next} alt="Következő" className="controlImg"/></button>
+                {logedIn && openPlaylist && <div className="playerSelection">
+                  {playlistOptions.ids.map((option, index) => (
+                    <label key={option} className="labelElem">
+                      <input type="checkbox" value={option} defaultChecked={checkedPlaylistOptions.ids[checkedPlaylistOptions.ids.indexOf(option)]==option} onChange={()=>playlistChanger(option)}/>
+                      {playlistOptions.playlists[index]}
+                    </label>
+                  ))}
+                </div>
+                }
             </div>
         </div>
         )}

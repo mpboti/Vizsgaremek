@@ -12,7 +12,6 @@ export default function PlaylistShow({id, listaPic, name, userName, ownerId}){
     const userData = getUserData();
     const [preferPic, setPreferPic]= useState(list);
     const [playPic, setPlayPic]= useState(play);
-
     useEffect(() => {
       if(preferPlaylists.some((e)=>e==id)){
           setPreferPic(listFill);
@@ -37,7 +36,7 @@ export default function PlaylistShow({id, listaPic, name, userName, ownerId}){
         }
       });
       return changeBack;
-    }, []);
+    }, [id]);
 
     async function playOrPauseList(){
       if(playingPlaylistId!=id){

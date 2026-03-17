@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { getAllUsers, getUserById, createUser, deleteUser, updateUser, logIn, passwordCheck } from "../controllers/usersController";
+import { getAllUsers, getUserById, createUser, deleteUser, updateUser, logIn, passwordCheck, setReport } from "../controllers/usersController";
 import verifyToken from "../middleware/auth";
 
 const router: Router = express.Router();
@@ -11,5 +11,6 @@ router.post('/signup', createUser);
 router.delete('/:id', verifyToken, deleteUser);
 router.put('/:id', verifyToken, updateUser);
 router.post('/passcheck', verifyToken, passwordCheck);
+router.post('/report', verifyToken, setReport);
 
 export default router;

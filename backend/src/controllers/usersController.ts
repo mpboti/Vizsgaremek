@@ -57,9 +57,9 @@ export async function getUserById(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const [results] = await conn.query("SELECT users.id, users.username, users.email, users.imageFileId, image_files.fileName, image_files.mimeType, image_files.filePath  FROM users INNER JOIN image_files ON image_files.id = users.imageFileId WHERE users.id = ?", [id]);
+        const [results] = await conn.query("SELECT users.id, users.username, users.email, users.imageFileId, users.isAdmin, image_files.fileName, image_files.mimeType, image_files.filePath  FROM users INNER JOIN image_files ON image_files.id = users.imageFileId WHERE users.id = ?", [id]);
         if (results.length === 0) {
-            const [results2] = await conn.query("SELECT users.id, users.username, users.email FROM users WHERE id = ?", [id]);
+            const [results2] = await conn.query("SELECT users.id, users.username, users.email, users.isAdmin FROM users WHERE id = ?", [id]);
             if (results2.length === 0) {
                 res.status(404).json({ message: "User not found." });
                 return;
@@ -93,7 +93,6 @@ export async function createUser(req: Request, res: Response) {
 
     try {
         const [results] = await conn.query("INSERT INTO users (id, username, email, pwd, imageFileId) VALUES (null, ?, ?, ?, null)", [user.username, user.email, user.pwd]);
-        await conn.query("INSERT INTO user_settings (userId, volume, fadeValue, lastMusicId, lastPlaylistId) VALUES (?, DEFAULT, DEFAULT, NULL, NULL)",[results.insertId]);
         res.status(201).json({ message: "User created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -209,6 +208,29 @@ export async function passwordCheck(req: Request, res:Response){
         }
     } catch (error) {
         res.status(500).json({ message: "Internal server error." })
+    }
+    return;
+}
+
+export async function setReport(req: Request, res: Response){
+    if (!req.body) {
+        return res.status(400).json({ message: "Request body is missing." });
+    }
+
+    const { userid, message, musicid} = req.body;
+    if (userid === undefined || message === undefined || musicid === undefined ||
+        userid === null || message === null || musicid === null ||
+        userid === "" || message === "" || musicid === "") {
+        return res.status(400).json({ message: "Invalid data." });
+    }
+
+    const conn = await config.connection;
+    try {
+        const [results] = await conn.query("INSERT INTO reports (id, userId, message, musicId) VALUES (null, ?, ?, ?)", [userid, message, musicid]);
+        res.status(201).json({ message: "Report created successfully.", id: results.insertId });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error." });
     }
     return;
 }

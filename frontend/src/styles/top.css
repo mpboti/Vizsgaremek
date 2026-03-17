@@ -7,6 +7,7 @@ div.topBar{
     left: 0;
     right: 0;
     height: 80px;
+    z-index: 20;
     align-items: center;
     gap: 15px;
     padding: 10px;

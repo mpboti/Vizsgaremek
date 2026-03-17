@@ -65,6 +65,7 @@ td.gombok{
     padding-right: 20px;
     width: fit-content;
     min-width: 460px;
+    position: relative;
 }
 
 img.zeneGombokImg{
@@ -90,11 +91,12 @@ img.albumCoverImg{
     object-position: center;
 }
 
-.lenyilo{
+div.lenyilo{
     border-radius: 7px;
     background-color: #3300aa7e;
     position: absolute;
     right: 47px;
+    min-width: 175px;
 }
 
 p.listaGombtarto{
@@ -128,7 +130,7 @@ th{
     td.gombok{
         padding-right: 10px;
         margin: 10px;
-        min-width: 220px;
+        min-width: 235px;
     }
     td.albumCover{
         margin-left: 10px;

@@ -16,6 +16,6 @@ button {
   cursor: pointer;
 }
 
-input::selection {
+input::selection, textarea::selection{
   background-color: rgba(0, 0, 0, 0.425);
 }

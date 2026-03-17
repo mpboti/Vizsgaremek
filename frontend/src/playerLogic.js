@@ -14,13 +14,28 @@ export let isPlaying = false;
 export let isSetValue = false;
 export let isUploadPlay = false;
 export let settingData = {};
-export let isOneLoop = false;
-export let isLoopList = false;
-export let isRandomized = false;
+export let isOneLoop = localStorage.getItem("isOneLoop")==="true" || false;
+export let isLoopList = localStorage.getItem("isLoopList")==="true" || false;
+export let isRandomized = localStorage.getItem("isRandomized")==="true" || false;
 export let firstPlay = true;
 export let playingPlaylistId = null;
 export let preferPlaylists = [];
 export let musicVolume = 50;
+export let selectingPlaylistId = null;
+export let selectingMusicId = null;
+export let reportingId = null;
+playingMusic.addEventListener("pause", ()=>{
+    if(playingMusic.currentTime < playingMusic.duration-settingData.fadeValue){
+        isPlaying=false;
+        changeEvent(chage => chage());
+        changeEvents.forEach(change => change());
+    }
+});
+playingMusic.addEventListener("play", ()=>{isPlaying=true;changeEvent(chage => chage());changeEvents.forEach(change => change());});
+export async function loadPlayingMusic(){
+    playingMusic.pause();
+    playingMusic.currentTime=0;
+}
 
 export async function setMusicVolume(boo){
     musicVolume=boo;
@@ -28,6 +43,7 @@ export async function setMusicVolume(boo){
 
 export function setIsOneLoop(boo){
     isOneLoop = boo;
+    localStorage.setItem("isOneLoop", boo);
 }
 
 export function setIsSetValue(boo){
@@ -36,6 +52,7 @@ export function setIsSetValue(boo){
 
 export function setIsLoopList(boo){
     isLoopList = boo;
+    localStorage.setItem("isLoopList", boo);
 }
 
 export function setIsLoad(boo){
@@ -46,7 +63,19 @@ export async function setFirstPlay(boo){
     firstPlay = boo;
 }
 
-const changeEvents = [];
+export async function setSelectingPlaylistId(num){
+    selectingPlaylistId = num;
+}
+
+export async function setSelectingMusicId(num){
+    selectingMusicId = num;
+}
+
+export async function setReportingId(num){
+    reportingId = num;
+}
+
+export const changeEvents = [];
 export function playButtonChange(chage) {
     changeEvents.push(chage);
     return () => {
@@ -55,7 +84,7 @@ export function playButtonChange(chage) {
     };
 }
 
-let changeEvent = undefined;
+export let changeEvent = undefined;
 export function playerChange(chage) {
     changeEvent=chage;
     return () => {
@@ -96,20 +125,13 @@ async function loadData(zeneData, id){
     isPlaying = false; 
     data = [];
     firstData = [];
-    
 
     for(const element of zeneData){
-        
         data.push(element);
-        const audio = new Audio(element.musicUrl);
-        audio.addEventListener("pause", ()=>{
-            if(audio.currentTime < audio.duration-settingData.fadeValue){
-                isPlaying=false;
-                changeEvent(chage => chage());
-                changeEvents.forEach(change => change());
-            }
-        });
-        audio.addEventListener("play", ()=>{isPlaying=true;changeEvent(chage => chage());changeEvents.forEach(change => change());});
+        if(element.id==id){
+            playingMusic.src=element.musicUrl;
+            playingData=element;
+        }
         if(element.playlistId){
             playingPlaylistId=element.playlistId;
             await savePlaylistIdToSettings(element.playlistId);
@@ -127,6 +149,10 @@ async function loadData(zeneData, id){
         data = [resData];
     }
     isLoad=true;
+    if(isRandomized){
+        isRandomized=false;
+        randomize();
+    }
 }
 
 export async function loadDataByPlaylistId(id){
@@ -165,7 +191,10 @@ export async function loadDataByPlaylistId(id){
     savePlaylistIdToSettings(id);
     console.log(data);
     isLoad=false;
-    return zeneData;
+    if(isRandomized){
+        isRandomized=false;
+        randomize();
+    }
 }
 
 export async function loadSettings(){
@@ -202,7 +231,7 @@ export async function loadLastMusic(){
         firstData = [resData];
         playingData = resData;
         playingMusic = audio;
-        loadVolume();
+        await loadVolume();
         if(changeEvent)
             changeEvent(chage => chage());
     }
@@ -293,28 +322,24 @@ export function sliderPause(){
 }
 
 export function sliderPlay(){
-    if(isPlayingSlider)
+    if(isPlayingSlider && playingMusic.currentTime != playingMusic.duration)
         playingMusic.play();
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());
 }
 
 export async function playById(id){
-    if(!isUploadPlay){
-        if(logedIn){
-            firstLoad=false;
-            await fetch(`http://${ip}/settings/${getUserData().id}`,{
-                method:"PUT",
-                headers:{
-                    'Content-Type': 'application/json',
-                    'x-access-token': getAuthToken()
-                },
-                body: JSON.stringify({lastMusicId: id})
-            });
-            await loadSettings();
-        }else{
-            settingData.lastMusicId=true;
-        }
+    if(logedIn && !isUploadPlay){
+        firstLoad=false;
+        await fetch(`http://${ip}/settings/${getUserData().id}`,{
+            method:"PUT",
+            headers:{
+                'Content-Type': 'application/json',
+                'x-access-token': getAuthToken()
+            },
+            body: JSON.stringify({lastMusicId: id})
+        });
+        await loadSettings();
     }
     isUploadPlay=false;
     
@@ -329,12 +354,16 @@ export async function playById(id){
         await loadData(musicsData, id);
         await loadVolume();
         await loadAudio(playingMusic);
+        
         setIsNew(false);
     }else if(isLoad){
         noRepeatList=[]
         for(let i = 0; i < firstData.length; i++){
             data[i]=firstData[i];
         }
+    }
+    if(!logedIn && !isUploadPlay){
+        settingData.lastMusicId=true;
     }
     if(!(playingMusic.currentTime >= playingMusic.duration-settingData.fadeValue) && playingData?.id != data[data.findIndex((e)=>e.id==id)].id){
         playingMusic.pause();
@@ -347,6 +376,7 @@ export async function playById(id){
     
     playingMusic.play();
     isPlaying=true;
+    
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());
     isLoad=true;
@@ -403,13 +433,18 @@ export async function nextMusic(){
                     preferPlaylists.shift();
                 }else if(isLoopList){
                     isLoad=true;
-                    await playById(data[0].id);
+                    await playById(firstData[0].id);
+                    if(isRandomized){
+                        isRandomized=false
+                        randomize();
+                    }
                 }else{
                     isPlaying=false;
-                    playingMusic.addEventListener("ended", ()=> {playingMusic.pause(); playingMusic.currentTime = 0;});
+                    playingMusic.addEventListener("ended", ()=> {playingMusic.pause(); playingMusic.currentTime = 0; isPlaying=false });
                     changeEvents.forEach(change => change());
                     changeEvent(chage => chage());
                 }
+                
             }else{
                 if(noRepeatList.some((e)=>e.id==playingData.id)){
                     noRepeatList = noRepeatList.filter((e)=>e.id!=playingData.id);
@@ -437,7 +472,10 @@ export function prevMusic(){
     }else{
         playingMusic.pause();
         playingMusic.currentTime = 0;
+        isPlaying=true;
         playingMusic.play();
+        changeEvents.forEach(change => change());
+        changeEvent(chage => chage());
     }
 }
 
@@ -465,4 +503,5 @@ export function randomize(){
         }
         isRandomized=false;
     }
+    localStorage.setItem("isRandomized", isRandomized);
 }

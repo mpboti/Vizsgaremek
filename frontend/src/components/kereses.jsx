@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import "../styles/kereses.css"
-import { getMusicsData, getPlaylistsData, searchITunes, searchMusics, searchPlaylists,} from "../data";
+import { getMusicsData, getPlaylistsData, getReports, getUserData, searchITunes, searchMusics, searchPlaylists, searchReports,} from "../data";
 import { useSearchParams } from "react-router-dom";
 import RowGenerator from "./playlist-row";
 import PlaylistShow from "./playlist-show";
+import ReportRow from "./report-row";
 
 export default function Kereses(){
+  const userData = getUserData()
   const [searchParams] = useSearchParams();
   const [text, setText] = useState("");
   const [musicsData, setMusicData] = useState(getMusicsData());
   const [playlistsData, setPlaylistsData] = useState(getPlaylistsData());
+  const [reportsData, setReportsData] = useState(getReports());
   const [selected, setSelected] = useState(0);
-  const [isUser, setIsUser] = useState(false);
   const [isMusic, setIsMusic] = useState(true);
 
   useEffect(()=>{
@@ -46,9 +48,13 @@ export default function Kereses(){
 
         case 5: 
         await searchITunes(searchParams.get("text"));
-        localStorage.setItem("searchText", searchParams.get("text"));
+        break;
+
+        case 6: 
+        await searchReports(searchParams.get("text"));
         break;
       }
+      window.scrollTo(0, 0);
       setMusicData(getMusicsData());
       setPlaylistsData(getPlaylistsData());
     }
@@ -69,42 +75,54 @@ export default function Kereses(){
     await searchMusics(text, "musicsByName");
     setMusicData(getMusicsData());
     setPlaylistsData(getPlaylistsData());
+    window.scrollTo(0, 0);
   }
 
   async function readPlaylistsByName() {
     await searchPlaylists(text, "playlistsByName");
     setMusicData(getMusicsData());
     setPlaylistsData(getPlaylistsData());
+    window.scrollTo(0, 0);
   }
 
   async function readMusicByArtist(){
     await searchMusics(text, "artistsByName");
     setMusicData(getMusicsData());
     setPlaylistsData(getPlaylistsData());
+    window.scrollTo(0, 0);
   }
 
   async function readMusicByAlbum(){
     await searchMusics(text, "albumsByName");
     setMusicData(getMusicsData());
     setPlaylistsData(getPlaylistsData());
+    window.scrollTo(0, 0);
   }
   
   async function readMusicByUsername(){
     await searchMusics(text, "musicsByUsername");
     setMusicData(getMusicsData());
+    window.scrollTo(0, 0);
   }
 
   async function readPlaylistsByUsername(){
     await searchPlaylists(text, "playlistsByUsername");
     setMusicData(getMusicsData());
     setPlaylistsData(getPlaylistsData());
+    window.scrollTo(0, 0);
   }
 
   async function readITunes(){
     await searchITunes(text);
     setMusicData(getMusicsData());
     setPlaylistsData(getPlaylistsData());
-    localStorage.setItem("searchText", searchParams.get("text"));
+    window.scrollTo(0, 0);
+  }
+
+  async function readReports() {
+    await searchReports(text);
+    setReportsData(getReports());
+    window.scrollTo(0, 0);
   }
 
   return (
@@ -112,31 +130,35 @@ export default function Kereses(){
       <div className="keresesMenu">
         <div className="keresesMenuFlex">
           <button className={selected === 0 ? "selected" : "keresesMenuButtons"} 
-          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(0); await readMusicByName();}}>
+          onClick={async () => {setIsMusic(true); setSelected(0); await readMusicByName();}}>
             Zenék
           </button>
           <button className={selected === 1 ? "selected" : "keresesMenuButtons"} 
-          onClick={async () => {setIsUser(false); setIsMusic(false); setSelected(1); await readPlaylistsByName();}}>
-            Lejátszási Listák
+          onClick={async () => {setIsMusic(false); setSelected(1); await readPlaylistsByName();}}>
+            {userData.isAdmin?"Playlists":"Lejátszási Listák"}
           </button>
           <button className={selected === 2 ? "selected" : "keresesMenuButtons"} 
-          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(2); await readMusicByArtist();}}>
+          onClick={async () => {setIsMusic(true); setSelected(2); await readMusicByArtist();}}>
             Előadók
           </button>
           <button className={selected === 3 ? "selected" : "keresesMenuButtons"} 
-          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(3); await readMusicByAlbum();}}>
+          onClick={async () => {setIsMusic(true); setSelected(3); await readMusicByAlbum();}}>
             Albumok
           </button>
           <button className={selected === 4 ? "selected" : "keresesMenuButtons"} 
-          onClick={async () => {setIsUser(true); setIsMusic(true); setSelected(4); await readMusicByUsername();}}>
-            Felhasználók
+          onClick={async () => {setIsMusic(true); setSelected(4); await readMusicByUsername();}}>
+            {userData.isAdmin?"Users":"Felhasználók"}
           </button>
           <button className={selected === 5 ? "selected" : "keresesMenuButtons"} 
-          onClick={async () => {setIsUser(false); setIsMusic(true); setSelected(5); await readITunes();}}>
+          onClick={async () => {setIsMusic(true); setSelected(5); await readITunes();}}>
             Hozzáadás
           </button>
+          {userData.isAdmin && <button className={selected === 6 ? "selected" : "keresesMenuButtons"} 
+          onClick={async () => {setIsMusic(true); setSelected(6); await readReports();}}>
+            Reports
+          </button>}
         </div>
-        {isUser?
+        {selected === 4?
           <div className="musicOrPlaylistFlex">
             <button className={isMusic ? "microSelected" : "musicOrPlaylistButton"} 
             onClick={async ()=>{ setIsMusic(true); await readMusicByUsername();}}>
@@ -149,7 +171,7 @@ export default function Kereses(){
           </div>
         :undefined}
       </div>
-      {isMusic? 
+      {isMusic && selected !== 6? 
         <table>
           <thead>
               <tr className="tableHeader">
@@ -178,7 +200,7 @@ export default function Kereses(){
           </tbody>
         </table>
       :
-        <div>
+        selected !== 6 && <div>
           {playlistsData.length > 0 && playlistsData.map((elem)=>(
             <PlaylistShow key={elem.id}
             id={elem.id} 
@@ -189,6 +211,17 @@ export default function Kereses(){
             />
           ))}
         </div>
+      }
+      {userData.isAdmin && selected == 6 &&
+        <ul>
+          {reportsData.length > 0 && reportsData.map((elem)=>(
+            <ReportRow key={elem.id}
+            id={elem.id}
+            userId={elem.userId}
+            message={elem.message}
+            />
+          ))}
+        </ul>
       }
     </div>
   );

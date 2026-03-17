@@ -133,6 +133,16 @@ END $$
 /*Before we insert the user in the users table, we encrypt the password*/
 CREATE TRIGGER insert_user BEFORE INSERT ON users
 FOR EACH ROW
-SET new.pwd = pwd_encrypt(new.pwd); $$
+BEGIN
+    SET NEW.pwd = pwd_encrypt(NEW.pwd);
+END$$
+
+CREATE TRIGGER insert_user_settings AFTER INSERT ON users
+FOR EACH ROW
+BEGIN
+    INSERT INTO user_settings (userId, volume, fadeValue, lastMusicId, lastPlaylistId) VALUES (NEW.id, DEFAULT, DEFAULT, NULL, NULL);
+END$$
 
 DELIMITER ;
+
+INSERT INTO users (id, username, email, pwd, imageFileId, isAdmin) VALUES (null, "mpboti", "boti@gmail.com", "boti19", null, TRUE);

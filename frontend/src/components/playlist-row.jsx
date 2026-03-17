@@ -9,9 +9,11 @@ import play from "../assets/play.png"
 import defaultMusicPic from "../assets/defaultMusicPic.PNG"
 import pencil from "../assets/pencil.png"
 import playing from "../assets/playing.png"
+import send from "../assets/send.png"
 import { useNavigate } from 'react-router-dom'
-import { doDownload, getUserData, isItunes, logedIn } from '../data'
-import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById, data, setFirstPlay } from '../playerLogic'
+import { checkedPlaylistOptions, doDownload, getUserData, ip, isItunes, loadCheckedPlaylists, loadPlaylistOptions, logedIn, playlistOptions } from '../data'
+import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById, data, setFirstPlay, changeEvents, selectingPlaylistId, selectingMusicId, setSelectingMusicId, changeEvent, setSelectingPlaylistId } from '../playerLogic'
+import { getAuthToken } from '../auth'
 
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
     const navigate = useNavigate();
@@ -23,6 +25,9 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
     const [lenyil, setLenyil] = useState(false)
     const [currentPlayingId, setCurrentPlayingId] = useState(null);
     const [currentIsPlaying, setCurrentIsPlaying] = useState(false);
+    const [openPlaylist, setOpenPlaylist] = useState(false);
+    const [openReport, setOpenReport] = useState(false);
+    const [reportText, setReportText] = useState("");
     
     useEffect(() => {
         if (currentIsPlaying && currentPlayingId === id || playingData.id==id && isPlaying) {
@@ -38,6 +43,10 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
         const changeBack = playButtonChange(() => {
             setCurrentIsPlaying(isPlaying);
             setCurrentPlayingId(playingData?.id);
+            if(selectingPlaylistId!==id)
+                setOpenPlaylist(false);
+            if(selectingMusicId!==id)
+                setLenyil(false);
             if(preferData.length!=0 && preferData.some((e)=>e.id==id)){
                 setPreferPic(listFill);
             }else{
@@ -76,6 +85,69 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
         }
     }
 
+    async function playlistsSelection(){
+        await loadCheckedPlaylists(id);
+        await loadPlaylistOptions();
+        setOpenReport(false);
+        if(openPlaylist){
+            setOpenPlaylist(false);
+        }else{
+            setSelectingPlaylistId(id)
+            setOpenPlaylist(true);
+        }
+        changeEvent(chage => chage());
+        changeEvents.forEach(change => change());
+    }
+
+    async function playlistChanger(playlistId){
+        await loadCheckedPlaylists(id);
+        await loadPlaylistOptions();
+        if(!checkedPlaylistOptions.ids.includes(playlistId)){
+            await fetch(`http://${ip}/playlists/addMusic`,{
+              method: "POST",
+              headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+              },
+              body: JSON.stringify({playlistId: playlistId, musicId: id})
+            })
+        }else{
+           await fetch(`http://${ip}/playlists/removeMusic`,{
+              method: "DELETE",
+              headers: {
+              'Content-Type': 'application/json',
+              'x-access-token': getAuthToken()
+              },
+              body: JSON.stringify({playlistId: playlistId, musicId: id})
+            }) 
+        }
+        setOpenPlaylist(false);
+    }
+
+    async function reportMessage(){
+        setOpenPlaylist(false);
+        if(openReport){
+            setOpenReport(false);
+        }else{
+            setOpenReport(true);
+        }
+        changeEvents.forEach(change => change());
+        changeEvent(chage => chage());
+    }
+
+    async function sendReport(){
+        await fetch(`http://${ip}/users/report`,{
+          method: "POST",
+          headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': getAuthToken()
+          },
+          body: JSON.stringify({userid: userData.id, message: reportText, musicid: id})
+        })
+        setOpenReport(false);
+        setReportText("");
+    }
+
     if(phone){
         return (
             <tr className="zeneSor">
@@ -87,8 +159,22 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                 <td className="album"><p>{album}</p></td>
                 {!lenyil?
                     <td className="gombok">
-                        <button onClick={()=>setLenyil(true)} className="zeneGombok"><img src={dots} alt="menu" className="zeneGombokImg"/></button>
+                        <button onClick={()=>{setLenyil(true);setSelectingMusicId(id);changeEvents.forEach(change => change());}} className="zeneGombok"><img src={dots} alt="menu" className="zeneGombokImg"/></button>
                         <button className="zeneGombok" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button>
+                        {logedIn && <div className="selection" style={!openPlaylist ? {display: "none"} : {}}>
+                          {playlistOptions.ids.map((option, index) => (
+                            <label key={option} className="labelElem">
+                              <input type="checkbox" name="playlists" value={option} defaultChecked={checkedPlaylistOptions.ids[checkedPlaylistOptions.ids.indexOf(option)]==option} onInput={()=>playlistChanger(option)}/>
+                              {playlistOptions.playlists[index]}
+                            </label>
+                          ))}
+                        </div>
+                        }
+                        {logedIn && openReport && <div className="selection">
+                            <textarea rows={5} value={reportText} onChange={(e)=>setReportText(e.target.value)} className="reportText" placeholder="Ide írd hogy mi miatt reportolsz"></textarea>
+                            <button className="sendButton" onClick={sendReport}><img src={send} className="sendImg"/></button>
+                        </div>
+                        }
                     </td>:
                     
                     <td className="gombok">
@@ -102,9 +188,23 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                         <div className="lenyilo">
                             {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>{setLenyil(false);doDownload(id)}}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
-                            {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
-                            {logedIn && <button className="zeneGombok" onClick={()=>setLenyil(false)}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
+                            {logedIn && <button className="zeneGombok" onClick={()=>{setLenyil(false); reportMessage();}}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
+                            {logedIn && <button className="zeneGombok" onClick={async ()=>{await playlistsSelection(); setLenyil(false);}}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
                             <button className="zeneGombok" onClick={()=>{setLenyil(false); preferFunc()}}><img src={preferPic} alt="műsorra fűzés" className="zeneGombokImg"/></button>
+                        </div>
+                        }
+                        {logedIn && openPlaylist && <div className="selection" >
+                          {playlistOptions.ids.map((option, index) => (
+                            <label key={option} className="labelElem">
+                              <input type="checkbox" name="playlists" value={option} defaultChecked={checkedPlaylistOptions.ids[checkedPlaylistOptions.ids.indexOf(option)]==option} onInput={()=>playlistChanger(option)}/>
+                              {playlistOptions.playlists[index]}
+                            </label>
+                          ))}
+                        </div>
+                        }
+                        {logedIn && openReport && <div className="selection">
+                            <textarea rows={5} value={reportText} onChange={(e)=>setReportText(e.target.value)} className="reportText" placeholder="Ide írd hogy mi miatt reportolsz"></textarea>
+                            <button className="sendButton" onClick={sendReport}><img src={send} className="sendImg"/></button>
                         </div>
                         }
                     </td>
@@ -132,10 +232,24 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                 <td className="gombok">
                     {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" onClick={()=>doDownload(id)} ><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
-                    {logedIn && <button className="zeneGombok" ><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
-                    {logedIn && <button className="zeneGombok" ><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
+                    {logedIn && <button className="zeneGombok" onClick={reportMessage}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
+                    {logedIn && <button className="zeneGombok" onClick={playlistsSelection}><img src={add}  alt="listához adás" className="zeneGombokImg"/></button>}
                     <button className="zeneGombok" onClick={preferFunc}><img src={preferPic} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                     <button className="zeneGombok" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button>
+                    {logedIn && openPlaylist && <div className="selection" >
+                      {playlistOptions.ids.map((option, index) => (
+                        <label key={option} className="labelElem">
+                          <input type="checkbox" value={option} defaultChecked={checkedPlaylistOptions.ids[checkedPlaylistOptions.ids.indexOf(option)]==option} onChange={()=>playlistChanger(option)}/>
+                          {playlistOptions.playlists[index]}
+                        </label>
+                      ))}
+                    </div>
+                    }
+                    {logedIn && openReport && <div className="selection">
+                        <textarea rows={5} value={reportText} onChange={(e)=>setReportText(e.target.value)} className="reportText" placeholder="Ide írd hogy mi miatt reportolsz"></textarea>
+                        <button className="sendButton" onClick={sendReport}><img src={send} className="sendImg"/></button>
+                    </div>
+                    }
                 </td>}
             </tr>
         );

@@ -35,7 +35,7 @@ Form.settingForm{
 
 div.settingPage{
     padding-top: 70px;
-    padding-bottom: 270px;
+    padding-bottom: 150px;
 }
 
 div.justFlex{
@@ -144,7 +144,7 @@ img.upDownImg{
 
 Form.authForm{
     padding-top: 150px;
-    padding-bottom: 270px;
+    padding-bottom: 150px;
     text-align: center;
     vertical-align: middle;
     gap: 0px;
@@ -184,7 +184,7 @@ Form span{
 }
 
 Form input::placeholder{
-    color: rgba(255, 255, 255, 0.767);
+    color: rgba(209, 209, 209, 0.767);
 }
 
 Form input:focus{
@@ -292,11 +292,28 @@ Form div.downFlex input{
     }
 }
 
+@media screen and (max-width: 1155px){
+    div.settingPage{
+        padding-top: 70px;
+        padding-bottom: 270px;
+    }
+    Form.authForm{
+        padding-top: 70px;
+        padding-bottom: 270px;
+    }
+}
+
 @media screen and (max-width: 900px){
     Form div.rangeFlex{
         padding-top: 10px;
         padding-bottom: -5px;
         flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 800px){
+    div.selection{
+        font-size: 10px;
     }
 }
 

@@ -1,32 +1,39 @@
-import { Form, Link, useSearchParams, redirect} from "react-router-dom";
+import { Form, Link, useSearchParams, redirect, useNavigate} from "react-router-dom";
 import "../styles/forms.css";
-import { setUserData, ip, loadData, loadPlaylists, getUserData } from "../data";
-import { getAuthToken } from "../auth";
-import { loadLastMusic, loadSettings } from "../playerLogic";
+import { ip, loadData, loadPlaylists, getUserData } from "../data";
+import { loadLastMusic, loadPlayingMusic, loadSettings } from "../playerLogic";
 
 export default function LoginOrSignin(){
     const [searchParams] = useSearchParams();
     const isLogin = searchParams.get("mode") == "login";
+    const navigate = useNavigate();
     return(
-        <Form method="post" className="authForm">
-            <h1>{isLogin ? 'Bejelentkezés' : 'Regisztráció'}</h1>
-            {!isLogin &&
-            <p>
-              <input id="username" type="text" name="username" placeholder="Felhasználó név" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
-            </p>}
-            <p>
-              <input id="email" type="email" name="email" placeholder="Email" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
-            </p>
-            <p>
-              <input id="password" type="password" name="password" placeholder="Password" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
-            </p>
-            <div>
-              <Link to={`?mode=${isLogin ? 'signup' : 'login'}`} className="loginFormButton">
-                  {isLogin ? 'Váltás regisztrációra' : 'Váltás bejelentkezésre'}
-              </Link>
-              <button className="loginFormButton">{!isLogin ? 'Regisztráció' : 'Bejelentkezés'}</button>
-            </div>
-        </Form>
+      <Form method="post" className="authForm">
+        <div className="musicOrPlaylistFlex keresesMenu">
+          <button type="button" className={isLogin ? "microSelected" : "musicOrPlaylistButton"} 
+          onClick={()=>{navigate(`?mode=login`)}}>
+            Bejelentkezés
+          </button>
+          <button type="button" className={!isLogin ? "microSelected" : "musicOrPlaylistButton"} 
+          onClick={()=>{navigate(`?mode=signup`)}}>
+            Regisztráció
+          </button>
+        </div>
+        <h1>{isLogin ? 'Bejelentkezés' : 'Regisztráció'}</h1>
+        {!isLogin &&
+        <p>
+          <input id="username" type="text" name="username" placeholder="Felhasználó név" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
+        </p>}
+        <p>
+          <input id="email" type="email" name="email" placeholder="Email" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
+        </p>
+        <p>
+          <input id="password" type="password" name="password" placeholder="Password" required autoComplete="off" autoCorrect="off" spellCheck="false"/>
+        </p>
+        <div>
+          <button className="loginFormButton">{!isLogin ? 'Regisztráció' : 'Bejelentkezés'}</button>
+        </div>
+      </Form>
     )
 }
 
@@ -92,7 +99,8 @@ export async function LoginAction({request}){
     const expiration = new Date();
     expiration.setHours(expiration.getHours() + 2 );
     localStorage.setItem("expiration", expiration.toISOString());
-    
+
+    await loadPlayingMusic();
     await loadData();
     await loadPlaylists(getUserData().id);
     await loadSettings();

@@ -7,6 +7,10 @@ export let isItunes = false;
 export let isNew = true;
 export let logedIn = false;
 export const ip = "localhost:3000"
+let reports = [];
+export function getReports(){
+    return reports;
+}
 
 export function setIsNew(boo){
     isNew=boo;
@@ -23,7 +27,8 @@ let userData = {
     name: "",
     email: "",
     userPicId: null,
-    userPic: defaultProfilePic
+    userPic: defaultProfilePic,
+    isAdmin: false
 };
 export function getUserData(){
     return userData 
@@ -49,16 +54,18 @@ export async function loadData(){
       userPic = `http://${ip}`+resData.url;
     }
     if(resData.username && resData.email && resData.id){
-        setUserData(parseInt(resData.id), resData.username, resData.email, resData.imageFileId, userPic);
+        setUserData(parseInt(resData.id), resData.username, resData.email, resData.imageFileId, userPic, resData.isAdmin===1);
     }
+    console.log(userData)
 }
-export function setUserData(id, name, email, userPicId, userPic){
+export function setUserData(id, name, email, userPicId, userPic, isAdmin){
     userData = {
         id: id,
         name: name,
         email: email,
         userPicId: userPicId,
-        userPic: userPic
+        userPic: userPic,
+        isAdmin: isAdmin
     };
     logedIn = true;
 }
@@ -69,7 +76,8 @@ export function clearUserData(){
         name: "",
         email: "",
         userPicId: null,
-        userPic: defaultProfilePic
+        userPic: defaultProfilePic,
+        isAdmin: false
     };
     logedIn = false;
 }
@@ -255,7 +263,7 @@ export async function loadPlaylistOptions(){
 }
 
 export let checkedPlaylistOptions = {ids: [], playlists:[]};
-export async function loadCheckedPlaylists(userId, musicId){
+export async function loadCheckedPlaylists(musicId){
     checkedPlaylistOptions = {ids: [], playlists:[]};
     try{
         const playlists = await fetch(`http://${ip}/playlists/getPlaylistsByIds`,{
@@ -264,7 +272,7 @@ export async function loadCheckedPlaylists(userId, musicId){
                 'Content-Type': 'application/json',
                 'x-access-token': getAuthToken()
             },
-            body: JSON.stringify({userId: userId, musicId: musicId})
+            body: JSON.stringify({userId: userData.id, musicId: musicId})
         })
         const resData = await playlists.json();
         for(const elem of resData.playlists){
@@ -387,7 +395,7 @@ export async function doDownload(id){
 //keresés metódusok
 export async function searchITunes(text){
   try {
-    const response = await fetch(`https://itunes.apple.com/search?term=${text}&media=music&limit=50`);
+    const response = await fetch(`https://itunes.apple.com/search?term=${text}&media=music&limit=100`);
     const resData = await response.json();
     musicsData=[];
     console.log(resData)
@@ -454,7 +462,8 @@ export async function searchPlaylists(text, endpoint){
             name: elem.name,
             userName: elem.username,
             listaPicId: elem.playlistPicId,
-            listaPic: elem.url
+            listaPic: elem.url,
+            ownerId: elem.ownerId
         }));
         for (const elem of playlistsData) {
             if (elem.listaPic != null) {
@@ -478,6 +487,25 @@ export async function searchPlaylists(text, endpoint){
     });
 }
 
+export async function searchReports(text){
+    reports = [];
+    try{
+        const response = await fetch(`http://${ip}/search/reportByMessage?message=${text}`);
+        const resData = await response.json();
+        reports = resData
+        isItunes=false;
+    }catch(err){
+        reports = [];
+        console.log(err);
+    }
+    const lattukMar = new Set();
+    reports = reports.filter(obj => {
+      const dupla = lattukMar.has(obj.id);
+      lattukMar.add(obj.id);
+      return !dupla;
+    });
+    console.log(reports)
+}
 
 await loadData();
 await loadPlaylists(userData.id);

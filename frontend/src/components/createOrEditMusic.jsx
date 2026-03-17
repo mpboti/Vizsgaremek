@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { Form, redirect, useSearchParams } from "react-router-dom";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
 import upload from "../assets/upload.png"
@@ -548,7 +548,7 @@ export async function MusicAddLoader({request}){
     if(searchParams.get("userId")==undefined)
       window.location.href = "/";
     await loadCurrentMusicData(searchParams.get("id"))
-    await loadCheckedPlaylists(searchParams.get("userId"), searchParams.get("id"))
+    await loadCheckedPlaylists(searchParams.get("id"))
   }
   await loadArtistOptions();
   await loadAlbumOptions();

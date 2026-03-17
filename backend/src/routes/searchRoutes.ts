@@ -1,5 +1,5 @@
 import express, { Router } from "express"
-import { searchMusicsByName, searchPlaylistsByName, searchMusicByNameInPlaylist, searchUsersByUsername, searchMusicsByAlbum, searchMusicByNameInAlbum, searchMusicsByArtist, searchMusicByNameByArtist, searchAlbumsByNameByArtist, searchMusicsByUsername, searchPlaylistsByUsername } from "../controllers/searchController";
+import { searchMusicsByName, searchPlaylistsByName, searchMusicByNameInPlaylist, searchUsersByUsername, searchMusicsByAlbum, searchMusicByNameInAlbum, searchMusicsByArtist, searchMusicByNameByArtist, searchAlbumsByNameByArtist, searchMusicsByUsername, searchPlaylistsByUsername, searchReportsByMessage } from "../controllers/searchController";
 
 const router: Router = express.Router();
 
@@ -14,5 +14,6 @@ router.get('/musicByNameByArtist', searchMusicByNameByArtist);
 router.get('/albumsByNameByArtist', searchAlbumsByNameByArtist);
 router.get('/musicsByUsername', searchMusicsByUsername);
 router.get('/playlistsByUsername', searchPlaylistsByUsername);
+router.get('/reportByMessage', searchReportsByMessage);
 
 export default router;

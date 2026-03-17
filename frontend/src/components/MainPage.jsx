@@ -26,17 +26,15 @@ export default function MainPage() {
         <div className="mainPage">
             {userData.id == -1 && <Link to="/auth?mode=login" className="pleaseLogin">Jelentkezz be</Link>}
             {userData.id > -1 &&
-            <div className="keresesMenu">
-            <div className="musicOrPlaylistFlex">
+            <div className="musicOrPlaylistFlex keresesMenu">
                 <button className={!isPlaylists ? "microSelected" : "musicOrPlaylistButton"} 
-                onClick={()=>{ setIsPlaylist(false)}}>
+                onClick={()=>{setIsPlaylist(false);}}>
                   Zenék
                 </button>
                 <button className={isPlaylists ? "microSelected" : "musicOrPlaylistButton"} 
                 onClick={()=>{setIsPlaylist(true);}}>
                   Lejátszási listák
                 </button>
-            </div>
             </div>
             }
             {userData.id > -1 && !isPlaylists &&
@@ -86,6 +84,7 @@ export default function MainPage() {
                 </div>
             </Link>
             }
+            
         </div>
     )
 }

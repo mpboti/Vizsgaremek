@@ -4,7 +4,7 @@ import { logout, currentProfilePicSetting, getUserData, setCurrentProfilePicSett
 import { useState, useRef } from "react";
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/forms.css";
-import { loadSettings, settingData } from "../playerLogic";
+import { loadPlayingMusic, loadSettings, settingData } from "../playerLogic";
 
 
 
@@ -87,8 +87,8 @@ export default function Setting() {
               </div>
               <div className="buttonAlign">
                 <button className="loginFormButton" type="submit">Mentés</button>
-                <button className="loginFormButton logoutButton" onClick={logout}>Kijelentkezés</button>
-                <button className="loginFormButton logoutButton" onClick={deleteUser} type="button">Felhasználó törlése</button>
+                <button className="loginFormButton logoutButton" onClick={()=>{logout(); loadPlayingMusic();}}>Kijelentkezés</button>
+                <button className="loginFormButton logoutButton" onClick={()=>{deleteUser(); loadPlayingMusic();}} type="button">Felhasználó törlése</button>
               </div>
             </div>
       </Form>

@@ -282,11 +282,32 @@ export async function searchPlaylistsByUsername(req: Request, res: Response){
         }
         console.log(results)
         res.status(200).json(atributes);
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({ message: "Internal server error." });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+    return;
+}
+
+export async function searchReportsByMessage(req: Request, res: Response){
+    const conn = await config.connection;
+    try {
+        
+        const [results] = await conn.query("SELECT * FROM reports WHERE message LIKE ?", [`%${req.query.message}%`]);
+        console.log(results)
+        res.setHeader('Cache-Control', 'no-store');
+        if (results.length == 0){
+            res.status(300).json({ message: "No reports found." });
             return;
         }
+        
+        res.status(200).json(results);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
     return;
 }
 

@@ -43,6 +43,7 @@ div.playerSliders {
 }
 
 div.playerControls {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -102,6 +103,23 @@ img.muteImg {
     cursor: pointer;
 }
 
+div.playerSelection{
+    font-size: 20px;
+    background-color: #22237ecb;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    border-radius: 5px;
+    margin-top: 5px;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
 @media screen and (max-width: 1475px){
     .timeSlider {
         width: 150px;
@@ -141,5 +159,11 @@ img.muteImg {
     }
     .playerData {
         width: 440px;
+    }
+}
+
+@media screen and (max-width: 800px){
+    div.playerSelection{
+        font-size: 15px;
     }
 }

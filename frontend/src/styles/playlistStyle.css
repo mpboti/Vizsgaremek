@@ -81,6 +81,62 @@ button.zeneGombok :hover{
    padding-top: 90px;
 }
 
+textarea.reportText{
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    border-collapse: collapse;
+    background-color: #373ac7;
+    color: white;
+    border-color: transparent;
+    resize: none;
+}
+
+textarea.reportText::placeholder{
+    color: rgb(175, 174, 174)
+}
+
+textarea.reportText:focus{
+    outline: none;
+}
+
+img.sendImg{
+    width: 30px;
+    height: 30px;
+}
+
+button.sendButton{
+    background-color: #3739c7bd;
+    width: 50px;
+    height: 50px;
+    padding: 10px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    border-radius: 10px;
+}
+
+button.sendButton:hover{
+    background-color: #880000dc;
+}
+
+@media screen and (max-width: 800px){
+    textarea.reportText{
+        font-size: 10px;
+    }
+    img.sendImg{
+        width: 15px;
+        height: 15px;
+    }
+    button.sendButton{
+        width: 21px;
+        height: 21px;
+        padding: 3px;
+        bottom: 2px;
+        right: 2px;
+        border-radius: 5px;
+    }
+}
+
 @media screen and (max-width: 1300px){
     div.playlistContainer{
        padding-top: 70px;
