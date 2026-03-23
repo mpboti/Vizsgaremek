@@ -106,11 +106,11 @@ CREATE TABLE user_settings(
 CREATE TABLE reports(
     id INT AUTO_INCREMENT PRIMARY KEY,
     userId INT NOT NULL,
-    message VARCHAR(255) NULL,
+    message VARCHAR(8000) NULL,
     musicId INT NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (musicId) REFERENCES musics(id) ON DELETE CASCADE
-)
+);
 
 DELIMITER $$
 

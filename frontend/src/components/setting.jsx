@@ -48,10 +48,8 @@ export default function Setting() {
     await fetch(`http://${ip}/users/${userData.id}`, {
       method:"DELETE",
       headers:{
-        'Content-Type': 'application/json',
         'x-access-token': getAuthToken()
-      },
-      body: JSON.stringify({userId: localStorage.getItem("userId")})
+      }
     });
     logout();
   }

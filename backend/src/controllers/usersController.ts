@@ -234,3 +234,71 @@ export async function setReport(req: Request, res: Response){
     }
     return;
 }
+
+export async function deleteReport(req: Request, res: Response){
+    const id: number = parseInt(req.params.id as string);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID." });
+    }
+    const conn = await config.connection;
+    try {
+        const [results] = await conn.query("DELETE FROM reports WHERE id = ?", [id]);
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: "Report not found." });
+        }
+        res.status(201).json({ message: "Report created successfully."});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+}
+
+
+export async function getReportByUserId(req: Request, res: Response){
+    const id: number = parseInt(req.params.id as string);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid User ID." });
+    }
+    const conn = await config.connection;
+    try {
+        
+        const [results] = await conn.query("SELECT * FROM reports WHERE userId=?", [id]);
+        res.setHeader('Cache-Control', 'no-store');
+        if (results.length == 0){
+            res.status(300).json({ message: "No reports found." });
+            return;
+        }
+        
+        res.status(200).json(results);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+    return;
+}
+
+export async function getReportByMusicId(req: Request, res: Response){
+    const id: number = parseInt(req.params.id as string);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid User ID." });
+    }
+    const conn = await config.connection;
+    try {
+        
+        const [results] = await conn.query("SELECT * FROM reports WHERE musicId=?", [id]);
+        res.setHeader('Cache-Control', 'no-store');
+        if (results.length == 0){
+            res.status(300).json({ message: "No reports found." });
+            return;
+        }
+        
+        res.status(200).json(results);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error." });
+        return;
+    }
+    return;
+}

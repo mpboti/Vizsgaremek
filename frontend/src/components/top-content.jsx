@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import "../styles/top.css";
 import { Link, Outlet, useSearchParams } from "react-router-dom";
-import { getUserData, logedIn, logout, searchMusics } from '../data';
+import { getUserData, logedIn, logout } from '../data';
 import { useNavigate } from "react-router-dom";
 import { getAuthToken } from "../auth";
 import back from '../assets/back.png';
@@ -15,6 +15,7 @@ export default function TopContent() {
     const text = searchParams.get("text");
     const szoveg = useRef("");
     const userData = getUserData();
+    const navigate = useNavigate();
 
     useEffect(()=>{
       const token = getAuthToken();
@@ -26,13 +27,15 @@ export default function TopContent() {
     async function getText() {
         if(szoveg.current.value){
             if (0 < szoveg.current.value.length) {
-                navigate(`/search?text=${szoveg.current.value}`);;
+                if(searchParams.get("seachPlace"))
+                    navigate(`/search?text=${szoveg.current.value}&seachPlace=${searchParams.get("seachPlace")}`);
+                else
+                    navigate(`/search?text=${szoveg.current.value}&seachPlace=0`);
             } 
         }
         
     }
 
-    const navigate = useNavigate();
     function handleBack() {
         if (window.history.length > 1) {
             navigate(-1);
@@ -44,7 +47,10 @@ export default function TopContent() {
     async function keyDown(e){
         if(e.key==="Enter"){
             if (0 < e.target.value.length) {
-                navigate(`/search?text=${e.target.value}`);
+                if(searchParams.get("seachPlace"))
+                    navigate(`/search?text=${e.target.value}&seachPlace=${searchParams.get("seachPlace")}`);
+                else
+                    navigate(`/search?text=${e.target.value}&seachPlace=0`);
             }
         }
     }
@@ -73,17 +79,17 @@ export default function TopContent() {
                     <div className="keresomezo">
                         <div className="keresokeret">
                             <button onClick={getText} className="keresGomb"><img src={search} alt="kereses" className="topGombokImg" /></button>
-                            <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown} defaultValue={text?text:""} autoComplete="off" autoCorrect="off" spellCheck="false"/>
+                            <input ref={szoveg} type="text" className="searchText" onKeyDown={keyDown} defaultValue={text?text:""} placeholder="Keresés" autoComplete="off" autoCorrect="off" spellCheck="false"/>
                         </div>
                     </div>
                 </div>
                 <div className="userNameDiv">
-                    <p className="toltelek"></p>{phone?undefined:<p className="userName">{userData.name.length<19?userData.name:userData.name.substring(0,18)}</p>}
+                    <p className="toltelek"></p>{phone?undefined:<p className="userName">{userData.name}</p>}
                 </div>
                 <div className="userPicDiv">
                     {logedIn && 
                     <Link to="/setting" className="topGombok">
-                    <img className="userPic" src={userData.userPic}/>
+                        <img className="userPic" src={userData.userPic}/>
                     </Link>}
                     {!logedIn &&
                     <Link to="/auth?mode=login" className="topGombok">

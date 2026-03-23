@@ -3,6 +3,7 @@ import { Form, redirect, useSearchParams } from "react-router-dom";
 import defaultPlaylistPic from "../assets/defaultPlaylistPic.png"
 import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists, currentPlaylistPicUrl, setCurrentPlaylistPicUrl } from "../data";
 import { getAuthToken } from "../auth";
+import "../styles/forms.css";
 
 export default function CreateOrEditPlaylist(){
   const [searchParams] = useSearchParams();
@@ -80,7 +81,7 @@ export default function CreateOrEditPlaylist(){
         <img src={img} className="uploadAlbumCover" onClick={(e)=>openPic(false, e)}/>
       </p>
       <div>
-        <button className="loginFormButton" type="submit">{playlistId?"Módosítása":"Létrehoz"}</button>
+        <button className="loginFormButton" type="submit">{playlistId?"Módosítás":"Létrehoz"}</button>
         {playlistId?<button className="loginFormButton logoutButton" onClick={deletePlaylist} type="button">Törlés</button>:undefined}
       </div>
     </Form>

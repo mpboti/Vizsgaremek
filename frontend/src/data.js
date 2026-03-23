@@ -323,11 +323,13 @@ export async function loadMusicsByPlaylistId(playlistId){
         console.log(err);
     }
     const lattukMar = new Set();
-    musicsData = musicsData.filter(obj => {
-      const dupla = lattukMar.has(obj.id);
-      lattukMar.add(obj.id);
-      return !dupla;
-    });
+    if(musicsData.length>0){
+        musicsData = musicsData.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        }); 
+    }
     isNew=true;
 }
 
@@ -354,11 +356,13 @@ export async function loadMusicsByUserId(userId){
         console.log(err);
     }
     const lattukMar = new Set();
-    musicsData = musicsData.filter(obj => {
-      const dupla = lattukMar.has(obj.id);
-      lattukMar.add(obj.id);
-      return !dupla;
-    });
+    if(musicsData.length>0){
+        musicsData = musicsData.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+    }
     isNew=true;
 }
 
@@ -444,11 +448,13 @@ export async function searchMusics(text, endpoint) {
         musicsData=[];
     }
     const lattukMar = new Set();
-    musicsData = musicsData.filter(obj => {
-      const dupla = lattukMar.has(obj.id);
-      lattukMar.add(obj.id);
-      return !dupla;
-    });
+    if(musicsData.length>0){
+        musicsData = musicsData.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+    }
     isNew=true;
 }
 
@@ -480,11 +486,14 @@ export async function searchPlaylists(text, endpoint){
         console.log(err);
     }
     const lattukMar = new Set();
-    playlistsData = playlistsData.filter(obj => {
-      const dupla = lattukMar.has(obj.id);
-      lattukMar.add(obj.id);
-      return !dupla;
-    });
+    if(playlistsData.length>0){
+        playlistsData = playlistsData.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+    }
+    
 }
 
 export async function searchReports(text){
@@ -499,12 +508,55 @@ export async function searchReports(text){
         console.log(err);
     }
     const lattukMar = new Set();
-    reports = reports.filter(obj => {
-      const dupla = lattukMar.has(obj.id);
-      lattukMar.add(obj.id);
-      return !dupla;
-    });
-    console.log(reports)
+    if(reports.length>0){
+        reports = reports.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+    }
+}
+
+export async function loadReportsByUserId(userId) {
+    reports = [];
+    try{
+        const response = await fetch(`http://${ip}/users/reportByUserId/${userId}`);
+        const resData = await response.json();
+        reports = resData
+        isItunes=false;
+    }catch(err){
+        reports = [];
+        console.log(err);
+    }
+    const lattukMar = new Set();
+    if(reports.length>0){
+        reports = reports.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+    }
+}
+
+export async function loadReportsByMusicId(musicId) {
+    reports = [];
+    try{
+        const response = await fetch(`http://${ip}/users/reportByMusicId/${musicId}`);
+        const resData = await response.json();
+        reports = resData
+        isItunes=false;
+    }catch(err){
+        reports = [];
+        console.log(err);
+    }
+    const lattukMar = new Set();
+    if(reports.length>0){
+        reports = reports.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+    }
 }
 
 await loadData();

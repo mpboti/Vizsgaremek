@@ -280,7 +280,6 @@ export async function searchPlaylistsByUsername(req: Request, res: Response){
                 atributes.push({ ...result, url: null});
             }
         }
-        console.log(results)
         res.status(200).json(atributes);
     } catch (error) {
         console.log(error);
@@ -295,7 +294,6 @@ export async function searchReportsByMessage(req: Request, res: Response){
     try {
         
         const [results] = await conn.query("SELECT * FROM reports WHERE message LIKE ?", [`%${req.query.message}%`]);
-        console.log(results)
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
             res.status(300).json({ message: "No reports found." });

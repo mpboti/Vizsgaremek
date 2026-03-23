@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
 import { Form, redirect, useSearchParams } from "react-router-dom";
+import "../styles/forms.css";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
 import upload from "../assets/upload.png"
 import play from "../assets/play.png"
@@ -152,13 +153,7 @@ export default function CreateOrEditMusic(){
     const confirmed = window.confirm("Biztos törölni akarod a zenét?");
     if (!confirmed)
       return;
-    await fetch(`http://${ip}/files/music/${musicId}`, {
-      method:"DELETE",
-      headers:{
-        'x-access-token': getAuthToken()
-      }
-    });
-    await fetch(`http://${ip}/musics/${playlistId}`, {
+    await fetch(`http://${ip}/musics/${musicId}`, {
       method:"DELETE",
       headers:{
         'Content-Type': 'application/json',

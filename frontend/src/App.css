@@ -1,12 +1,17 @@
 :root {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #0b0072;
-    min-width: 410px;
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #0b0072;
+  min-width: 410px;
 }
 
 #root{
   text-align: left;
+}
+
+td{
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 button {

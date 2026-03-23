@@ -33,7 +33,7 @@ export async function getMusicById(req: Request, res: Response) {
         if (results.length === 0) {
             return res.status(404).json({ message: "Music not found." });
         }
-        ertek={id: results[0].id, name: results[0].name, mufaj: results[0].mufaj, uploaderId: results[0].uploaderId, musicFileId: results[0].musicFileId}
+        ertek={id: results[0].id, name: results[0].name, mufaj: results[0].mufaj, uploaderId: results[0].uploaderId, musicFileId: results[0].musicFileId, artistId: results[0].artistId, albumId: results[0].albumId}
         if(results[0].artistId!=null){
             const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", results[0].artistId);
             if(results2.length == 0){

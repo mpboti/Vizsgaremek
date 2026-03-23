@@ -18,7 +18,7 @@ import { getAuthToken } from '../auth'
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
     const navigate = useNavigate();
     const onlyAdd = isItunes;
-    const isAdmin = false;
+    const isAdmin = getUserData().isAdmin;
     const userData = getUserData()
     const [playPic, setPlayPic] = useState(play);
     const [preferPic, setPreferPic] = useState(list);
@@ -186,7 +186,8 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                             <button className="zeneGombok" onClick={()=>{setLenyil(false)}}><img src={list} alt="műsorra fűzés" className="zeneGombokImg"/></button>
                         </div>:
                         <div className="lenyilo">
-                            {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
+                            {isAdmin && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/adminMusicEdit?mode=music&musicId=${id}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
+                            {!isAdmin && userData.id == userId && <button className="zeneGombok" onClick={()=>{setLenyil(false); navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>{setLenyil(false);doDownload(id)}}><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={()=>{setLenyil(false); reportMessage();}}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                             {logedIn && <button className="zeneGombok" onClick={async ()=>{await playlistsSelection(); setLenyil(false);}}><img src={add} alt="listához adás" className="zeneGombokImg"/></button>}
@@ -230,7 +231,8 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
                     <button className="zeneGombok" onClick={playOrPause}><img src={playPic} alt="lejátszás" className="zeneGombokImg"/></button>
                 </td>:
                 <td className="gombok">
-                    {isAdmin || userData.id == userId && <button className="zeneGombok" onClick={()=>navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
+                    {isAdmin && <button className="zeneGombok" onClick={()=>navigate(`/adminMusicEdit?mode=music&musicId=${id}`)}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
+                    {!isAdmin && userData.id == userId && <button className="zeneGombok" onClick={()=>navigate(`/addMusic?mode=edit&id=${id}&userId=${userId}`)}><img src={pencil} alt="szerkesztés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" onClick={()=>doDownload(id)} ><img src={download} alt="letöltés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" onClick={reportMessage}><img src={report} alt="jelentés" className="zeneGombokImg"/></button>}
                     {logedIn && <button className="zeneGombok" onClick={playlistsSelection}><img src={add}  alt="listához adás" className="zeneGombokImg"/></button>}

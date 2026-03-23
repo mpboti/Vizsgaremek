@@ -13,6 +13,8 @@ import CreateOrEditMusic, { MusicAction, MusicAddLoader } from "./components/cre
 import { useEffect } from "react";
 import { logout } from "./data";
 import { getAuthToken } from "./auth";
+import AdminPlaylistEdit, { AdminPlaylistAction } from "./components/adminPlaylistEdit";
+import AdminMusicEdit, { AdminMusicAction, AdminMusicLoader } from "./components/adminMusicEdit";
 
 function App() {
   useEffect(()=>{
@@ -32,7 +34,9 @@ function App() {
       {path: "/auth", element: <LoginOrSignin />, action: LoginAction},
       {path: "/editplaylist", element: <CreateOrEditPlaylist />, action: PlaylistAction, loader: loadPlaylistCreate },
       {path: "/setting", element: <Setting />, action: SettingAction, loader: SettingLoader},
-      {path: "/addMusic", element: <CreateOrEditMusic/>, action: MusicAction, loader: MusicAddLoader}
+      {path: "/addMusic", element: <CreateOrEditMusic />, action: MusicAction, loader: MusicAddLoader},
+      {path: "/adminPlaylistEdit", element: <AdminPlaylistEdit />, action: AdminPlaylistAction},
+      {path: "/adminMusicEdit", element: <AdminMusicEdit />, action: AdminMusicAction, loader: AdminMusicLoader}
     ]}
   ])
   

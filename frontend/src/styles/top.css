@@ -73,6 +73,10 @@ input.searchText{
     color: white;
 }
 
+input.searchText::placeholder{
+    color: rgb(192, 192, 192);
+}
+
 div.keresomezo{
     border-radius: 10px;
     padding: 0 15px 0 5px;
@@ -83,6 +87,8 @@ div.keresomezo{
 
 div.userNameDiv, div.home{
     vertical-align: middle;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 p.userName{
@@ -90,12 +96,16 @@ p.userName{
     position: absolute;
     top: 18px;
     right: 110px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    width: 320px;
 }
 
 p.toltelek{
     background-color: transparent;
     border-color: transparent;
     width: 50px;
+    
 }
 
 div.userPicDiv, div.backDiv{
@@ -150,8 +160,16 @@ table{
         font-size: 18px;
         top: 15px;
         right: 70px;
+        width: 200px;
     }
 }
+
+@media screen and (max-width: 800px){
+    p.userName{
+        width: 100px;
+    }
+}
+
 @media screen and (max-width: 650px){
     p.toltelek{
         width: 0px;

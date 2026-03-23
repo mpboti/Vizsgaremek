@@ -69,7 +69,8 @@ export default function PlaylistShow({id, listaPic, name, userName, ownerId}){
                 </div>
             </Link>
             <div className="listaButtons">
-                {logedIn && ownerId == userData.id && <Link to={`/editPlaylist?id=${id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>}
+                {userData.isAdmin?<Link to={`/adminPlaylistEdit?mode=playlist&userId=${ownerId}&playlistId=${id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>:
+                logedIn && ownerId == userData.id && <Link to={`/editPlaylist?id=${id}`}><button className="mainListButtons"><img src={pencil} alt="Letöltés" className="listaButtonImg"/></button></Link>}
                 <button className="mainListButtons" onClick={()=>preferFunc()}><img src={preferPic} alt="List" className="listaButtonImg"/></button>
                 <button className="mainListButtons" onClick={()=>playOrPauseList()}><img src={playPic} alt="Lejátszás" className="listaButtonImg"/></button>
             </div>
