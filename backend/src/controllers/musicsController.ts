@@ -47,7 +47,7 @@ export async function getMusicById(req: Request, res: Response) {
                 return res.status(404).json({ message: "Album not found." });
             }
             if(results2[0].imageFileId != null){
-                const [results3] = await conn.query("SELECT * FROM albums WHERE id = ?", results2[0].imageFileId);
+                const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                 if(results3[0] == 0){
                     return res.status(404).json({ message: "Album pic not found." });
                 }
@@ -105,7 +105,7 @@ export async function getMusicbyPlaylistId(req: Request, res: Response) {
                     return res.status(404).json({ message: "Album not found." });
                 }
                 if(results2[0].imageFileId != null){
-                    const [results3] = await conn.query("SELECT * FROM albums WHERE id = ?", results2[0].imageFileId);
+                    const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                     if(results3[0] == 0){
                         return res.status(404).json({ message: "Album pic not found." });
                     }
@@ -169,7 +169,7 @@ export async function getMusicByUserId(req: Request, res: Response) {
                     return res.status(404).json({ message: "Album not found." });
                 }
                 if(results2[0].imageFileId != null){
-                    const [results3] = await conn.query("SELECT * FROM albums WHERE id = ?", results2[0].imageFileId);
+                    const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                     if(results3[0] == 0){
                         return res.status(404).json({ message: "Album pic not found." });
                     }

@@ -41,6 +41,7 @@ export default function PlaylistShow({id, listaPic, name, userName, ownerId}){
     async function playOrPauseList(){
       if(playingPlaylistId!=id){
         await loadDataByPlaylistId(id);
+        console.log(data);
         playById(data[0].id);
       }else{
         if(isPlaying){

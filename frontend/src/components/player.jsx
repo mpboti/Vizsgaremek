@@ -154,6 +154,7 @@ export default function Player() {
             }
         }
         const changeBack = playerChange(() => {
+            console.log(musicVolume, settingData.volume);
             if(selectingPlaylistId!==-1)
                 setOpenPlaylist(false);
             if(isPlaying){
@@ -233,10 +234,13 @@ export default function Player() {
             }
             setVolume(settingData.volume);
             updateVolume(settingData.volume);
+            setMusicVolume(settingData.volume);
+
         }else{
             setMuteButt(volumeIcon0);
             setVolume(0);
             updateVolume(0);
+            setMusicVolume(0);
         }
     }
 
@@ -253,6 +257,7 @@ export default function Player() {
             setMuteButt(volumeIcon3);
         }
         updateVolume(currentVolume);
+        setMusicVolume(currentVolume);
     }
 
     async function setVolumeToSetting(){

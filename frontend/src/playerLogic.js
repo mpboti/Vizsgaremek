@@ -116,7 +116,8 @@ async function savePlaylistIdToSettings(playlistId){
 function loadAudio(audio){
     return new Promise(resolve => {
         audio.addEventListener("canplaythrough", resolve, { once: true });
-        audio.currentTime=0;
+        if(!audio.currentTime)
+            audio.currentTime=0;
     });
     
 };
@@ -154,46 +155,52 @@ async function loadData(zeneData, id){
         randomize();
     }
 }
-
+let switching2 = false;
 export async function loadDataByPlaylistId(id){
-    playingMusic.pause();
-    playingMusic.currentTime = 0;
-    isPlaying = false;
-    data = [];
-    firstData = [];
+    if (switching2) return;
+    switching2 = true;
+    try {
+        playingMusic.pause();
+        playingMusic.currentTime = 0;
+        isPlaying = false;
+        data = [];
+        firstData = [];
 
-    let zeneData = [];
-    try{
-        const res = await fetch(`http://${ip}/musics/byplaylistid/${id}`);
-        const resData = await res.json(res);
-        for(const elem of resData){
-            if(!zeneData.includes(elem.musicId)){
-                elem.musicUrl=`http://${ip}`+elem.musicUrl;
-                zeneData.push(elem);
+        let zeneData = [];
+        try{
+            const res = await fetch(`http://${ip}/musics/byplaylistid/${id}`);
+            const resData = await res.json(res);
+            for(const elem of resData){
+                if(!zeneData.includes(elem.musicId)){
+                    elem.musicUrl=`http://${ip}`+elem.musicUrl;
+                    zeneData.push(elem);
+                }
             }
+        }catch(err){
+            console.log(err);
         }
-    }catch(err){
-        console.log(err);
-    }
-    const lattukMar = new Set();
-    zeneData = zeneData.filter(obj => {
-        const dupla = lattukMar.has(obj.id);
-        lattukMar.add(obj.id);
-        return !dupla;
-    });
-
-    for(const element of zeneData){ 
-        data.push(element);
-        firstData.push(element);
-    };
-    await loadVolume();
-    playingPlaylistId = id;
-    savePlaylistIdToSettings(id);
-    console.log(data);
-    isLoad=false;
-    if(isRandomized){
-        isRandomized=false;
-        randomize();
+        const lattukMar = new Set();
+        zeneData = zeneData.filter(obj => {
+            const dupla = lattukMar.has(obj.id);
+            lattukMar.add(obj.id);
+            return !dupla;
+        });
+        for(const element of zeneData){ 
+            data.push(element);
+            firstData.push(element);
+        };
+        await loadVolume();
+        playingPlaylistId = id;
+        savePlaylistIdToSettings(id);
+        
+        isLoad=false;
+    }finally {
+        if(isRandomized){
+            isRandomized=false;
+            randomize();
+        }
+        switching2 = false;
+        changeEvent(chage => chage());
     }
 }
 
@@ -227,8 +234,6 @@ export async function loadLastMusic(){
         const resData = await res.json();
         resData.musicUrl=`http://${ip}${resData.musicUrl}`
         const audio = new Audio(resData.musicUrl);
-        data = [resData];
-        firstData = [resData];
         playingData = resData;
         playingMusic = audio;
         await loadVolume();
@@ -339,13 +344,22 @@ export async function playById(id){
             },
             body: JSON.stringify({lastMusicId: id})
         });
-        await loadSettings();
+        if(musicVolume==0){
+            await loadSettings();
+            settingData.volume=0;
+            musicVolume=0;
+        }else{
+            await loadSettings();
+        }
     }
     isUploadPlay=false;
     
     if(firstPlay){
         if(settingData.lastPlaylistId){
             await loadDataByPlaylistId(settingData.lastPlaylistId);
+            await loadVolume();
+        }else{
+            await loadData(musicsData, id);
             await loadVolume();
         }
         firstPlay=false;
@@ -434,6 +448,7 @@ export async function nextMusic(){
                 }else if(isLoopList){
                     isLoad=true;
                     await playById(firstData[0].id);
+                    noRepeatList=[];
                     if(isRandomized){
                         isRandomized=false
                         randomize();
@@ -455,9 +470,9 @@ export async function nextMusic(){
                 }
             }
         }
-        changeEvent(chage => chage());
     } finally {
         switching = false;
+        changeEvent(chage => chage());
     }
 }
 
@@ -482,7 +497,7 @@ export function prevMusic(){
 
 export function randomize(){
     if(!isRandomized){
-        const perData = [playingData];
+        const perData = [data[0]];
         for (let i = 1; i < data.length; i++) {
             let rnd = Math.floor(Math.random() * (data.length));
             while(perData.includes(data[rnd])){

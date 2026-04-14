@@ -93,8 +93,15 @@ export async function updateAlbum(req: Request, res: Response) {
     const conn = await config.connection;
 
     try {
-        const updateString = keys.map(key => {if(album[key]!=null && album[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
+        let updateString = keys.map(key => {if(album[key]!=null && album[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
         const values = keys.map(key => {if(album[key]!=null && album[key]!="") return album[key]; else return null;}).filter(value => value !== null);
+        if(req.body.imageFileId){
+            updateString = updateString+", imageFilePath=?"
+            values.push(null);
+        }else if(req.body.imageFilePath){
+            updateString = updateString+", imageFileId=?"
+            values.push(null);
+        }
         values.push(id);
         const [results] = await conn.query(`UPDATE albums SET ${updateString} WHERE id = ?`, values);
         if (results.affectedRows === 0) {
@@ -102,6 +109,7 @@ export async function updateAlbum(req: Request, res: Response) {
         }
         res.status(200).json({ message: "Album updated successfully." });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Internal server error." });
     }
     return;

@@ -1,5 +1,5 @@
 import { Form, redirect, useNavigate, useSearchParams } from "react-router-dom";
-import { albumOptions, artistOptions, currentAlbumPicSetting, currentAlbumPicUrl, currentMusicData, currentProfilePicSetting, getReports, getUserData, ip, loadAlbumOptions, loadArtistOptions, loadData, loadMufajOptions, loadPlaylists, loadReportsByMusicId, logout, mufajOptions, setCurrentAlbumPicSetting, setCurrentAlbumPicUrl, setCurrentProfilePicSetting, setUploadedMusicFile, uploadedMusicFile } from "../data";
+import { albumOptions, artistOptions, currentAlbumPicSetting, currentAlbumPicUrl, currentProfilePicSetting, getReports, getUserData, ip, loadAlbumOptions, loadArtistOptions, loadData, loadMufajOptions, loadPlaylists, loadReportsByMusicId, logout, mufajOptions, setCurrentAlbumPicSetting, setCurrentAlbumPicUrl, setCurrentProfilePicSetting, setUploadedMusicFile, uploadedMusicFile } from "../data";
 import { useEffect, useRef, useState } from "react";
 import "../styles/adminForms.css";
 import "../styles/forms.css";
@@ -84,7 +84,7 @@ export default function AdminMusicEdit(){
     
     async function openPic(isFinal, e){
       if(!isFinal){
-        fileOpener.current.click();
+        picOpener.current.click();
       }else if(e.target.type=="text"){
         const checked = await new Promise((resolve) => {
           const image = new Image();
@@ -414,9 +414,13 @@ export async function AdminMusicAction({request}){
     
     const url = new URL(request.url);
 
+    const currentMusicRes = await fetch(`http://${ip}/musics/${url.searchParams.get("musicId")}`);
+    const currentMusicData = await currentMusicRes.json();
+
     if(url.searchParams.get("mode")==="music"){
       const cim = data.get("cim");
       const mufaj = data.get("mufaj");
+      
       if(uploadedMusicFile!=null){
         await fetch(`http://${ip}/files/music/${currentMusicData.musicFileId}`, {
           method:"DELETE",
@@ -460,7 +464,7 @@ export async function AdminMusicAction({request}){
       const album = data.get("album");
       const releaseDate = data.get("releaseDate");
       let albumId = null
-      if(album != "" && !albumOptions.albums.includes(album)){
+      if(album != "" && !albumOptions.ids.includes(currentMusicData.albumId)){
         let albumBody = {};
         if(releaseDate!=""){
           albumBody = {
@@ -507,20 +511,21 @@ export async function AdminMusicAction({request}){
         }
         const createAlbumData = await createAlbum.json();
         albumId=createAlbumData.id;
-      }else if(album != "" && albumOptions.albums.includes(album)){
-        albumId = albumOptions.ids[albumOptions.albums.findIndex((e)=>e==album)];
+        
+      }else if(album != "" && albumOptions.ids.includes(currentMusicData.albumId)){
+        albumId = currentMusicData.albumId;
         let isDifferent = false;
         let albumBody = {};
         const albumRes = await fetch(`http://${ip}/albums/${albumId}`)
         const albumData = await albumRes.json();
-
-        if(releaseDate!="" && albumData.releaseDate == null){
+        
+        if(releaseDate!="" && albumData.releaseDate != parseInt(releaseDate)){
           albumBody = {
             releaseDate: parseInt(releaseDate)
           }
           isDifferent=true;
         }
-        if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic && albumData.imageFilePath == null){
+        if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic){
           albumBody = {...albumBody, imageFilePath: currentAlbumPicUrl};
           isDifferent=true;
         }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic && albumData.imageFileId == null){
@@ -535,8 +540,27 @@ export async function AdminMusicAction({request}){
           const uploadPicData = await uploadPic.json();
           albumBody = {...albumBody, imageFileId: uploadPicData.id};
           isDifferent = true;
+        }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic && albumData.imageFileId != null){
+          await fetch(`http://${ip}/files/image/${albumData.imageFileId}`, {
+            method:"DELETE",
+            headers:{
+              'x-access-token': getAuthToken()
+            }
+          })
+          const formData = new FormData();
+          formData.append("file", currentAlbumPicSetting);
+          formData.append("userId", userData.id);
+        
+          const uploadPic = await fetch(`http://${ip}/files/image`, {
+            method: 'POST',
+            body: formData
+          });
+          const uploadPicData = await uploadPic.json();
+          albumBody = {...albumBody, imageFileId: uploadPicData.id};
+          isDifferent = true;
         }
         if(isDifferent){
+          console.log(albumBody)
           const editAlbum = await fetch(`http://${ip}/albums/${albumId}`, {
             method: 'PUT',
             headers: {
@@ -550,7 +574,7 @@ export async function AdminMusicAction({request}){
           }
         }
       }else{
-        albumId = albumOptions.ids[albumOptions.albums.findIndex((e)=>e==album)];
+        albumId = currentMusicData.albumId;
       }
       await fetch(`http://${ip}/musics/${url.searchParams.get("musicId")}`, {
         method: 'PUT',
@@ -563,7 +587,7 @@ export async function AdminMusicAction({request}){
     }else if(url.searchParams.get("mode")==="artist"){
       const eloado = data.get("eloado");
       let artistId=null;
-      if(eloado!="" && !artistOptions.artists.includes(eloado)){
+      if(eloado!="" && !artistOptions.ids.includes(currentMusicData.artistId)){
         const createArtist = await fetch(`http://${ip}/artists`, {
           method: 'POST',
           headers: {
@@ -575,7 +599,7 @@ export async function AdminMusicAction({request}){
         const createArtistData = await createArtist.json();
         artistId=createArtistData.id;
       }else{
-        artistId=artistOptions.ids[artistOptions.artists.findIndex((e)=>e==eloado)];
+        artistId=currentMusicData.artistId;
       }
       await fetch(`http://${ip}/musics/${url.searchParams.get("musicId")}`, {
         method: 'PUT',
@@ -586,7 +610,7 @@ export async function AdminMusicAction({request}){
         body: JSON.stringify({artistId: artistId})
       });
     }else if(url.searchParams.get("mode")==="user"){
-      const res = await fetch(`http://${ip}/users/getuser/${url.searchParams.get("userId")}`,{
+      const res = await fetch(`http://${ip}/users/getuser/${currentMusicData.uploaderId}`,{
         headers: {
           'x-access-token': getAuthToken()
         }
@@ -621,7 +645,6 @@ export async function AdminMusicAction({request}){
         const responseData = await response.json();
         bodyData = {...bodyData, imageFileId: responseData.id}
       }
-      console.log(bodyData);
       if(Object.keys(bodyData).length > 0){
         const res = await fetch(`http://${ip}/users/${editingUserData.id}`, {
           method: 'PUT',

@@ -60,7 +60,7 @@ export async function getPlaylistById(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, image_files.fileName, image_files.mimeType, image_files.filePath FROM playlists INNER JOIN image_files ON image_files.id = playlists.playlistPicId WHERE playlists.id = ?", [id]);
+        const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, image_files.fileName, image_files.mimeType, image_files.filePath FROM playlists INNER JOIN image_files ON image_files.id = playlists.playlistPicId WHERE playlists.id = ?", [id]);
         const [musics] = await conn.query("SELECT musicId, position FROM playlist_musics WHERE playlistId = ?", [id]);
         if (results.length === 0) {
             const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicUrl FROM playlists WHERE id = ?", [id]);

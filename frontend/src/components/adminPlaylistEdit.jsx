@@ -44,11 +44,12 @@ export default function AdminPlaylistEdit(){
           });
           const resData = await res.json();
           setPlaylistData(resData);
-          if(!(resData.url.startsWith("http://") || resData.url.startsWith("https://")))
-            setImg(`http://${ip}` + resData.url)
-          else{
+          if(!(resData.url.startsWith("http://") || resData.url.startsWith("https://"))){
+            setImg(`http://${ip}` + resData.url);
+          }else{
             setUrlInput(resData.url)
             setImg(resData.url)
+            setCurrentPlaylistPicUrl(resData.url);
           }
         }
         
@@ -230,12 +231,16 @@ export async function AdminPlaylistAction({request}){
         }
       });
       const playlistData = await res.json();
-
+      console.log(playlistData);
       let playlistPicId=null;
       let playlistPicUrl=null;
       try{
+          
           if(currentPlaylistPicUrl && currentPlaylistPicSetting == defaultPlaylistPic){
             playlistPicUrl=data.get("playlistPic")
+          }else if(currentPlaylistPicSetting == defaultPlaylistPic){
+            playlistPicId = playlistData.playlistPicId;
+            console.log(playlistPicId)
           }else if(!currentPlaylistPicUrl && currentPlaylistPicSetting != defaultPlaylistPic){
             if(playlistData?.listaPicId != null && playlistId){
               console.log(playlistData.listaPicId)
