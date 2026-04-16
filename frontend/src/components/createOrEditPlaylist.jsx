@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { Form, redirect, useSearchParams } from "react-router-dom";
 import defaultPlaylistPic from "../assets/defaultPlaylistPic.png"
-import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists, currentPlaylistPicUrl, setCurrentPlaylistPicUrl } from "../data";
+import { currentPlaylistPicSetting, getUserData, logout, setCurrentPlaylistPicSetting, ip, getPlaylistsData, loadPlaylists, currentExternalLink, setCurrentExternalLink } from "../data";
 import { getAuthToken } from "../auth";
 import "../styles/forms.css";
 
@@ -29,21 +29,21 @@ export default function CreateOrEditPlaylist(){
       });
       if(checked){
         setImg(e.target.value);
-        setCurrentPlaylistPicUrl(e.target.value);
+        setCurrentExternalLink(e.target.value);
         setCurrentPlaylistPicSetting(defaultPlaylistPic);
       }else {
         if(currentPlaylistPicSetting == defaultPlaylistPic)
           setImg(currentPlaylistPicSetting);
         else
-          setImg(URL.createObjectURL(currentPlaylistPicUrl));
-        setCurrentPlaylistPicUrl(null);
+          setImg(URL.createObjectURL(currentExternalLink));
+        setCurrentExternalLink(null);
       }
     }else{
       setImg(URL.createObjectURL(e.target.files[0]));
       setCurrentPlaylistPicSetting(e.target.files[0]);
-      setCurrentPlaylistPicUrl(null);
+      setCurrentExternalLink(null);
     }
-    console.log(currentPlaylistPicSetting, currentPlaylistPicUrl)
+    console.log(currentPlaylistPicSetting, currentExternalLink)
   }
 
   async function deletePlaylist() {
@@ -105,12 +105,12 @@ export async function PlaylistAction({request}){
     }
 
     let playlistPicId=null;
-    let playlistPicUrl=null;
+    let externalLink=null;
     
       try{
-        if(currentPlaylistPicUrl && currentPlaylistPicSetting == defaultPlaylistPic){
-          playlistPicUrl=data.get("playlistPic")
-        }else if(!currentPlaylistPicUrl && currentPlaylistPicSetting != defaultPlaylistPic){
+        if(currentExternalLink && currentPlaylistPicSetting == defaultPlaylistPic){
+          externalLink=data.get("playlistPic")
+        }else if(!currentExternalLink && currentPlaylistPicSetting != defaultPlaylistPic){
           if(playlistData?.listaPicId != null && playlistId){
             console.log(playlistData.listaPicId)
             await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
@@ -141,8 +141,8 @@ export async function PlaylistAction({request}){
     }
     if(playlistPicId!=null){
       playlistUpdateData={...playlistUpdateData, playlistPicId: playlistPicId}
-    }else if(playlistPicUrl!=null){
-      playlistUpdateData={...playlistUpdateData, playlistPicUrl: playlistPicUrl}
+    }else if(externalLink!=null){
+      playlistUpdateData={...playlistUpdateData, externalLink: externalLink}
     }
     
 
@@ -176,5 +176,5 @@ export async function PlaylistAction({request}){
   }
 }
 export function loadPlaylistCreate(){
-  setCurrentPlaylistPicUrl(null);
+  setCurrentExternalLink(null);
 }

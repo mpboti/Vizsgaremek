@@ -20,7 +20,7 @@ export async function searchMusicsByName(req: Request, res: Response) {
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
-                const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", i.albumId);
+                const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
                     return res.status(404).json({ message: "Album not found." });
                 }
@@ -30,8 +30,8 @@ export async function searchMusicsByName(req: Request, res: Response) {
                         return res.status(404).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
-                }else if(results2[0].imageFilePath != null){
-                    ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+                }else if(results2[0].externalLink != null){
+                    ertek = {...ertek, imageUrl: results2[0].externalLink};
                 }else{
                     ertek = {...ertek, imageUrl: null};
                 }
@@ -76,8 +76,8 @@ export async function searchPlaylistsByName(req: Request, res: Response) {
             if(result.playlistPicId!=null){
                 const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
                 atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length), ...username[0]});
-            }else if(result.playlistPicUrl!=null){
-                atributes.push({ ...result, url: result.playlistPicUrl, ...username[0]});
+            }else if(result.externalLink!=null){
+                atributes.push({ ...result, url: result.externalLink, ...username[0]});
             }else{   
                 atributes.push({ ...result, url: null, ...username[0]})
             }
@@ -110,7 +110,7 @@ export async function searchMusicsByArtist(req: Request, res: Response){
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
-                const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", i.albumId);
+                const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
                     return res.status(404).json({ message: "Album not found." });
                 }
@@ -120,8 +120,8 @@ export async function searchMusicsByArtist(req: Request, res: Response){
                         return res.status(404).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
-                }else if(results2[0].imageFilePath != null){
-                    ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+                }else if(results2[0].externalLink != null){
+                    ertek = {...ertek, imageUrl: results2[0].externalLink};
                 }else{
                     ertek = {...ertek, imageUrl: null};
                 }
@@ -166,7 +166,7 @@ export async function searchMusicsByAlbum(req: Request, res: Response){
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
-                const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", i.albumId);
+                const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
                     return res.status(404).json({ message: "Album not found." });
                 }
@@ -176,8 +176,8 @@ export async function searchMusicsByAlbum(req: Request, res: Response){
                         return res.status(404).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
-                }else if(results2[0].imageFilePath != null){
-                    ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+                }else if(results2[0].externalLink != null){
+                    ertek = {...ertek, imageUrl: results2[0].externalLink};
                 }else{
                     ertek = {...ertek, imageUrl: null};
                 }
@@ -222,7 +222,7 @@ export async function searchMusicsByUsername(req: Request, res: Response){
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
-                const [results2] = await conn.query("SELECT name, releaseDate, imageFilePath, imageFileId FROM albums WHERE id = ?", i.albumId);
+                const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
                     return res.status(404).json({ message: "Album not found." });
                 }
@@ -232,8 +232,8 @@ export async function searchMusicsByUsername(req: Request, res: Response){
                         return res.status(404).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
-                }else if(results2[0].imageFilePath != null){
-                    ertek = {...ertek, imageUrl: results2[0].imageFilePath};
+                }else if(results2[0].externalLink != null){
+                    ertek = {...ertek, imageUrl: results2[0].externalLink};
                 }else{
                     ertek = {...ertek, imageUrl: null};
                 }
@@ -263,7 +263,7 @@ export async function searchMusicsByUsername(req: Request, res: Response){
 export async function searchPlaylistsByUsername(req: Request, res: Response){
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, playlists.playlistPicUrl, users.username FROM playlists INNER JOIN users ON users.id = playlists.ownerId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
+        const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, playlists.externalLink, users.username FROM playlists INNER JOIN users ON users.id = playlists.ownerId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
             res.status(300).json({ message: "No playlists found for this user." });
@@ -274,8 +274,8 @@ export async function searchPlaylistsByUsername(req: Request, res: Response){
             if(result.playlistPicId!=null){
                 const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
                 atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length)});
-            }else if(result.playlistPicUrl!=null){
-                atributes.push({ ...result, url: result.playlistPicUrl});
+            }else if(result.externalLink!=null){
+                atributes.push({ ...result, url: result.externalLink});
             }else{   
                 atributes.push({ ...result, url: null});
             }

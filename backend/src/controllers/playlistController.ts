@@ -38,8 +38,8 @@ export async function getPlaylistByUserId(req: Request, res: Response) {
             if(result.playlistPicId!=null){
                 const [results2] = await conn.query("SELECT * FROM image_files WHERE id = ?", [result.playlistPicId]);
                 atributes.push({ ...result, url: (results2[0].filePath).slice(config.baseDir.length), ...username[0]});
-            }else if(result.playlistPicUrl!=null){
-                atributes.push({ ...result, url: result.playlistPicUrl, ...username[0]});
+            }else if(result.externalLink!=null){
+                atributes.push({ ...result, url: result.externalLink, ...username[0]});
             }else{   
                 atributes.push({ ...result, url: null, ...username[0]})
             }
@@ -63,7 +63,7 @@ export async function getPlaylistById(req: Request, res: Response) {
         const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, image_files.fileName, image_files.mimeType, image_files.filePath FROM playlists INNER JOIN image_files ON image_files.id = playlists.playlistPicId WHERE playlists.id = ?", [id]);
         const [musics] = await conn.query("SELECT musicId, position FROM playlist_musics WHERE playlistId = ?", [id]);
         if (results.length === 0) {
-            const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicUrl FROM playlists WHERE id = ?", [id]);
+            const [results2] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.externalLink FROM playlists WHERE id = ?", [id]);
             if (results2.length === 0) {
                 res.status(404).json({ message: "Playlist not found." });
                 return;
@@ -73,8 +73,8 @@ export async function getPlaylistById(req: Request, res: Response) {
                 res.status(404).json({ message: "User not found." });
                 return;
             }
-            if(results2[0].playlistPicUrl!=null){
-                res.status(200).json({...results2[0], url: results2[0].playlistPicUrl, musics: musics, ...username[0]});
+            if(results2[0].externalLink!=null){
+                res.status(200).json({...results2[0], url: results2[0].externalLink, musics: musics, ...username[0]});
             }else{   
                 res.status(200).json({...results2[0], url: null, musics: musics, ...username[0]});
             }
@@ -136,8 +136,8 @@ export async function createPlaylist(req: Request, res: Response) {
     try  {
         const [playlists] = await conn.query("SELECT * FROM playlists WHERE ownerId = ?", [playlist.creatorId]);
         playlist.position=playlists.length+1;
-        const [results] = await conn.query("INSERT INTO playlists (id, name, ownerId, playlistPicId, playlistPicUrl, position) VALUES (null, ?, ?, ?, ?, ?)",
-        [playlist.name, playlist.creatorId, playlist.playlistPicId, playlist.playlistPicUrl, playlist.position]);
+        const [results] = await conn.query("INSERT INTO playlists (id, name, ownerId, playlistPicId, externalLink, position) VALUES (null, ?, ?, ?, ?, ?)",
+        [playlist.name, playlist.creatorId, playlist.playlistPicId, playlist.externalLink, playlist.position]);
         res.status(201).json({ message: "Playlist created successfully.", id: results.insertId });
         return;
     } catch (error) {
@@ -253,7 +253,7 @@ export async function updatePlaylist(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try {
-        const [results] = await conn.query("UPDATE playlists SET name = ?, playlistPicId = ?, playlistPicUrl = ? WHERE id = ?", [playlist.name, playlist.playlistPicId, playlist.playlistPicUrl, id]);
+        const [results] = await conn.query("UPDATE playlists SET name = ?, playlistPicId = ?, externalLink = ? WHERE id = ?", [playlist.name, playlist.playlistPicId, playlist.externalLink, id]);
         if (results.affectedRows === 0) {
             res.status(404).json({ message: "Playlist not found." });
             return;

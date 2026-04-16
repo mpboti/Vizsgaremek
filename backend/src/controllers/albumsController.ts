@@ -48,7 +48,7 @@ export async function createAlbum(req: Request, res: Response) {
     }
     const conn = await config.connection;
     try  {
-        const [results] = await conn.query("INSERT INTO albums (id, name, releaseDate, imageFilePath, artistId) VALUES (null, ?, ?, ?, ?)", [album.name, album.releaseDate, album.imageFilePath, album.artistId]);
+        const [results] = await conn.query("INSERT INTO albums (id, name, releaseDate, externalLink, artistId) VALUES (null, ?, ?, ?, ?)", [album.name, album.releaseDate, album.externalLink, album.artistId]);
         res.status(201).json({ message: "Album created successfully.", id: results.insertId });
     } catch (error) {
         console.log(error);
@@ -87,7 +87,7 @@ export async function updateAlbum(req: Request, res: Response) {
     }
 
     const album: any = new Album(req.body as unknown as IAlbum);
-    const allowedFields = ["name", "imageFileId", "imageFilePath", "releaseDate"];
+    const allowedFields = ["name", "imageFileId", "externalLink", "releaseDate"];
     const keys = Object.keys(album).filter(key => allowedFields.includes(key));
 
     const conn = await config.connection;
@@ -96,9 +96,9 @@ export async function updateAlbum(req: Request, res: Response) {
         let updateString = keys.map(key => {if(album[key]!=null && album[key]!="") return `${key} = ?`; else return null;}).filter(value => value !== null).join(", ");
         const values = keys.map(key => {if(album[key]!=null && album[key]!="") return album[key]; else return null;}).filter(value => value !== null);
         if(req.body.imageFileId){
-            updateString = updateString+", imageFilePath=?"
+            updateString = updateString+", externalLink=?"
             values.push(null);
-        }else if(req.body.imageFilePath){
+        }else if(req.body.externalLink){
             updateString = updateString+", imageFileId=?"
             values.push(null);
         }

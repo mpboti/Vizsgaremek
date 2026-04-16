@@ -173,9 +173,9 @@ export function getPlaylistData(){
 }
 
 //atribútomok mentése
-export let currentPlaylistPicUrl = null;
-export function setCurrentPlaylistPicUrl(url){
-    currentPlaylistPicUrl = url;
+export let currentExternalLink = null;
+export function setCurrentExternalLink(url){
+    currentExternalLink = url;
 }
 export let currentAlbumPicUrl = null;
 export function setCurrentAlbumPicUrl(url){

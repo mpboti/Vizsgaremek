@@ -4,7 +4,7 @@ import defaultPlaylistPic from "../assets/defaultPlaylistPic.png"
 import defaultProfilePic from "../assets/defaultUserPic.png";
 import "../styles/adminForms.css";
 import "../styles/forms.css";
-import { currentPlaylistPicSetting, currentPlaylistPicUrl, currentProfilePicSetting, getReports, getUserData, ip, loadData, loadPlaylists, loadReportsByUserId, logout, setCurrentPlaylistPicSetting, setCurrentPlaylistPicUrl, setCurrentProfilePicSetting } from "../data";
+import { currentPlaylistPicSetting, currentExternalLink, currentProfilePicSetting, getReports, getUserData, ip, loadData, loadPlaylists, loadReportsByUserId, logout, setCurrentPlaylistPicSetting, setCurrentExternalLink, setCurrentProfilePicSetting } from "../data";
 import { getAuthToken } from "../auth";
 import ReportRow from "./report-row";
 
@@ -49,7 +49,7 @@ export default function AdminPlaylistEdit(){
           }else{
             setUrlInput(resData.url)
             setImg(resData.url)
-            setCurrentPlaylistPicUrl(resData.url);
+            setCurrentExternalLink(resData.url);
           }
         }
         
@@ -81,21 +81,21 @@ export default function AdminPlaylistEdit(){
       });
       if(checked){
         setImg(e.target.value);
-        setCurrentPlaylistPicUrl(e.target.value);
+        setCurrentExternalLink(e.target.value);
         setCurrentPlaylistPicSetting(defaultPlaylistPic);
       }else {
         if(currentPlaylistPicSetting == defaultPlaylistPic)
           setImg(currentPlaylistPicSetting);
         else
-          setImg(URL.createObjectURL(currentPlaylistPicUrl));
-        setCurrentPlaylistPicUrl(null);
+          setImg(URL.createObjectURL(currentExternalLink));
+        setCurrentExternalLink(null);
       }
     }else{
       setImg(URL.createObjectURL(e.target.files[0]));
       setCurrentPlaylistPicSetting(e.target.files[0]);
-      setCurrentPlaylistPicUrl(null);
+      setCurrentExternalLink(null);
     }
-    console.log(currentPlaylistPicSetting, currentPlaylistPicUrl)
+    console.log(currentPlaylistPicSetting, currentExternalLink)
   }
   async function deletePlaylist() {
     if(playlistData?.listaPicId != null && playlistData.id){
@@ -233,15 +233,15 @@ export async function AdminPlaylistAction({request}){
       const playlistData = await res.json();
       console.log(playlistData);
       let playlistPicId=null;
-      let playlistPicUrl=null;
+      let externalLink=null;
       try{
           
-          if(currentPlaylistPicUrl && currentPlaylistPicSetting == defaultPlaylistPic){
-            playlistPicUrl=data.get("playlistPic")
+          if(currentExternalLink && currentPlaylistPicSetting == defaultPlaylistPic){
+            externalLink=data.get("playlistPic")
           }else if(currentPlaylistPicSetting == defaultPlaylistPic){
             playlistPicId = playlistData.playlistPicId;
             console.log(playlistPicId)
-          }else if(!currentPlaylistPicUrl && currentPlaylistPicSetting != defaultPlaylistPic){
+          }else if(!currentExternalLink && currentPlaylistPicSetting != defaultPlaylistPic){
             if(playlistData?.listaPicId != null && playlistId){
               console.log(playlistData.listaPicId)
               await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
@@ -270,8 +270,8 @@ export async function AdminPlaylistAction({request}){
       }
       if(playlistPicId!=null){
         playlistUpdateData={...playlistUpdateData, playlistPicId: playlistPicId}
-      }else if(playlistPicUrl!=null){
-        playlistUpdateData={...playlistUpdateData, playlistPicUrl: playlistPicUrl}
+      }else if(externalLink!=null){
+        playlistUpdateData={...playlistUpdateData, externalLink: externalLink}
       }
     
 

@@ -3,7 +3,7 @@ export interface IPlaylist {
     name: string;
     creatorId: number;
     playlistPicId: number | null;
-    playlistPicUrl: number | null;
+    externalLink: number | null;
     musicIds: number[];
     position: number;
 }
@@ -13,7 +13,7 @@ export class Playlist implements IPlaylist {
     name: string;
     creatorId: number;
     playlistPicId: number | null;
-    playlistPicUrl: number | null;
+    externalLink: number | null;
     musicIds: number[];
     position: number;
 
@@ -22,7 +22,7 @@ export class Playlist implements IPlaylist {
         this.name = init.name;
         this.creatorId = init.creatorId;
         this.playlistPicId = init.playlistPicId;
-        this.playlistPicUrl = init.playlistPicUrl;
+        this.externalLink = init.externalLink;
         this.musicIds = init.musicIds;
         this.position = init.position;
     }

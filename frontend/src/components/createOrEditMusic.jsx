@@ -135,9 +135,9 @@ export default function CreateOrEditMusic(){
     const resData = await res.json();
     if(resData.releaseDate!=null)
       setReleaseInput(resData.releaseDate);
-    if(resData.imageFilePath!=null){
-      setUrlInput(resData.imageFilePath);
-      setImg(resData.imageFilePath)
+    if(resData.externalLink!=null){
+      setUrlInput(resData.externalLink);
+      setImg(resData.externalLink)
     }else if(resData.imageFileId!=null){
       const response = await fetch(`http://${ip}/files/image/${resData.imageFileId}`)
       setImg(`http://${ip}${(await response.json()).url}`);
@@ -300,7 +300,7 @@ export async function MusicAction({request}){
           }
         }
         if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic){
-          albumBody = {...albumBody, imageFilePath: currentAlbumPicUrl};
+          albumBody = {...albumBody, externalLink: currentAlbumPicUrl};
         }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic){
           const formData = new FormData();
           formData.append("file", currentAlbumPicSetting);
@@ -339,8 +339,8 @@ export async function MusicAction({request}){
           }
           isDifferent=true;
         }
-        if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic && albumData.imageFilePath == null){
-          albumBody = {...albumBody, imageFilePath: currentAlbumPicUrl};
+        if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic && albumData.externalLink == null){
+          albumBody = {...albumBody, externalLink: currentAlbumPicUrl};
           isDifferent=true;
         }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic && albumData.imageFileId == null){
           const formData = new FormData();
