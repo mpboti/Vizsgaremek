@@ -24,6 +24,10 @@ export let musicVolume = 50;
 export let selectingPlaylistId = null;
 export let selectingMusicId = null;
 export let reportingId = null;
+export let notLoggedInVolume=50;
+export function setNotLoggedInVolume(vol){
+    notLoggedInVolume=vol;
+}
 playingMusic.addEventListener("pause", ()=>{
     if(playingMusic.currentTime < playingMusic.duration-settingData.fadeValue){
         isPlaying=false;
@@ -205,24 +209,28 @@ export async function loadDataByPlaylistId(id){
 }
 
 export async function loadSettings(){
-    const res = await fetch(`http://${ip}/settings/${getUserData().id}`,{
-        headers:{
-            'x-access-token': getAuthToken()
+    try{
+        const res = await fetch(`http://${ip}/settings/${getUserData().id}`,{
+            headers:{
+                'x-access-token': getAuthToken()
+            }
+        })
+        const resData = await res.json();
+        if(resData.lastPlaylistId != null){
+            playingPlaylistId = resData.lastPlaylistId;
+        }else{
+            playingPlaylistId = null;
         }
-    })
-    const resData = await res.json();
-    if(resData.lastPlaylistId != null){
-        playingPlaylistId = resData.lastPlaylistId;
-    }else{
-        playingPlaylistId = null;
+        settingData = resData;
+        if(!resData.fadeValue)
+            settingData.fadeValue=0;
+        if(!resData.volume && resData.volume!=0){
+            settingData.volume=50;
+        }
+        musicVolume=settingData.volume;
+    }catch(err){
+        console.log(err);
     }
-    settingData = resData;
-    if(!resData.fadeValue)
-        settingData.fadeValue=0;
-    if(!resData.volume){
-        settingData.volume=50;
-    }
-    musicVolume=settingData.volume;
 }
 await loadSettings();
 export async function loadLastMusic(){
@@ -232,13 +240,19 @@ export async function loadLastMusic(){
     if(settingData.lastMusicId){
         const res = await fetch(`http://${ip}/musics/${settingData.lastMusicId}`)
         const resData = await res.json();
-        resData.musicUrl=`http://${ip}${resData.musicUrl}`
+        if(resData.imageUrl!=null){
+            if(!(resData.imageUrl.startsWith("http://") || resData.imageUrl.startsWith("https://"))){
+                resData.imageUrl = `http://${ip}${resData.imageUrl}`;
+            }
+        }
+        resData.musicUrl = `http://${ip}${resData.musicUrl}`;
         const audio = new Audio(resData.musicUrl);
         playingData = resData;
         playingMusic = audio;
         await loadVolume();
         if(changeEvent)
             changeEvent(chage => chage());
+        isUploadPlay=false;
     }
 }
 await loadLastMusic();
@@ -299,8 +313,15 @@ export async function removePlaylistPreferId(id){
 export function uploadPlay(mus){
     playingMusic.pause();
     playingMusic.currentTime = 0;
-    if(mus!=null)
+    if(mus!=null){
         playingMusic.src=mus.src;
+        playingData={
+            id: -1,
+            name: "unknown",
+            artistName: "unknown",
+            musicUrl: mus.src,
+        };
+    }
     playingMusic.volume=musicVolume/100
     playingMusic.play();
     isPlaying=true;
@@ -353,7 +374,7 @@ export async function playById(id){
         }
     }
     isUploadPlay=false;
-    
+
     if(firstPlay){
         if(settingData.lastPlaylistId){
             await loadDataByPlaylistId(settingData.lastPlaylistId);
@@ -390,6 +411,7 @@ export async function playById(id){
     
     playingMusic.play();
     isPlaying=true;
+    console.log(playingData);
     
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());
@@ -403,8 +425,13 @@ export async function pauseById(){
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());
 }
-
+export let isFading = false;
 let switching = false;
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let currentSource = null;
+let gainNode = null;
+let fadingTime = 0;
+let fadingMusicUrl = null;
 export async function nextMusic(){
     if (switching) return;
     switching = true;
@@ -414,10 +441,8 @@ export async function nextMusic(){
             playingMusic.pause();
             playingMusic.currentTime = 0;
         }else{
-            const fadingMusic = new Audio(playingData.musicUrl);
-            fadingMusic.play();
-            fadingMusic.currentTime=playingMusic.currentTime;
-            fadingMusic.volume=musicVolume/100/3;
+            fadingTime = playingMusic.currentTime;
+            fadingMusicUrl = playingData.musicUrl;
             playingMusic.pause();
             playingMusic.currentTime = 0;
             playingMusic.volume=musicVolume/100;
@@ -469,6 +494,30 @@ export async function nextMusic(){
                     await playById(data[data.findIndex((e)=>e.id==playingData.id)+1].id);
                 }
             }
+        }
+        if(settingData.fadeValue > 0 && fadingMusicUrl != null){
+            isFading = true;
+            if (currentSource != null) {
+                currentSource.stop();
+            }
+            currentSource = audioContext.createBufferSource();
+            gainNode = audioContext.createGain();
+            currentSource.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            // Betöltés és lejátszás Web Audio-val
+            const response = await fetch(fadingMusicUrl);
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            currentSource.buffer = audioBuffer;
+            gainNode.gain.value = musicVolume/100/3;
+            currentSource.start(0, fadingTime);
+            
+            currentSource.onended = () => {
+                currentSource.stop();
+                isFading = false;
+                changeEvent(chage => chage());
+            };
+            fadingMusicUrl = null;
         }
     } finally {
         switching = false;

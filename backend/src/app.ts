@@ -24,6 +24,16 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use("/uploads", express.static("uploads"));
+app.get("/api/search", async (req, res) => {
+  const q = req.query.q;
+
+  const response = await fetch(
+    `https://itunes.apple.com/search?term=${q}&entity=song&limit=100`
+  );
+
+  const data = await response.json();
+  res.json(data);
+});
 
 function root(_req: Request, res: Response) {
     res.status(200).send({ message: "The server is running." });

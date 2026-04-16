@@ -41,22 +41,27 @@ export async function loadData(){
         localStorage.removeItem("expiration");
         return;
     }
-    const res = await fetch(`http://${ip}/users/getuser/${localStorage.getItem("userId")}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-access-token': token
+    try{
+        const res = await fetch(`http://${ip}/users/getuser/${localStorage.getItem("userId")}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': token
+            }
+        });
+        const resData = await res.json();
+        let userPic = defaultProfilePic;
+        if(resData.url!=null){
+          userPic = `http://${ip}`+resData.url;
         }
-    });
-    const resData = await res.json();
-    let userPic = defaultProfilePic;
-    if(resData.url!=null){
-      userPic = `http://${ip}`+resData.url;
+        if(resData.username && resData.email && resData.id){
+            setUserData(parseInt(resData.id), resData.username, resData.email, resData.imageFileId, userPic, resData.isAdmin===1);
+        }
+        console.log(userData)
+    }catch(err){
+        clearUserData();
+        console.log(err);
     }
-    if(resData.username && resData.email && resData.id){
-        setUserData(parseInt(resData.id), resData.username, resData.email, resData.imageFileId, userPic, resData.isAdmin===1);
-    }
-    console.log(userData)
 }
 export function setUserData(id, name, email, userPicId, userPic, isAdmin){
     userData = {
@@ -198,7 +203,7 @@ export async function loadArtistOptions(){
         const res = await fetch(`http://${ip}/artists`);
         const resData = await res.json();
         for(const elem of resData){
-            if(!artistOptions.ids.includes(elem.id)){
+            if(!artistOptions.ids.includes(elem.id) && elem.name!=null){
                 artistOptions.artists.push(elem.name)
                 artistOptions.ids.push(elem.id);
             }
@@ -215,7 +220,7 @@ export async function loadAlbumOptions(){
         const res = await fetch(`http://${ip}/albums`);
         const resData = await res.json();
         for(const elem of resData){
-            if(!albumOptions.ids.includes(elem.id)){
+            if(!albumOptions.ids.includes(elem.id) && elem.name!=null){
                 albumOptions.albums.push(elem.name)
                 albumOptions.ids.push(elem.id);
             }
@@ -232,7 +237,7 @@ export async function loadMufajOptions(){
         const res = await fetch(`http://${ip}/musics`);
         const resData = await res.json();
         for(const elem of resData){
-            if(!mufajOptions.includes(elem.mufaj))
+            if(!mufajOptions.includes(elem.mufaj) && elem.mufaj!=null)
                 mufajOptions.push(elem.mufaj);
         }
     }catch(err){
@@ -252,7 +257,7 @@ export async function loadPlaylistOptions(){
         });
         const resData = await res.json();
         for(const elem of resData){
-            if(!playlistOptions.ids.includes(elem.id)){
+            if(!playlistOptions.ids.includes(elem.id) && elem.name!=null){
                 playlistOptions.playlists.push(elem.name);
                 playlistOptions.ids.push(elem.id);
             }
@@ -317,6 +322,7 @@ export async function loadMusicsByPlaylistId(playlistId){
                 elem.playlistId = parseInt(playlistId);
                 musicsData.push(elem);
             }
+            console.log(elem);
         }
         isItunes=false;
     }catch(err){
@@ -344,8 +350,10 @@ export async function loadMusicsByUserId(userId){
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
                 i++
-                if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://")) && elem.imageUrl!=null){
-                    elem.imageUrl=`http://${ip}`+elem.imageUrl
+                if(elem.imageUrl!=null){
+                    if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://"))){
+                        elem.imageUrl=`http://${ip}`+elem.imageUrl
+                    }
                 }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push({...elem, position: i});
@@ -399,7 +407,7 @@ export async function doDownload(id){
 //keresés metódusok
 export async function searchITunes(text){
   try {
-    const response = await fetch(`https://itunes.apple.com/search?term=${text}&media=music&limit=100`);
+    const response = await fetch(`http://${ip}/api/search?q=${text}`);
     const resData = await response.json();
     musicsData=[];
     console.log(resData)
@@ -435,8 +443,10 @@ export async function searchMusics(text, endpoint) {
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
                 i++
-                if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://")) && elem.imageUrl!=null){
-                    elem.imageUrl=`http://${ip}`+elem.imageUrl
+                if(elem.imageUrl!=null){
+                    if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://"))){
+                        elem.imageUrl=`http://${ip}`+elem.imageUrl
+                    }
                 }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 musicsData.push({...elem, position: i});

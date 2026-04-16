@@ -17,7 +17,8 @@ import randomFill from "../assets/randomizer fill.png";
 import download from "../assets/download.png";
 import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
-import { changeEvents, firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, selectingPlaylistId, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, setSelectingPlaylistId, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { changeEvents, firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, notLoggedInVolume, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, selectingPlaylistId, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, setNotLoggedInVolume, setSelectingPlaylistId, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
+import { isFading } from "../playerLogic";  // Importáld az új flag-et
 import { checkedPlaylistOptions, doDownload, getUserData, ip, loadCheckedPlaylists, loadPlaylistOptions, logedIn, playlistOptions } from "../data";
 import { getAuthToken } from "../auth";
 
@@ -54,7 +55,7 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
-        console.log("volume change");
+        console.log("volume: "+currentVolume+"%");
         await setMusicVolume(currentVolume);
         updateVolume(currentVolume);
     }
@@ -77,6 +78,33 @@ export default function Player() {
                 playById(playingData.id);
                 setPlayPic(pause);
             }
+        }
+    }
+    async function muteOrUnmute(){
+        if(musicVolume==0){
+            if(logedIn)
+                await loadSettings();
+            else
+                settingData.volume=notLoggedInVolume;
+            if (settingData.volume == 0) {
+                setMuteButt(volumeIcon0);
+            } else if (settingData.volume < 33) {
+                setMuteButt(volumeIcon1);
+            } else if (settingData.volume < 66) {
+                setMuteButt(volumeIcon2);
+            } else {
+                setMuteButt(volumeIcon3);
+            }
+            setVolume(settingData.volume);
+            updateVolume(settingData.volume);
+            setMusicVolume(settingData.volume);
+
+        }else{
+            setNotLoggedInVolume(musicVolume);
+            setMuteButt(volumeIcon0);
+            setVolume(0);
+            updateVolume(0);
+            setMusicVolume(0);
         }
     }
 
@@ -151,10 +179,53 @@ export default function Player() {
                     else if(musicVolume>0)
                         volumeSet(musicVolume-1);
                     break;
+                case "m":
+                    e.preventDefault();
+                    muteOrUnmute();
+                    break;
             }
         }
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.setActionHandler("play", () => {
+                playOrPause();
+            });
+        
+            navigator.mediaSession.setActionHandler("pause", () => {
+                playOrPause();
+            });
+        
+            navigator.mediaSession.setActionHandler("previoustrack", () => {
+                prevMusic();
+            });
+        
+            navigator.mediaSession.setActionHandler("nexttrack", () => {
+                nextMusic();
+            });
+
+            navigator.mediaSession.setActionHandler("seekbackward", () => {
+                if(playingMusic.currentTime>=5)
+                    playingMusic.currentTime -= 5;
+            });
+        
+            navigator.mediaSession.setActionHandler("seekforward", () => {
+                if(playingMusic.duration>playingMusic.currentTime)
+                    playingMusic.currentTime += 5;
+            });
+        }
+        function load(){
+            setVolume(musicVolume);
+            if (musicVolume == 0) {
+                setMuteButt(volumeIcon0);
+            } else if (musicVolume < 33) {
+                setMuteButt(volumeIcon1);
+            } else if (musicVolume < 66) {
+                setMuteButt(volumeIcon2);
+            } else {
+                setMuteButt(volumeIcon3);
+            }
+        }
+        load();
         const changeBack = playerChange(() => {
-            console.log(musicVolume, settingData.volume);
             if(selectingPlaylistId!==-1)
                 setOpenPlaylist(false);
             if(isPlaying){
@@ -176,73 +247,30 @@ export default function Player() {
             setEloado(playingData.artistName);
             window.addEventListener("keydown", handleKeyDown);
             window.addEventListener("keyup", handleKeyUp);
-            if ("mediaSession" in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: playingData.name,
-                    artist: playingData.artistName,
-                    album: playingData.albumName,
-                    artwork: [
-                        {
-                            src: playingData.imageUrl,
-                            sizes: "512x512",
-                            type: "image/*",
-                        },
-                    ],
-                });
-                navigator.mediaSession.setActionHandler("play", () => {
-                    playOrPause();
-                });
-            
-                navigator.mediaSession.setActionHandler("pause", () => {
-                    playOrPause();
-                });
-            
-                navigator.mediaSession.setActionHandler("previoustrack", () => {
-                    prevMusic();
-                });
-            
-                navigator.mediaSession.setActionHandler("nexttrack", () => {
-                    nextMusic();
-                });
-
-                navigator.mediaSession.setActionHandler("seekbackward", () => {
-                    if(playingMusic.currentTime>=5)
-                        playingMusic.currentTime -= 5;
-                });
-            
-                navigator.mediaSession.setActionHandler("seekforward", () => {
-                    if(playingMusic.duration>playingMusic.currentTime)
-                        playingMusic.currentTime += 5;
-                });
-                
+            if ("mediaSession" in navigator && !isFading) {
+                try {
+                    // Ellenőrizzük és használjunk fallback értékeket az undefined mezőkre
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: playingData.name || "Unknown Title",
+                        artist: playingData.artistName || "Unknown Artist",
+                        album: playingData.albumName || "Unknown Album",
+                        artwork: playingData.imageUrl ? [
+                            {
+                                src: playingData.imageUrl,
+                                sizes: "512x512",
+                                type: "image/*",
+                            },
+                        ] : []
+                    });
+                } catch (error) {
+                    console.error("MediaSession frissítési hiba:", error);
+                }
             }
         });
         return ()=>{changeBack();window.removeEventListener("keydown", handleKeyDown);window.removeEventListener("keyup", handleKeyUp);};
     },[])
 
-    async function muteOrUnmute(){
-        if(muteButt==volumeIcon0){
-            await loadSettings();
-            if (settingData.volume == 0) {
-                setMuteButt(volumeIcon0);
-            } else if (settingData.volume < 33) {
-                setMuteButt(volumeIcon1);
-            } else if (settingData.volume < 66) {
-                setMuteButt(volumeIcon2);
-            } else {
-                setMuteButt(volumeIcon3);
-            }
-            setVolume(settingData.volume);
-            updateVolume(settingData.volume);
-            setMusicVolume(settingData.volume);
-
-        }else{
-            setMuteButt(volumeIcon0);
-            setVolume(0);
-            updateVolume(0);
-            setMusicVolume(0);
-        }
-    }
+    
 
     async function VolumeChange(event) {
         const currentVolume = event.target.value;
@@ -256,6 +284,7 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
+        
         updateVolume(currentVolume);
         setMusicVolume(currentVolume);
     }
@@ -270,8 +299,9 @@ export default function Player() {
                 },
                 body: JSON.stringify({volume: volume})
             });
-            loadSettings();
+            await loadSettings();
         }
+        console.log("volume: "+volume+"%");
     }
 
     function timeChange(){

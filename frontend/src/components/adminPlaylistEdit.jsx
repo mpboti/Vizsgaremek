@@ -95,7 +95,6 @@ export default function AdminPlaylistEdit(){
       setCurrentPlaylistPicSetting(e.target.files[0]);
       setCurrentExternalLink(null);
     }
-    console.log(currentPlaylistPicSetting, currentExternalLink)
   }
   async function deletePlaylist() {
     if(playlistData?.listaPicId != null && playlistData.id){
@@ -237,6 +236,14 @@ export async function AdminPlaylistAction({request}){
       try{
           
           if(currentExternalLink && currentPlaylistPicSetting == defaultPlaylistPic){
+            if(playlistData?.listaPicId != null && playlistId){
+              await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
+                method:"DELETE",
+                headers:{
+                  'x-access-token': getAuthToken()
+                }
+              });
+            }
             externalLink=data.get("playlistPic")
           }else if(currentPlaylistPicSetting == defaultPlaylistPic){
             playlistPicId = playlistData.playlistPicId;

@@ -9,10 +9,10 @@ export default function CreateOrEditPlaylist(){
   const [searchParams] = useSearchParams();
   const playlistId = searchParams.get("id");
   const playlistData = getPlaylistsData().find(elem=>elem.id==playlistId);
-  
+
   const fileOpener = useRef();
   const [img, setImg] = useState(playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).listaPic:defaultPlaylistPic);
-  const [urlInput, setUrlInput] = useState(playlistId?getPlaylistsData().find(elem=>elem.id==playlistId).listaPic:"");
+  const [urlInput, setUrlInput] = useState(playlistId && !getPlaylistsData().find(elem=>elem.id==playlistId)?.listaPic?.includes(ip) ? getPlaylistsData().find(elem=>elem.id==playlistId).listaPic : "");
 
 
   async function openPic(isFinal, e){
@@ -43,7 +43,6 @@ export default function CreateOrEditPlaylist(){
       setCurrentPlaylistPicSetting(e.target.files[0]);
       setCurrentExternalLink(null);
     }
-    console.log(currentPlaylistPicSetting, currentExternalLink)
   }
 
   async function deletePlaylist() {
@@ -143,6 +142,15 @@ export async function PlaylistAction({request}){
       playlistUpdateData={...playlistUpdateData, playlistPicId: playlistPicId}
     }else if(externalLink!=null){
       playlistUpdateData={...playlistUpdateData, externalLink: externalLink}
+      if(playlistData?.listaPicId != null && playlistId){
+        console.log(playlistData.listaPicId)
+        await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
+          method:"DELETE",
+          headers:{
+            'x-access-token': getAuthToken()
+          }
+        })
+      }
     }
     
 

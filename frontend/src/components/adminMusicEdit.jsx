@@ -10,7 +10,7 @@ import play from "../assets/play.png"
 import pause from "../assets/pause.png"
 import del from "../assets/bin.png"
 import { getAuthToken } from "../auth";
-import { uploadPause, uploadPlay } from "../playerLogic";
+import { loadLastMusic, uploadPause, uploadPlay } from "../playerLogic";
 import ReportRow from "./report-row";
 
 export default function AdminMusicEdit(){
@@ -71,7 +71,15 @@ export default function AdminMusicEdit(){
         }
       }
       loading();
-    },[searchParams])
+      return () => {
+        if(!location.pathname.startsWith("/adminMusicEdit")){
+          uploadPause();
+          loadLastMusic();
+          if(playPic==pause)
+            setPlayPic(play);
+        }
+      };
+    },[searchParams]);
 
     async function openUserPic(isFinal, e){
       if(!isFinal){
@@ -233,7 +241,7 @@ export default function AdminMusicEdit(){
         setReleaseInput(resData.releaseDate);
       if(resData.externalLink!=null){
         setUrlInput(resData.externalLink);
-        setImg(resData.externalLink)
+        setImg(resData.externalLink);
       }else if(resData.imageFileId!=null){
         const response = await fetch(`http://${ip}/files/image/${resData.imageFileId}`)
         setImg(`http://${ip}${(await response.json()).url}`);
@@ -519,15 +527,25 @@ export async function AdminMusicAction({request}){
         const albumRes = await fetch(`http://${ip}/albums/${albumId}`)
         const albumData = await albumRes.json();
         
+        if(album != "" && albumData.name != album){
+          albumBody = {name: album};
+          isDifferent=true;
+        }
         if(releaseDate!="" && albumData.releaseDate != parseInt(releaseDate)){
-          albumBody = {
-            releaseDate: parseInt(releaseDate)
-          }
+          albumBody = {...albumBody, releaseDate: parseInt(releaseDate)}
           isDifferent=true;
         }
         if(currentAlbumPicUrl && currentAlbumPicSetting == defaultMusicPic){
           albumBody = {...albumBody, externalLink: currentAlbumPicUrl};
           isDifferent=true;
+          if(albumData.imageFileId != null){
+            await fetch(`http://${ip}/files/image/${albumData.imageFileId}`, {
+              method:"DELETE",
+              headers:{
+                'x-access-token': getAuthToken()
+              }
+            })
+          }
         }else if(!currentAlbumPicUrl && currentAlbumPicSetting != defaultMusicPic && albumData.imageFileId == null){
           const formData = new FormData();
           formData.append("file", currentAlbumPicSetting);
@@ -598,8 +616,18 @@ export async function AdminMusicAction({request}){
         });
         const createArtistData = await createArtist.json();
         artistId=createArtistData.id;
-      }else{
+      }else if(eloado!="" && artistOptions.ids.includes(currentMusicData.artistId)){
+        await fetch(`http://${ip}/artists/${currentMusicData.artistId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': getAuthToken()
+          },
+          body: JSON.stringify({name: eloado})
+        });
         artistId=currentMusicData.artistId;
+      }else{
+        artistId=currentMusicData.artistId; 
       }
       await fetch(`http://${ip}/musics/${url.searchParams.get("musicId")}`, {
         method: 'PUT',

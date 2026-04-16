@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Form, redirect, useSearchParams } from "react-router-dom";
 import "../styles/forms.css";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
@@ -10,7 +10,7 @@ import up from "../assets/up.png"
 import down from "../assets/down.png"
 import { getUserData, logout, ip, setCurrentAlbumPicSetting, setUploadedMusicFile, uploadedMusicFile, currentAlbumPicSetting, setCurrentAlbumPicUrl, loadArtistOptions, loadAlbumOptions, loadMufajOptions, loadCurrentMusicData, currentAlbumPicUrl, artistOptions, loadPlaylist, loadPlaylistOptions, playlistOptions, loadPlaylists, albumOptions, mufajOptions, currentMusicData, checkedPlaylistOptions, loadCheckedPlaylists, loadCurrentITunesMusicData, musicsData } from "../data";
 import { getAuthToken } from "../auth";
-import { uploadPause, uploadPlay } from "../playerLogic";
+import { loadLastMusic, uploadPause, uploadPlay } from "../playerLogic";
 
 export default function CreateOrEditMusic(){
   const [searchParams] = useSearchParams();
@@ -33,6 +33,17 @@ export default function CreateOrEditMusic(){
   const picOpener = useRef();
   const fileOpener = useRef();
   const [img, setImg] = useState(musicId && musicData.imageUrl?musicData.imageUrl:defaultMusicPic);
+
+  useEffect(() => {
+    return () => {
+        if(!location.pathname.startsWith("/createOrEditMusic")){
+          uploadPause();
+          loadLastMusic();
+          if(playPic==pause)
+            setPlayPic(play);
+        }
+      };
+  }, [])
 
   async function openPic(isFinal, e){
     if(!isFinal){
@@ -137,7 +148,7 @@ export default function CreateOrEditMusic(){
       setReleaseInput(resData.releaseDate);
     if(resData.externalLink!=null){
       setUrlInput(resData.externalLink);
-      setImg(resData.externalLink)
+      setImg(resData.externalLink);
     }else if(resData.imageFileId!=null){
       const response = await fetch(`http://${ip}/files/image/${resData.imageFileId}`)
       setImg(`http://${ip}${(await response.json()).url}`);

@@ -54,6 +54,12 @@ export async function getUserById(req: Request, res: Response) {
         return res.status(400).json({ message: "Invalid user ID." });
     }
 
+    const token = req.body?.token || req.query?.token || req.headers?.["x-access-token"];
+    const decoded: any = jwt.verify(token, config.jwtSecret as string);
+    if (decoded.id !== id) {
+        return res.status(403).json({ message: "Forbidden. You can only access your own user data." });
+    }
+
     const conn = await config.connection;
 
     try {
