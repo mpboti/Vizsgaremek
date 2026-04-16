@@ -410,7 +410,6 @@ export async function searchITunes(text){
     const response = await fetch(`http://${ip}/api/search?q=${text}`);
     const resData = await response.json();
     musicsData=[];
-    console.log(resData)
     let i = -resData.results.length;
     for(const element of resData.results){
       musicsData.push({

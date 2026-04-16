@@ -25,6 +25,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use("/uploads", express.static("uploads"));
 app.get("/api/search", async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   const q = req.query.q;
 
   const response = await fetch(
