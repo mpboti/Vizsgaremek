@@ -56,13 +56,14 @@ export async function getUserById(req: Request, res: Response) {
 
     const token = req.body?.token || req.query?.token || req.headers?.["x-access-token"];
     const decoded: any = jwt.verify(token, config.jwtSecret as string);
-    if (decoded.id !== id) {
-        return res.status(403).json({ message: "Forbidden. You can only access your own user data." });
-    }
-
+    
     const conn = await config.connection;
-
+    
     try {
+        const [isAdmin] = await conn.query("SELECT users.isAdmin FROM users WHERE id = ?", [decoded.id]);
+        if (decoded.id !== id && isAdmin[0].isAdmin !== 1) {
+            return res.status(403).json({ message: "Forbidden. You can only access your own user data." });
+        }
         const [results] = await conn.query("SELECT users.id, users.username, users.email, users.imageFileId, users.isAdmin, image_files.fileName, image_files.mimeType, image_files.filePath  FROM users INNER JOIN image_files ON image_files.id = users.imageFileId WHERE users.id = ?", [id]);
         if (results.length === 0) {
             const [results2] = await conn.query("SELECT users.id, users.username, users.email, users.isAdmin FROM users WHERE id = ?", [id]);

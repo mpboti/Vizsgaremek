@@ -19,7 +19,7 @@ import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
 import { changeEvents, firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, notLoggedInVolume, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, selectingPlaylistId, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, setNotLoggedInVolume, setSelectingPlaylistId, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
 import { isFading } from "../playerLogic";  // Importáld az új flag-et
-import { checkedPlaylistOptions, doDownload, getUserData, ip, loadCheckedPlaylists, loadPlaylistOptions, logedIn, playlistOptions } from "../data";
+import { checkedPlaylistOptions, doDownload, getUserData, ip, loadCheckedPlaylists, loadPlaylistOptions, logedIn, logout, playlistOptions } from "../data";
 import { getAuthToken } from "../auth";
 
 export default function Player() {
@@ -110,6 +110,8 @@ export default function Player() {
 
     useEffect(()=>{
         setInterval(()=>{
+            if(logedIn && getAuthToken()=="EXPIRED")
+                logout();
             if(!isSetValue){
                 setCurrentValue(Math.round(playingMusic.currentTime));
             }
@@ -130,14 +132,16 @@ export default function Player() {
             }
             if(e.key=="ArrowUp" || e.key=="ArrowDown") {
                 e.preventDefault();
-                await fetch(`http://${ip}/settings/${getUserData().id}`,{
-                    method:"PUT",
-                    headers:{
-                        'Content-Type': 'application/json',
-                        'x-access-token': getAuthToken()
-                    },
-                    body: JSON.stringify({volume: musicVolume})
-                });
+                if(logedIn){
+                    await fetch(`http://${ip}/settings/${getUserData().id}`,{
+                        method:"PUT",
+                        headers:{
+                            'Content-Type': 'application/json',
+                            'x-access-token': getAuthToken()
+                        },
+                        body: JSON.stringify({volume: musicVolume})
+                    });
+                }
             }
         }
         function handleKeyDown(e){
@@ -167,17 +171,17 @@ export default function Player() {
                 case "ArrowUp":
                     e.preventDefault();
                     if(musicVolume+1<100)
-                        volumeSet(musicVolume+2);
+                        volumeSet(parseInt(musicVolume)+2);
                     else if(musicVolume<100)
-                        volumeSet(musicVolume+1);
+                        volumeSet(parseInt(musicVolume)+1);
                     break;
 
                 case "ArrowDown":
                     e.preventDefault();
                     if(musicVolume-1>0)
-                        volumeSet(musicVolume-2);
+                        volumeSet(parseInt(musicVolume)-2);
                     else if(musicVolume>0)
-                        volumeSet(musicVolume-1);
+                        volumeSet(parseInt(musicVolume)-1);
                     break;
                 case "m":
                     e.preventDefault();

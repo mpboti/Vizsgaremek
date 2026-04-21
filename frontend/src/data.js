@@ -93,8 +93,8 @@ export function logout(){
   localStorage.removeItem("expiration");
   clearUserData();
   playlistsData=[];
+  logedIn=false;
   window.location.href = "/";
-  //navigate("/");
 }
 
 //playlists betöltés és egyéb dolgai
@@ -308,11 +308,16 @@ export async function loadCurrentITunesMusicData(datas){
     currentAlbumPicUrl=currentMusicData.imageUrl;
 }
 
+export let mufajok = [];
+let mufajtulajdonsagok={count:[], mufajok:[]};
 export async function loadMusicsByPlaylistId(playlistId){
     musicsData=[];
+    mufajok=[];
+    mufajtulajdonsagok={count:[], mufajok:[]};
     try{
         const res = await fetch(`http://${ip}/musics/byplaylistid/${playlistId}`);
         const resData = await res.json(res);
+        let max = 0;
         for(const elem of resData){
             if(!musicsData.includes(elem.musicId)){
                 if(!(elem.imageUrl.startsWith("http://") || elem.imageUrl.startsWith("https://")) && elem.imageUrl!=null){
@@ -320,10 +325,26 @@ export async function loadMusicsByPlaylistId(playlistId){
                 }
                 elem.musicUrl=`http://${ip}`+elem.musicUrl;
                 elem.playlistId = parseInt(playlistId);
+                
+                if(!mufajtulajdonsagok.mufajok.includes(elem.mufaj) && elem.mufaj !== null){
+                    mufajtulajdonsagok.mufajok.push(elem.mufaj);
+                    mufajtulajdonsagok.count.push(1);
+                    
+                }else if(mufajtulajdonsagok.mufajok.includes(elem.mufaj))
+                    mufajtulajdonsagok.count[mufajtulajdonsagok.mufajok.indexOf(elem.mufaj)]++
+                if(max < mufajtulajdonsagok.count[mufajtulajdonsagok.mufajok.indexOf(elem.mufaj)])
+                    max = mufajtulajdonsagok.count[mufajtulajdonsagok.mufajok.indexOf(elem.mufaj)];
                 musicsData.push(elem);
             }
-            console.log(elem);
         }
+        while(mufajok.length < 5 && max >= 0){
+            for(let i = 0; i < mufajtulajdonsagok.count.length;i++){
+                if(max == mufajtulajdonsagok.count[i] && mufajok.length < 5)
+                    mufajok.push(mufajtulajdonsagok.mufajok[i]);
+            }
+            max--;
+        }
+        
         isItunes=false;
     }catch(err){
         console.log(err);
@@ -429,7 +450,6 @@ export async function searchITunes(text){
   }catch(e){
     console.log(e.message);
   }
-  console.log(musicsData)
   isNew=true;
 }
 

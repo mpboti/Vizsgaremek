@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import RowGenerator from './playlist-row.jsx'
 import '../styles/playlistSizeChanger.css'
 import "../styles/playlistStyle.css"
-import { getMusicsData, getPlaylistData, getUserData, loadPlaylist, logedIn, loadMusicsByPlaylistId } from '../data'
+import { getMusicsData, getPlaylistData, getUserData, loadPlaylist, logedIn, loadMusicsByPlaylistId, mufajok } from '../data'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import pencil from "../assets/pencil.png";
 import list from "../assets/list.png";
@@ -70,7 +70,7 @@ export default function Playlist() {
       playById(data[0].id);
     }else{
       if(isPlaying){
-        pauseById(playingData.id);
+        pauseById();
         setIsLoad(false);
       }else{
         playById(playingData.id);
@@ -95,7 +95,7 @@ export default function Playlist() {
           <div className="listaDataDiv">
             <p className="listaCim">Cím: {playlistData.name}</p>
             <p className="letrehozo">Létrehozó: {playlistData.userName}</p>
-            <p className="mufajok">műfajok: <span className="lowerMufajok">{playlistData.mufajok}</span></p>
+            <p className="mufajok">Műfajok: <span className="lowerMufajok">{mufajok.map((elem, index)=>mufajok.length-1!=index?`${elem}, `:elem)}</span></p>
             <p className="listaGombtarto">
               {logedIn && userData.id==playlistData.ownerId?<button className={isEdit?"listaGombok editing":"listaGombok"} onClick={()=>isEdit?setIsEdit(false):setIsEdit(true)}><img src={pencil} alt="szerkeszt" className="listaGombokImg"/></button>:undefined}
               <button className="listaGombok" onClick={()=>preferFunc()}><img src={preferPic} alt="List" className="listaGombokImg"/></button>

@@ -139,8 +139,10 @@ async function loadData(zeneData, id){
         }
         if(element.playlistId){
             playingPlaylistId=element.playlistId;
-            await savePlaylistIdToSettings(element.playlistId);
-            await loadSettings();
+            if(logedIn){
+                await savePlaylistIdToSettings(element.playlistId);
+                await loadSettings();
+            }
         }else{
             playingPlaylistId=null;
             await savePlaylistIdToSettings(null);
@@ -195,8 +197,12 @@ export async function loadDataByPlaylistId(id){
         };
         await loadVolume();
         playingPlaylistId = id;
-        savePlaylistIdToSettings(id);
-        
+        if(logedIn)
+            savePlaylistIdToSettings(id);
+        else{
+            settingData.lastPlaylistId=id;
+            settingData.fadeValue=0;
+        }
         isLoad=false;
     }finally {
         if(isRandomized){
@@ -232,7 +238,8 @@ export async function loadSettings(){
         console.log(err);
     }
 }
-await loadSettings();
+if(logedIn)
+    await loadSettings();
 export async function loadLastMusic(){
     if(settingData.lastPlaylistId){
         playingPlaylistId = settingData.lastPlaylistId;
@@ -374,7 +381,6 @@ export async function playById(id){
         }
     }
     isUploadPlay=false;
-
     if(firstPlay){
         if(settingData.lastPlaylistId){
             await loadDataByPlaylistId(settingData.lastPlaylistId);
@@ -408,10 +414,8 @@ export async function playById(id){
         playingData=await data[data.findIndex((e)=>e.id==id)];
         playingMusic.src=await data[data.findIndex((e)=>e.id==id)].musicUrl;
     }
-    
     playingMusic.play();
     isPlaying=true;
-    console.log(playingData);
     
     changeEvents.forEach(change => change());
     changeEvent(chage => chage());

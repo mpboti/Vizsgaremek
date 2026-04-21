@@ -138,6 +138,7 @@ export async function PlaylistAction({request}){
       name: data.get("playlistCim"),
       creatorId: localStorage.getItem("userId"),
     }
+    console.log(playlistData);
     if(playlistPicId!=null){
       playlistUpdateData={...playlistUpdateData, playlistPicId: playlistPicId}
     }else if(externalLink!=null){
@@ -151,6 +152,10 @@ export async function PlaylistAction({request}){
           }
         })
       }
+    }else if(playlistData.listaPicId == null){
+      playlistUpdateData={...playlistUpdateData, externalLink: playlistData.listaPic}
+    }else{
+      playlistUpdateData={...playlistUpdateData, playlistPicId: playlistData.listaPicId}
     }
     
 
@@ -167,6 +172,7 @@ export async function PlaylistAction({request}){
       const resData = await res.json();
       console.log(resData.id);
     }else{
+      console.log(playlistUpdateData)
       await fetch(`http://${ip}/playlists/${playlistId}`, {
         method:"PUT",
         headers:{
