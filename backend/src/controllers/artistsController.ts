@@ -8,7 +8,7 @@ export async function getAllArtists(_req: Request, res: Response) {
     try{
         const [results] = await conn.query("SELECT * FROM artists");
         if (results.length === 0) {
-            return res.status(300).json({ message: "No artists found." });
+            return res.status(404).json({ message: "No artists found." });
         }
         res.status(200).json(results);
     } catch (error) {

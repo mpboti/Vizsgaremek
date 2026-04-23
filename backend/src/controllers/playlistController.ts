@@ -26,11 +26,11 @@ export async function getPlaylistByUserId(req: Request, res: Response) {
         const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [id]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(300).json({ message: "No playlists found for this user." });
+            res.status(404).json({ message: "No playlists found for this user." });
             return;
         }
         if (username.length == 0) {
-            res.status(300).json({ message: "User not found." });
+            res.status(404).json({ message: "User not found." });
             return;
         }
         const atributes = new Array();
@@ -228,7 +228,7 @@ export async function deletePlaylist(req: Request, res: Response) {
             }
             res.status(200).json({ message: "Playlist deleted successfully." });
         }else
-            res.status(402).json({ message: "Not your playlist shoo."})
+            res.status(403).json({ message: "Not your playlist shoo."})
         return;
     } catch (error) {
         console.log(error)

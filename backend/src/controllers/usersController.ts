@@ -273,7 +273,7 @@ export async function getReportByUserId(req: Request, res: Response){
         const [results] = await conn.query("SELECT * FROM reports WHERE userId=?", [id]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(300).json({ message: "No reports found." });
+            res.status(404).json({ message: "No reports found." });
             return;
         }
         
@@ -297,7 +297,7 @@ export async function getReportByMusicId(req: Request, res: Response){
         const [results] = await conn.query("SELECT * FROM reports WHERE musicId=?", [id]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(300).json({ message: "No reports found." });
+            res.status(404).json({ message: "No reports found." });
             return;
         }
         

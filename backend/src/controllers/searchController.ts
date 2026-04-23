@@ -63,14 +63,14 @@ export async function searchPlaylistsByName(req: Request, res: Response) {
         const [results] = await conn.query("SELECT * FROM playlists WHERE name LIKE ?", [`%${req.query.name}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(300).json({ message: "No playlists found for this user." });
+            res.status(404).json({ message: "No playlists found for this user." });
             return;
         }
         const atributes = new Array();
         for (const result of results){
             const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [result.ownerId]);
             if (username.length == 0) {
-                res.status(300).json({ message: "User not found." });
+                res.status(404).json({ message: "User not found." });
                 return;
             }
             if(result.playlistPicId!=null){
@@ -266,7 +266,7 @@ export async function searchPlaylistsByUsername(req: Request, res: Response){
         const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, playlists.externalLink, users.username FROM playlists INNER JOIN users ON users.id = playlists.ownerId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(300).json({ message: "No playlists found for this user." });
+            res.status(404).json({ message: "No playlists found for this user." });
             return;
         }
         const atributes = new Array();
@@ -296,7 +296,7 @@ export async function searchReportsByMessage(req: Request, res: Response){
         const [results] = await conn.query("SELECT * FROM reports WHERE message LIKE ?", [`%${req.query.message}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(300).json({ message: "No reports found." });
+            res.status(404).json({ message: "No reports found." });
             return;
         }
         
