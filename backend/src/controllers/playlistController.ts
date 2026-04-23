@@ -26,11 +26,11 @@ export async function getPlaylistByUserId(req: Request, res: Response) {
         const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [id]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(404).json({ message: "No playlists found for this user." });
+            res.status(300).json({ message: "No playlists found for this user." });
             return;
         }
         if (username.length == 0) {
-            res.status(404).json({ message: "User not found." });
+            res.status(300).json({ message: "User not found." });
             return;
         }
         const atributes = new Array();
@@ -158,7 +158,7 @@ export async function addMusicToPlaylist(req: Request, res: Response) {
     let position = 1;
     const conn = await config.connection;
     try  {
-        const [results]=await conn.query("SELECT position FROM playlist_musics WHERE playlistId=?", [playlistId]);
+        const [results]=await conn.query("SELECT position FROM playlist_musics WHERE playlistId=? ORDER BY position", [playlistId]);
         if(results.length === 0){
             position = 1;
         }else{
@@ -173,12 +173,13 @@ export async function addMusicToPlaylist(req: Request, res: Response) {
         playlistMusic.playlistId === null || playlistMusic.musicId === null || playlistMusic.position === null) {
         return res.status(400).json({ message: "Invalid playlist music data." });
     }
-
+    
     try  {
         await conn.query("INSERT INTO playlist_musics (playlistId, musicId, position) VALUES (?, ?, ?)", [playlistMusic.playlistId, playlistMusic.musicId, playlistMusic.position]);
         res.status(201).json({ message: "Music added to playlist successfully." });
         return;
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: "Internal server error." });
         return;
     }
@@ -191,15 +192,31 @@ export async function removeMusicFromPlaylist(req: Request, res: Response) {
         return res.status(400).json({ message: "Invalid playlist ID or music ID." });
     }
     const conn = await config.connection;
-    try  {
-        const [results] = await conn.query("DELETE FROM playlist_musics WHERE playlistId = ? AND musicId = ?", [playlistId, musicId]);
-        if (results.affectedRows === 0) {
+    try{
+        const [results] = await conn.query("SELECT position FROM playlist_musics WHERE playlistId = ? AND musicId = ? ORDER BY position", [playlistId, musicId])
+        if (results.length === 0) {
+            res.status(404).json({ message: "Music not found in playlist." });
+            return;
+        }
+        const [results2] = await conn.query("SELECT * FROM playlist_musics WHERE playlistId = ? ORDER BY position", [playlistId])
+        if (results2.length === 0) {
+            res.status(404).json({ message: "Playlist is empty." });
+            return;
+        }
+        const [results3] = await conn.query("DELETE FROM playlist_musics WHERE playlistId = ? AND musicId = ?", [playlistId, musicId]);
+        if (results3.affectedRows === 0) {
             res.status(404).json({ message: "Music not found in playlist." });
             return;
         }
         res.status(200).json({ message: "Music removed from playlist successfully." });
+        
+        for(const res of results2){
+            if(parseInt(res.position) > parseInt(results[0].position))
+                await conn.query("UPDATE playlist_musics SET position = ? WHERE playlistId = ? AND position = ?", [parseInt(res.position)-1, playlistId, res.position]);
+        }
         return;
-    } catch (error) {
+    } catch (error){
+        console.log(error);
         res.status(500).json({ message: "Internal server error." });
         return;
     }
@@ -228,7 +245,7 @@ export async function deletePlaylist(req: Request, res: Response) {
             }
             res.status(200).json({ message: "Playlist deleted successfully." });
         }else
-            res.status(403).json({ message: "Not your playlist shoo."})
+            res.status(402).json({ message: "Not your playlist shoo."})
         return;
     } catch (error) {
         console.log(error)

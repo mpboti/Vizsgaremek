@@ -57,7 +57,6 @@ export async function loadData(){
         if(resData.username && resData.email && resData.id){
             setUserData(parseInt(resData.id), resData.username, resData.email, resData.imageFileId, userPic, resData.isAdmin===1);
         }
-        console.log(userData)
     }catch(err){
         clearUserData();
         console.log(err);
@@ -139,7 +138,7 @@ export async function loadPlaylists(userId){
             }
         }
     } else {
-        console.log(resData.message);
+        //console.log(resData.message);
         playlistsData = [];
     }
 }
@@ -209,7 +208,7 @@ export async function loadArtistOptions(){
             }
         } 
     }catch(err){
-        console.log(err)
+        //console.log(err)
     }
 }
 
@@ -226,7 +225,7 @@ export async function loadAlbumOptions(){
             }
         } 
     }catch(err){
-        console.log(err)
+        //console.log(err)
     }
 }
 
@@ -241,7 +240,7 @@ export async function loadMufajOptions(){
                 mufajOptions.push(elem.mufaj);
         }
     }catch(err){
-        console.log(err)
+        //console.log(err)
     }
 }
 
@@ -263,7 +262,7 @@ export async function loadPlaylistOptions(){
             }
         } 
     }catch(err){
-        console.log(err)
+        //console.log(err)
     }
 }
 
@@ -287,7 +286,7 @@ export async function loadCheckedPlaylists(musicId){
             }
         }
     }catch(err){
-        console.log(err)
+        //console.log(err)
     }
 }
 
@@ -347,7 +346,7 @@ export async function loadMusicsByPlaylistId(playlistId){
         
         isItunes=false;
     }catch(err){
-        console.log(err);
+        //console.log(err);
     }
     const lattukMar = new Set();
     if(musicsData.length>0){
@@ -382,7 +381,7 @@ export async function loadMusicsByUserId(userId){
         }
         isItunes=false;
     }catch(err){
-        console.log(err);
+        //console.log(err);
     }
     const lattukMar = new Set();
     if(musicsData.length>0){
@@ -406,7 +405,6 @@ export async function doDownload(id){
     if (!res.ok) {
       throw new Error("Download failed");
     }
-    console.log([...res.headers.entries()]);
     const contentDisposition = res.headers.get("Content-Disposition");
     let filename = "download";
 
@@ -473,7 +471,7 @@ export async function searchMusics(text, endpoint) {
         };
         isItunes=false;
     }catch(err){
-        console.log(err);
+        //console.log(err);
         musicsData=[];
     }
     const lattukMar = new Set();
@@ -512,7 +510,7 @@ export async function searchPlaylists(text, endpoint){
         isItunes=false;
     }catch(err){
         playlistsData = [];
-        console.log(err);
+        //console.log(err);
     }
     const lattukMar = new Set();
     if(playlistsData.length>0){
@@ -534,7 +532,7 @@ export async function searchReports(text){
         isItunes=false;
     }catch(err){
         reports = [];
-        console.log(err);
+        //console.log(err);
     }
     const lattukMar = new Set();
     if(reports.length>0){
@@ -555,7 +553,7 @@ export async function loadReportsByUserId(userId) {
         isItunes=false;
     }catch(err){
         reports = [];
-        console.log(err);
+        //console.log(err);
     }
     const lattukMar = new Set();
     if(reports.length>0){
@@ -576,7 +574,7 @@ export async function loadReportsByMusicId(musicId) {
         isItunes=false;
     }catch(err){
         reports = [];
-        console.log(err);
+        //console.log(err);
     }
     const lattukMar = new Set();
     if(reports.length>0){

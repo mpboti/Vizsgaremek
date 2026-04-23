@@ -17,7 +17,7 @@ export default function Playlist() {
   const playlistId = searchParams.get("id");
   const userData = getUserData();
   const playlistData = getPlaylistData();
-  const musicsData = getMusicsData();
+  const [musicsData, setMusicData] = useState(getMusicsData());
   const [isEdit, setIsEdit] = useState(false);
   const navigate = useNavigate();
   const [preferPic, setPreferPic]= useState(list);
@@ -35,6 +35,7 @@ export default function Playlist() {
       setPlayPic(play);
     }
     const changeBack = playButtonChange(() => {
+      setMusicData(getMusicsData());
       if(preferPlaylists.some((e)=>e==playlistId)){
         setPreferPic(listFill);
       }else{
@@ -67,13 +68,15 @@ export default function Playlist() {
   async function playOrPauseList(){
     if(playingPlaylistId!=playlistId){
       await loadDataByPlaylistId(playlistId);
-      playById(data[0].id);
+      if(data[0] != undefined)
+        playById(data[0].id);
     }else{
       if(isPlaying){
         pauseById();
         setIsLoad(false);
       }else{
-        playById(playingData.id);
+        if(data[0] != undefined)
+          playById(playingData.id);
       }
     }
   }

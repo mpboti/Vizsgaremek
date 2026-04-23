@@ -182,26 +182,26 @@ export async function loadDataByPlaylistId(id){
                     zeneData.push(elem);
                 }
             }
+            const lattukMar = new Set();
+            zeneData = zeneData.filter(obj => {
+                const dupla = lattukMar.has(obj.id);
+                lattukMar.add(obj.id);
+                return !dupla;
+            });
+            for(const element of zeneData){ 
+                data.push(element);
+                firstData.push(element);
+            };
+            await loadVolume();
+            playingPlaylistId = id;
+            if(logedIn)
+                savePlaylistIdToSettings(id);
+            else{
+                settingData.lastPlaylistId=id;
+                settingData.fadeValue=0;
+            }
         }catch(err){
-            console.log(err);
-        }
-        const lattukMar = new Set();
-        zeneData = zeneData.filter(obj => {
-            const dupla = lattukMar.has(obj.id);
-            lattukMar.add(obj.id);
-            return !dupla;
-        });
-        for(const element of zeneData){ 
-            data.push(element);
-            firstData.push(element);
-        };
-        await loadVolume();
-        playingPlaylistId = id;
-        if(logedIn)
-            savePlaylistIdToSettings(id);
-        else{
-            settingData.lastPlaylistId=id;
-            settingData.fadeValue=0;
+            //console.log(err);
         }
         isLoad=false;
     }finally {
@@ -362,7 +362,7 @@ export function sliderPlay(){
 }
 
 export async function playById(id){
-    if(logedIn && !isUploadPlay){
+    if(logedIn && !isUploadPlay && id > 0){
         firstLoad=false;
         await fetch(`http://${ip}/settings/${getUserData().id}`,{
             method:"PUT",
@@ -391,7 +391,7 @@ export async function playById(id){
         }
         firstPlay=false;
     }else if(isNew && isLoad){
-        console.log("asd");
+        //console.log("asd");
         await loadData(musicsData, id);
         await loadVolume();
         await loadAudio(playingMusic);

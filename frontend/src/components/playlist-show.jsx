@@ -41,13 +41,15 @@ export default function PlaylistShow({id, listaPic, name, userName, ownerId}){
     async function playOrPauseList(){
       if(playingPlaylistId!=id){
         await loadDataByPlaylistId(id);
-        playById(data[0].id);
+        if(data[0] != undefined)
+          playById(data[0].id);
       }else{
         if(isPlaying){
           pauseById();
           setIsLoad(false);
         }else{
-          playById(playingData.id);
+          if(data[0] != undefined)
+            playById(playingData.id);
         }
       }
     }

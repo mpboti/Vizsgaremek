@@ -47,7 +47,6 @@ export default function CreateOrEditPlaylist(){
 
   async function deletePlaylist() {
     if(playlistData?.listaPicId != null && playlistId){
-      console.log(playlistData.listaPicId)
       await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
         method:"DELETE",
         headers:{
@@ -111,7 +110,6 @@ export async function PlaylistAction({request}){
           externalLink=data.get("playlistPic")
         }else if(!currentExternalLink && currentPlaylistPicSetting != defaultPlaylistPic){
           if(playlistData?.listaPicId != null && playlistId){
-            console.log(playlistData.listaPicId)
             await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
               method:"DELETE",
               headers:{
@@ -138,13 +136,11 @@ export async function PlaylistAction({request}){
       name: data.get("playlistCim"),
       creatorId: localStorage.getItem("userId"),
     }
-    console.log(playlistData);
     if(playlistPicId!=null){
       playlistUpdateData={...playlistUpdateData, playlistPicId: playlistPicId}
     }else if(externalLink!=null){
       playlistUpdateData={...playlistUpdateData, externalLink: externalLink}
       if(playlistData?.listaPicId != null && playlistId){
-        console.log(playlistData.listaPicId)
         await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
           method:"DELETE",
           headers:{
@@ -160,7 +156,7 @@ export async function PlaylistAction({request}){
     
 
     if(!playlistId){
-      const res = await fetch(`http://${ip}/playlists/`, {
+      await fetch(`http://${ip}/playlists/`, {
         method:"POST",
         headers:{
           'Content-Type': 'application/json',
@@ -168,11 +164,7 @@ export async function PlaylistAction({request}){
         },
         body: JSON.stringify(playlistUpdateData)
       });
-
-      const resData = await res.json();
-      console.log(resData.id);
     }else{
-      console.log(playlistUpdateData)
       await fetch(`http://${ip}/playlists/${playlistId}`, {
         method:"PUT",
         headers:{

@@ -10,13 +10,14 @@ import defaultMusicPic from "../assets/defaultMusicPic.PNG"
 import pencil from "../assets/pencil.png"
 import playing from "../assets/playing.png"
 import send from "../assets/send.png"
-import { useNavigate } from 'react-router-dom'
-import { checkedPlaylistOptions, doDownload, getUserData, ip, isItunes, loadCheckedPlaylists, loadPlaylistOptions, logedIn, playlistOptions } from '../data'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { checkedPlaylistOptions, doDownload, getUserData, ip, isItunes, loadCheckedPlaylists, loadMusicsByPlaylistId, loadPlaylist, loadPlaylistOptions, logedIn, playlistOptions } from '../data'
 import { isPlaying, pauseById, playById, playingData, playButtonChange, setIsLoad, setPreferById, preferData, removePreferById, data, setFirstPlay, changeEvents, selectingPlaylistId, selectingMusicId, setSelectingMusicId, changeEvent, setSelectingPlaylistId } from '../playerLogic'
 import { getAuthToken } from '../auth'
 
 export default function RowGenerator({ id, userId, phone, kep, cim, eloado, album, megjelenes, mufaj}){
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const onlyAdd = isItunes;
     const isAdmin = getUserData().isAdmin;
     const userData = getUserData()
@@ -122,6 +123,10 @@ export default function RowGenerator({ id, userId, phone, kep, cim, eloado, albu
             }) 
         }
         setOpenPlaylist(false);
+        if(searchParams.get("id")!=null){
+            await loadMusicsByPlaylistId(searchParams.get("id"));
+            changeEvents.forEach(change => change());
+        }
     }
 
     async function reportMessage(){

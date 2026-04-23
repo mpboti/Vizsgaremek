@@ -6,7 +6,7 @@ export async function searchMusicsByName(req: Request, res: Response) {
     try {
         const [resultsList] = await conn.query("SELECT * FROM musics WHERE name LIKE ?", [`%${req.query.name}%`]);
         if (resultsList.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            res.status(300).json({ message: "No musics found." });
         }
         let ertekek = [];
         for(const i of resultsList){
@@ -15,19 +15,19 @@ export async function searchMusicsByName(req: Request, res: Response) {
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Artist not found." });
+                    return res.status(300).json({ message: "Artist not found." });
                 }
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
                 const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Album not found." });
+                    return res.status(300).json({ message: "Album not found." });
                 }
                 if(results2[0].imageFileId != null){
                     const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                     if(results3[0] == 0){
-                        return res.status(404).json({ message: "Album pic not found." });
+                        return res.status(300).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
                 }else if(results2[0].externalLink != null){
@@ -40,13 +40,13 @@ export async function searchMusicsByName(req: Request, res: Response) {
             }
             const [results2] = await conn.query("SELECT fileName, mimeType, filePath FROM music_files WHERE id = ?", i.musicFileId);
             if(results2.length == 0){
-                return res.status(404).json({ message: "Music file not found." });
+                return res.status(300).json({ message: "Music file not found." });
             }
             ertek = {...ertek, musicUrl: (results2[0].filePath).slice(config.baseDir.length)}
             ertekek.push(ertek);
         }
         if (ertekek.length === 0){
-            res.status(404).json({ message: "No musics found." })
+            res.status(300).json({ message: "No musics found." })
         }
         res.status(200).json(ertekek);
         return;
@@ -63,14 +63,14 @@ export async function searchPlaylistsByName(req: Request, res: Response) {
         const [results] = await conn.query("SELECT * FROM playlists WHERE name LIKE ?", [`%${req.query.name}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(404).json({ message: "No playlists found for this user." });
+            res.status(300).json({ message: "No playlists found for this user." });
             return;
         }
         const atributes = new Array();
         for (const result of results){
             const [username] = await conn.query("SELECT users.username FROM users WHERE users.id = ?", [result.ownerId]);
             if (username.length == 0) {
-                res.status(404).json({ message: "User not found." });
+                res.status(300).json({ message: "User not found." });
                 return;
             }
             if(result.playlistPicId!=null){
@@ -96,7 +96,7 @@ export async function searchMusicsByArtist(req: Request, res: Response){
     try {
         const [resultsList] = await conn.query("SELECT musics.id, musics.name, musics.mufaj, musics.uploaderId, musics.artistId, musics.albumId, musics.musicFileId FROM musics INNER JOIN artists ON artists.id = musics.artistId WHERE artists.name LIKE ?", [`%${req.query.name}%`]);
         if (resultsList.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            res.status(300).json({ message: "No musics found." });
         }
         let ertekek = [];
         for(const i of resultsList){
@@ -105,19 +105,19 @@ export async function searchMusicsByArtist(req: Request, res: Response){
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Artist not found." });
+                    return res.status(300).json({ message: "Artist not found." });
                 }
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
                 const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Album not found." });
+                    return res.status(300).json({ message: "Album not found." });
                 }
                 if(results2[0].imageFileId != null){
                     const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                     if(results3[0] == 0){
-                        return res.status(404).json({ message: "Album pic not found." });
+                        return res.status(300).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
                 }else if(results2[0].externalLink != null){
@@ -136,7 +136,7 @@ export async function searchMusicsByArtist(req: Request, res: Response){
             ertekek.push(ertek);
         }
         if (ertekek.length === 0){
-            res.status(404).json({ message: "No musics found." })
+            res.status(300).json({ message: "No musics found." })
         }
         res.status(200).json(ertekek);
         return;
@@ -152,7 +152,7 @@ export async function searchMusicsByAlbum(req: Request, res: Response){
     try {
         const [resultsList] = await conn.query("SELECT musics.id, musics.name, musics.mufaj, musics.uploaderId, musics.artistId, musics.albumId, musics.musicFileId FROM musics INNER JOIN albums ON albums.id = musics.albumId WHERE albums.name LIKE ?", [`%${req.query.name}%`]);
         if (resultsList.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            res.status(300).json({ message: "No musics found." });
         }
         let ertekek = [];
         for(const i of resultsList){
@@ -161,19 +161,19 @@ export async function searchMusicsByAlbum(req: Request, res: Response){
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Artist not found." });
+                    return res.status(300).json({ message: "Artist not found." });
                 }
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
                 const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Album not found." });
+                    return res.status(300).json({ message: "Album not found." });
                 }
                 if(results2[0].imageFileId != null){
                     const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                     if(results3[0] == 0){
-                        return res.status(404).json({ message: "Album pic not found." });
+                        return res.status(300).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
                 }else if(results2[0].externalLink != null){
@@ -186,13 +186,13 @@ export async function searchMusicsByAlbum(req: Request, res: Response){
             }
             const [results2] = await conn.query("SELECT fileName, mimeType, filePath FROM music_files WHERE id = ?", i.musicFileId);
             if(results2.length == 0){
-                return res.status(404).json({ message: "Music file not found." });
+                return res.status(300).json({ message: "Music file not found." });
             }
             ertek = {...ertek, musicUrl: (results2[0].filePath).slice(config.baseDir.length)}
             ertekek.push(ertek);
         }
         if (ertekek.length === 0){
-            res.status(404).json({ message: "No musics found." })
+            res.status(300).json({ message: "No musics found." })
         }
         res.status(200).json(ertekek);
         return;
@@ -208,7 +208,7 @@ export async function searchMusicsByUsername(req: Request, res: Response){
     try {
         const [resultsList] = await conn.query("SELECT musics.id, musics.name, musics.mufaj, musics.uploaderId, musics.artistId, musics.albumId, musics.musicFileId FROM musics INNER JOIN users ON users.id = musics.uploaderId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
         if (resultsList.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            res.status(300).json({ message: "No musics found." });
         }
         let ertekek = [];
         for(const i of resultsList){
@@ -217,19 +217,19 @@ export async function searchMusicsByUsername(req: Request, res: Response){
             if(i.artistId!=null){
                 const [results2] = await conn.query("SELECT name FROM artists WHERE id = ?", i.artistId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Artist not found." });
+                    return res.status(300).json({ message: "Artist not found." });
                 }
                 ertek = {...ertek, artistName: results2[0].name};
             }
             if(i.albumId!=null){
                 const [results2] = await conn.query("SELECT name, releaseDate, externalLink, imageFileId FROM albums WHERE id = ?", i.albumId);
                 if(results2.length == 0){
-                    return res.status(404).json({ message: "Album not found." });
+                    return res.status(300).json({ message: "Album not found." });
                 }
                 if(results2[0].imageFileId != null){
                     const [results3] = await conn.query("SELECT * FROM image_files WHERE id = ?", results2[0].imageFileId);
                     if(results3[0] == 0){
-                        return res.status(404).json({ message: "Album pic not found." });
+                        return res.status(300).json({ message: "Album pic not found." });
                     }
                     ertek = {...ertek, imageUrl: (results3[0].filePath).slice(config.baseDir.length)};
                 }else if(results2[0].externalLink != null){
@@ -242,13 +242,13 @@ export async function searchMusicsByUsername(req: Request, res: Response){
             }
             const [results2] = await conn.query("SELECT fileName, mimeType, filePath FROM music_files WHERE id = ?", i.musicFileId);
             if(results2.length == 0){
-                return res.status(404).json({ message: "Music file not found." });
+                return res.status(300).json({ message: "Music file not found." });
             }
             ertek = {...ertek, musicUrl: (results2[0].filePath).slice(config.baseDir.length)}
             ertekek.push(ertek);
         }
         if (ertekek.length === 0){
-            res.status(404).json({ message: "No musics found." })
+            res.status(300).json({ message: "No musics found." })
         }
         
         res.status(200).json(ertekek);
@@ -266,7 +266,7 @@ export async function searchPlaylistsByUsername(req: Request, res: Response){
         const [results] = await conn.query("SELECT playlists.id, playlists.name, playlists.ownerId, playlists.playlistPicId, playlists.externalLink, users.username FROM playlists INNER JOIN users ON users.id = playlists.ownerId WHERE users.username LIKE ?", [`%${req.query.name}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(404).json({ message: "No playlists found for this user." });
+            res.status(300).json({ message: "No playlists found for this user." });
             return;
         }
         const atributes = new Array();
@@ -296,7 +296,7 @@ export async function searchReportsByMessage(req: Request, res: Response){
         const [results] = await conn.query("SELECT * FROM reports WHERE message LIKE ?", [`%${req.query.message}%`]);
         res.setHeader('Cache-Control', 'no-store');
         if (results.length == 0){
-            res.status(404).json({ message: "No reports found." });
+            res.status(300).json({ message: "No reports found." });
             return;
         }
         
@@ -315,7 +315,7 @@ export async function searchUsersByUsername(req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM users WHERE username LIKE ?", [`%${req.query.username}%`]);
         if (results.length === 0) {
-                res.status(404).json({ message: "No users found." });
+                res.status(300).json({ message: "No users found." });
             }
         res.status(200).json(results);
     } catch (error) {
@@ -329,7 +329,7 @@ export async function searchMusicByNameInPlaylist(req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM playlists WHERE playlists.creatorId = ? AND playlists.name LIKE ?", [req.query.creatorId, `%${req.query.name}%`]);
         if (results.length === 0) {
-            res.status(404).json({ message: "No playlists found." });
+            res.status(300).json({ message: "No playlists found." });
         }
         res.status(200).json(results);
     } catch (error) {
@@ -343,7 +343,7 @@ export async function searchMusicByNameInAlbum(req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM musics WHERE albumId = ? AND name LIKE ?", [req.query.albumId, `%${req.query.name}%`]);
         if (results.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            res.status(300).json({ message: "No musics found." });
         }
         res.status(200).json(results);
     } catch (error) {
@@ -358,7 +358,7 @@ export async function searchMusicByNameByArtist(req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM musics WHERE artistId = ? AND name LIKE ?", [req.query.artistId, `%${req.query.name}%`]);
         if (results.length === 0) {
-            res.status(404).json({ message: "No musics found." });
+            res.status(300).json({ message: "No musics found." });
         }
         res.status(200).json(results);
     } catch (error) {
@@ -373,7 +373,7 @@ export async function searchAlbumsByNameByArtist(req: Request, res: Response) {
     try {
         const [results] = await conn.query("SELECT * FROM albums WHERE artistId = ? AND name LIKE ?", [req.query.artistId, `%${req.query.name}%`]);
         if (results.length === 0) {
-            res.status(404).json({ message: "No albums found." });
+            res.status(300).json({ message: "No albums found." });
         }
         res.status(200).json(results);
     } catch (error) {

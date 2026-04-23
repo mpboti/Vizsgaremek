@@ -254,7 +254,6 @@ export default function AdminMusicEdit(){
     }
 
     function updatePage(){
-      console.log(getReports());
       setReportsData(getReports());
     }
 
@@ -292,8 +291,8 @@ export default function AdminMusicEdit(){
         <div className="downFlex">
           <input type="text" name="mufaj" placeholder="Zene műfaja" value={mufajInput} onChange={(e) => {setMufajInput(e.target.value); setOpenMufaj(true);}} onFocus={() => setOpenMufaj(true)} onBlur={() => setTimeout(() => setOpenMufaj(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openMufaj ? {display: "none"} : {}}>
-            {mufajOptions.filter((elem) => elem.toLowerCase().includes(mufajInput.toLowerCase())).map((mufaj) => (
-              <div key={mufaj} className="labelElem" onMouseDown={() => { setMufajInput(mufaj); setOpenMufaj(false);  }}>
+            {mufajOptions.filter((elem) => elem.toLowerCase().includes(mufajInput.toLowerCase())).map((mufaj, index) => (
+              <div key={index} className="labelElem" onMouseDown={() => { setMufajInput(mufaj); setOpenMufaj(false);  }}>
                 {mufaj}
               </div>
             ))}
@@ -322,8 +321,8 @@ export default function AdminMusicEdit(){
             <div className="downFlex">
               <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true)}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
               <div className="selection" style={!openAlbum ? {display: "none"} : {}}>
-                {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album) => (
-                  <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albumOptions.ids[albumOptions.albums.indexOf(album)])}}>
+                {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
+                  <div key={index} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albumOptions.ids[albumOptions.albums.indexOf(album)])}}>
                     {album}
                   </div>
                 ))}
@@ -356,8 +355,8 @@ export default function AdminMusicEdit(){
           <div className="downFlex">
             <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true); setAlbums(albumOptions);}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
             <div className="selection" style={!openArtist ? {display: "none"} : {}}>
-              {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist) => (
-                <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[artistOptions.artists.indexOf(artist)])}}>
+              {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist, index) => (
+                <div key={index} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[artistOptions.artists.indexOf(artist)])}}>
                   {artist}
                 </div>
               ))}
@@ -578,7 +577,6 @@ export async function AdminMusicAction({request}){
           isDifferent = true;
         }
         if(isDifferent){
-          console.log(albumBody)
           const editAlbum = await fetch(`http://${ip}/albums/${albumId}`, {
             method: 'PUT',
             headers: {

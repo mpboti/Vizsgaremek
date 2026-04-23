@@ -184,8 +184,8 @@ export default function CreateOrEditMusic(){
         <div className="downFlex">
           <input type="text" name="eloado" placeholder="Előadó neve" value={artistInput} onChange={(e) => {setArtistInput(e.target.value); setOpenArtist(true); setAlbums(albumOptions);}} onFocus={() => setOpenArtist(true)} onBlur={() => setTimeout(() => setOpenArtist(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openArtist ? {display: "none"} : {}}>
-            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist) => (
-              <div key={artist} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[artistOptions.artists.indexOf(artist)])}}>
+            {artistOptions.artists.filter((elem) => elem.toLowerCase().includes(artistInput.toLowerCase())).map((artist, index) => (
+              <div key={index} className="labelElem" onMouseDown={() => { setArtistInput(artist); setOpenArtist(false); albumFiltering(artistOptions.ids[artistOptions.artists.indexOf(artist)])}}>
                 {artist}
               </div>
             ))}
@@ -195,8 +195,8 @@ export default function CreateOrEditMusic(){
         <div className="downFlex">
           <input type="text" name="album" placeholder="Album neve" value={albumInput} onChange={(e) => {setAlbumInput(e.target.value); setOpenAlbum(true); clearAlbum()}} onFocus={() => setOpenAlbum(true)} onBlur={() => setTimeout(() => setOpenAlbum(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openAlbum ? {display: "none"} : {}}>
-            {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album) => (
-              <div key={album} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albumOptions.ids[albumOptions.albums.indexOf(album)]);}}>
+            {albums.albums.filter((elem) => elem.toLowerCase().includes(albumInput.toLowerCase())).map((album, index) => (
+              <div key={index} className="labelElem" onMouseDown={() => { setAlbumInput(album); setOpenAlbum(false); getAlbum(albumOptions.ids[albumOptions.albums.indexOf(album)]);}}>
                 {album}
               </div>
             ))}
@@ -211,7 +211,7 @@ export default function CreateOrEditMusic(){
             <button type="button" onClick={() => setOpenPlaylist(!openPlaylist)} className="lenyiloGomb" >Lejátszási listák  <img src={openPlaylist?up:down} alt="Lejátszási listák ⬇" className="upDownImg"/></button>
             <div className="selection" style={!openPlaylist ? {display: "none"} : {}}>
               {playlistOptions.ids.map((option, index) => (
-                <label key={option} className="labelElem">
+                <label key={index} className="labelElem">
                   <input type="checkbox" name="playlists" value={option} defaultChecked={mode=="edit"?checkedPlaylistOptions.ids[checkedPlaylistOptions.ids.indexOf(option)]==option:option==playlistId}/>
                   {playlistOptions.playlists[index]}
                 </label>
@@ -223,8 +223,8 @@ export default function CreateOrEditMusic(){
         <div className="downFlex">
           <input type="text" name="mufaj" placeholder="Zene műfaja" value={mufajInput} onChange={(e) => {setMufajInput(e.target.value); setOpenMufaj(true);}} onFocus={() => setOpenMufaj(true)} onBlur={() => setTimeout(() => setOpenMufaj(false), 100)} autoComplete="off" autoCorrect="off" spellCheck="false"/>
           <div className="selection" style={!openMufaj ? {display: "none"} : {}}>
-            {mufajOptions.filter((elem) => elem.toLowerCase().includes(mufajInput.toLowerCase())).map((mufaj) => (
-              <div key={mufaj} className="labelElem" onMouseDown={() => { setMufajInput(mufaj); setOpenMufaj(false);  }}>
+            {mufajOptions.filter((elem) => elem.toLowerCase().includes(mufajInput.toLowerCase())).map((mufaj, index) => (
+              <div key={index} className="labelElem" onMouseDown={() => { setMufajInput(mufaj); setOpenMufaj(false);  }}>
                 {mufaj}
               </div>
             ))}

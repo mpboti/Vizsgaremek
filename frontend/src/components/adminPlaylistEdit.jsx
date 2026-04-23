@@ -98,7 +98,6 @@ export default function AdminPlaylistEdit(){
   }
   async function deletePlaylist() {
     if(playlistData?.listaPicId != null && playlistData.id){
-      console.log(playlistData.listaPicId)
       await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
         method:"DELETE",
         headers:{
@@ -133,7 +132,6 @@ export default function AdminPlaylistEdit(){
   }
 
   function updatePage(){
-    console.log(getReports());
     setReportsData(getReports());
   }
 
@@ -230,7 +228,6 @@ export async function AdminPlaylistAction({request}){
         }
       });
       const playlistData = await res.json();
-      console.log(playlistData);
       let playlistPicId=null;
       let externalLink=null;
       try{
@@ -247,10 +244,8 @@ export async function AdminPlaylistAction({request}){
             externalLink=data.get("playlistPic")
           }else if(currentPlaylistPicSetting == defaultPlaylistPic){
             playlistPicId = playlistData.playlistPicId;
-            console.log(playlistPicId)
           }else if(!currentExternalLink && currentPlaylistPicSetting != defaultPlaylistPic){
             if(playlistData?.listaPicId != null && playlistId){
-              console.log(playlistData.listaPicId)
               await fetch(`http://${ip}/files/image/${playlistData.listaPicId}`, {
                 method:"DELETE",
                 headers:{
@@ -293,7 +288,6 @@ export async function AdminPlaylistAction({request}){
         });
 
       const resData = await res.json();
-      console.log(resData.id);
       }else{
         await fetch(`http://${ip}/playlists/${playlistId}`, {
           method:"PUT",
@@ -340,7 +334,6 @@ export async function AdminPlaylistAction({request}){
         const responseData = await response.json();
         bodyData = {...bodyData, imageFileId: responseData.id}
       }
-      console.log(bodyData);
       if(Object.keys(bodyData).length > 0){
         const res = await fetch(`http://${ip}/users/${editingUserData.id}`, {
           method: 'PUT',

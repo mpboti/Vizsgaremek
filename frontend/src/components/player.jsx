@@ -19,8 +19,9 @@ import add from "../assets/add.png";
 import defaultMusicPic from "../assets/defaultMusicPic.png"
 import { changeEvents, firstLoad, isLoopList, isOneLoop, isPlaying, isRandomized, isSetValue, isUploadPlay, loadSettings, musicVolume, nextMusic, notLoggedInVolume, pauseById, playById, playerChange, playingData, playingMusic, prevMusic, randomize, selectingPlaylistId, setIsLoad, setIsLoopList, setIsOneLoop, setIsSetValue, setMusicVolume, setNotLoggedInVolume, setSelectingPlaylistId, settingData, sliderPause, sliderPlay, updateVolume, uploadPause, uploadPlay } from "../playerLogic";
 import { isFading } from "../playerLogic";  // Importáld az új flag-et
-import { checkedPlaylistOptions, doDownload, getUserData, ip, loadCheckedPlaylists, loadPlaylistOptions, logedIn, logout, playlistOptions } from "../data";
+import { checkedPlaylistOptions, doDownload, getUserData, ip, loadCheckedPlaylists, loadMusicsByPlaylistId, loadPlaylistOptions, logedIn, logout, playlistOptions } from "../data";
 import { getAuthToken } from "../auth";
+import { useSearchParams } from "react-router-dom";
 
 export default function Player() {
     function hosszCalculate(){
@@ -31,6 +32,7 @@ export default function Player() {
         if(t<10){h=0};
         return g+":"+h+t
     }
+    const [searchParams] = useSearchParams();
     const [hosszValue, setHosszValue] = useState(10);
     const [currentValue, setCurrentValue] = useState(0);
     const hossz = hosszCalculate()!="NaN:NaN"?hosszCalculate():"0:00";
@@ -55,7 +57,7 @@ export default function Player() {
         } else {
             setMuteButt(volumeIcon3);
         }
-        console.log("volume: "+currentVolume+"%");
+        //console.log("volume: "+currentVolume+"%");
         await setMusicVolume(currentVolume);
         updateVolume(currentVolume);
     }
@@ -305,7 +307,7 @@ export default function Player() {
             });
             await loadSettings();
         }
-        console.log("volume: "+volume+"%");
+        //console.log("volume: "+volume+"%");
     }
 
     function timeChange(){
@@ -368,6 +370,10 @@ export default function Player() {
         setOpenPlaylist(false);
         setSelectingPlaylistId(-1);
         changeEvents.forEach(change => change());
+        if(searchParams.get("id")!=null){
+            await loadMusicsByPlaylistId(searchParams.get("id"));
+            changeEvents.forEach(change => change());
+        }
     }
 
     return (
